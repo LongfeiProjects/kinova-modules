@@ -31,7 +31,7 @@ POSITION_TYPE kinova::InitPositionType(int value)
 }
 
 // public function//
-kinova::kinova()
+kinova::kinova() : stats(1)
 {
     //DEBUG
 	std::cout<<"dentro costruttore kinova"<<std::endl;
@@ -76,7 +76,7 @@ kinova::kinova()
 				std::cout << "Cannot initializes the API." << std::endl;
 			}
 
-			stats=kinova_status(1);
+            this->stats.LaunchThread();
 
 		}
 
@@ -87,7 +87,7 @@ kinova::kinova()
 
 kinova::~kinova(void)
 {
-	stats.~kinova_status();
+	//stats.~kinova_status();
 	(*MyStopControlAPI)();
 	(*MyCloseAPI)();
 }

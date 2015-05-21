@@ -9,7 +9,7 @@ kinova_status::kinova_status()
 
 }
 
-kinova_status::kinova_status(int i)
+kinova_status::kinova_status(int i) : running(true)
 {
 	//DEBUG
 		std::cout<<"dentro costruttore kinova_status"<<std::endl;
@@ -17,34 +17,46 @@ kinova_status::kinova_status(int i)
 	void * APIhandle = dlopen("Kinova.API.USBCommandLayerUbuntu.so",RTLD_NOW|RTLD_GLOBAL);
 	MyGetGeneralInformations = (int (*)(GeneralInformations &)) dlsym(APIhandle,"GetGeneralInformations");
 	MyGetGlobalTrajectoryInfo = (int (*)(TrajectoryFIFO &)) dlsym(APIhandle,"GetGlobalTrajectoryInfo");
-	running = true;
-
-	window.create(sf::VideoMode(400,400), "stats");
-	sf::Font font;
-	if (!font.loadFromFile("arial.ttf"))
-	{
-		std::cout<<"error in loading font"<<std::endl;// error...
-	}
-	// here i start my thread
-	reader_stats = new boost::thread(boost::bind(&kinova_status::Reading,this));
+	reader_stats = NULL;
 	//DEBUG
 	std::cout<<"fine costruttore kinova status"<<std::endl;
 	//---
 }
 
-kinova_status::~kinova_status()
+// copy constructor. necessary with atomic variable
+/*kinova_status::kinova_status(kinova_status & sts)
 {
+	this->MyGetGeneralInformations = sts.MyGetGeneralInformations;
+	this->MyGetGlobalTrajectoryInfo = sts.MyGetGlobalTrajectoryInfo;
+	this->reader_stats = sts.reader_stats;
+	this->running.;
+
+}*/
+
+/*kinova_status::~kinova_status()
+{
+	this->reader_stats->join();
+}*/
+
+
+void kinova_status::LaunchThread()
+{
+	this->reader_stats = new boost::thread(boost::bind(&kinova_status::Reading,this));
+}
+
+
+void kinova_status::CloseThread()
+{
+	this->running.store(false,boost::memory_order_release);
 	this->reader_stats->join();
 }
 
 void kinova_status::Reading()
 {
-	int result;
-
-	while(this->running)
+	while(this->running.load(boost::memory_order_acquire))
 	{
 		GeneralInformations cur;
-		result = (*MyGetGeneralInformations)(cur);
+		(*MyGetGeneralInformations)(cur);
 		//this->ReadTimeStamp(cur);
 		//this->ReadJoints(cur);
 		this->ReadCartesian(cur);
@@ -53,6 +65,7 @@ void kinova_status::Reading()
 		//---
 
 	}
+	std::cout<<"im out thread"<<std::endl;
 
 }
 
@@ -104,11 +117,11 @@ void kinova_status::ReadCartesian(GeneralInformations & info)
 	this->ang_position.push_back(app);
 
 	//DEBUG
-	/*for(unsigned int i =0;i<6;i++)
+	for(unsigned int i =0;i<6;i++)
 	{
 		std::cout <<app[i]<<" ";
 	}
-	std::cout << std::endl;*/
+	std::cout << std::endl;
 	//---
 
 	app[0]=info.Force.CartesianPosition.X;
@@ -130,11 +143,6 @@ void kinova_status::ReadCurrents(GeneralInformations & info)
 	app[3]=info.Current.Actuators.Actuator4;
 	app[4]=info.Current.Actuators.Actuator5;
 	app[5]=info.Current.Actuators.Actuator6;
-}
-
-void kinova_status::StopRun()
-{
-	this->running = false;
 }
 
 

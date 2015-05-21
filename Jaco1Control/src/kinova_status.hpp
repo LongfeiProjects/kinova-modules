@@ -15,6 +15,7 @@
 #include <armadillo>
 #include <boost/thread.hpp>
 #include <boost/date_time.hpp>
+#include <boost/atomic.hpp>
 #include <SFML/Window.hpp>
 #include <SFML/Graphics.hpp>
 
@@ -62,14 +63,16 @@ namespace kinenv
 			std::vector<arma::vec > motor_ampere;
 			std::vector<double> robot_time;
 			std::vector<boost::posix_time::ptime> computer_time;
-			sf::Window window;
-			sf::Text text;
-			bool running;
+			boost::atomic<bool> running;
 
 			kinova_status();
             kinova_status(int i);
-			~kinova_status();
+            // copy constructor
+            kinova_status(kinova_status & sts);
+			//~kinova_status();
 
+			void LaunchThread();
+			void CloseThread();
 		    void Reading();
 
 		    void ReadTimeStamp(GeneralInformations & info);
@@ -79,7 +82,7 @@ namespace kinenv
 
 		    void PrintStats();
 
-		    void StopRun();
+
 
 
 	};
