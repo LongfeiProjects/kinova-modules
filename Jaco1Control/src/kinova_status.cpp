@@ -9,7 +9,9 @@ kinova_status::kinova_status()
 
 }
 
-kinova_status::kinova_status(int i) : running(true)
+kinova_status::kinova_status(int i)
+: running(true)
+, ang_pos(0)
 {
 	//DEBUG
 		std::cout<<"dentro costruttore kinova_status"<<std::endl;
@@ -18,6 +20,7 @@ kinova_status::kinova_status(int i) : running(true)
 	MyGetGeneralInformations = (int (*)(GeneralInformations &)) dlsym(APIhandle,"GetGeneralInformations");
 	MyGetGlobalTrajectoryInfo = (int (*)(TrajectoryFIFO &)) dlsym(APIhandle,"GetGlobalTrajectoryInfo");
 	reader_stats = NULL;
+	log_stats = NULL;
 	//DEBUG
 	std::cout<<"fine costruttore kinova status"<<std::endl;
 	//---
@@ -42,6 +45,7 @@ kinova_status::kinova_status(int i) : running(true)
 void kinova_status::LaunchThread()
 {
 	this->reader_stats = new boost::thread(boost::bind(&kinova_status::Reading,this));
+	this->log_stats = new boost::thread(boost::bind(&kinova_status::Logging,this));
 }
 
 
@@ -49,8 +53,10 @@ void kinova_status::CloseThread()
 {
 	this->running.store(false,boost::memory_order_release);
 	this->reader_stats->join();
+	this->log_stats->join();
 }
 
+// KINOVA API DEPENDANT //
 void kinova_status::Reading()
 {
 	while(this->running.load(boost::memory_order_acquire))
@@ -66,9 +72,21 @@ void kinova_status::Reading()
 
 	}
 	std::cout<<"im out thread"<<std::endl;
+}
+
+void kinova_status::Logging()
+{
+	while(this->running.load(boost::memory_order_acquire))
+	{
+
+	}
+
+
 
 }
 
+
+// FROM THIS POINT FUNCTIONS KINOVA API DEPENDANT //
 
 void kinova_status::ReadTimeStamp(GeneralInformations & info)
 {

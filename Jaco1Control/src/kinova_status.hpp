@@ -14,10 +14,15 @@
 #include "Kinova.API.UsbCommandLayerUbuntu.h"
 #include <armadillo>
 #include <boost/thread.hpp>
-#include <boost/date_time.hpp>
+#include <boost/lockfree/queue.hpp>
 #include <boost/atomic.hpp>
+#include <boost/date_time.hpp>
 #include <SFML/Window.hpp>
 #include <SFML/Graphics.hpp>
+
+typedef boost::lockfree::queue<std::vector<double>* > DataFlow;
+typedef std::list<std::vector<double> >               DataStore;
+typedef boost::atomic<std::vector<double>* >          DataLast;
 
 
 namespace kinenv
@@ -36,13 +41,9 @@ namespace kinenv
 			//int (*MyGetPositionCurrentActuators)(std::vector<float> &data);
 			//int (*MyGetAngularVelocity)(AngularPosition &);
 			/*int (*MyGetForcesInfo)(ForcesInfo &Response);
-
-
 			// cartesian space
 			int (*MyGetCartesianPosition)(CartesianPosition &);
 			int (*MyGetCartesianForce)(CartesianPosition &);
-
-
 			// others
 			int (*MyGetAngularCommand)(AngularPosition &);
 			int (*MyGetCartesianCommand)(CartesianPosition &);
@@ -55,15 +56,17 @@ namespace kinenv
 
 
 		public:
-			boost::thread* reader_stats;
-			std::vector<arma::vec > ang_position;
-			std::vector<arma::vec > ang_torque;
-			std::vector<arma::vec > cart_position;
-			std::vector<arma::vec > cart_force;
-			std::vector<arma::vec > motor_ampere;
-			std::vector<double> robot_time;
-			std::vector<boost::posix_time::ptime> computer_time;
 			boost::atomic<bool> running;
+			boost::thread* reader_stats;
+			boost::thread* log_stats;
+
+			DataStore ds_ang_pos;	DataFlow ang_pos;
+			DataStore ds_ang_tau;	DataFlow ang_tau;
+			DataStore ds_cart_f;	DataFlow cart_f;
+			DataStore ds_mot_amp;	DataFlow mot_amp;
+			DataStore ds_comp_t;	DataFlow comp_t;
+			DataStore ds_cart_pos;
+			DataStore robot_time;
 
 			kinova_status();
             kinova_status(int i);
@@ -74,6 +77,7 @@ namespace kinenv
 			void LaunchThread();
 			void CloseThread();
 		    void Reading();
+		    void Logging();
 
 		    void ReadTimeStamp(GeneralInformations & info);
 		    void ReadJoints(GeneralInformations & info);
