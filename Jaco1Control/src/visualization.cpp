@@ -3,9 +3,10 @@
 visualization::visualization()
 {}
 
-visualization::visualization(int NJOINTS,int chunk_dim,PLFLT x_min,PLFLT x_max,PLFLT low_thresh,PLFLT high_thresh,std::vector<PLFLT> y_min, std::vector<PLFLT>y_max,
+visualization::visualization(int NBLOCKS,int NJOINTS,int chunk_dim,PLFLT x_min,PLFLT x_max,PLFLT low_thresh,PLFLT high_thresh,std::vector<PLFLT> y_min, std::vector<PLFLT>y_max,
    	        					std::vector<std::string> label,std::vector<std::string> title)
 {
+	this->NBLOCKS = NBLOCKS;
 	this->NJOINTS = NJOINTS;
 	this->chunk_dim = chunk_dim;
 	this->x_min = x_min;
@@ -23,17 +24,25 @@ visualization::visualization(int NJOINTS,int chunk_dim,PLFLT x_min,PLFLT x_max,P
 	pls->setopt("db", "");
 	pls->setopt("np", "");
 	pls->init();
-	pls->ssub(1,3);
+	pls->ssub(1,NBLOCKS);
+	cur_size = 1;
+    // initialize vector of buffer
+	this->time = boost::circular_buffer<PLFLT>(chunk_dim);
+	buffer app(NJOINTS);
+	for(int i =0;i<NJOINTS;i++)
+	{
+		app[i] = time;
+	}
+	for(int i =0;i<NBLOCKS;i++)
+	{
+		this->buf.push_back(app);
+	}
+
 }
 
-
-
-
-
-void visualization::Update(std::vector<std::vector<double>* > lastval)
+// update order: time,joints,torque,current
+void visualization::Update(std::vector<std::vector<double>* > & lastval)
 {
-	// update order: time,joints,torque,current
-
 	// update time
 	time.push_back(lastval[0]->at(0));
 	// update the other value
@@ -54,14 +63,17 @@ void visualization::Update(std::vector<std::vector<double>* > lastval)
 }
 
 
-void visualization::Plot(int blocks)
+void visualization::Plot()
 {
-	pls->adv(blocks + 1);
-	pls->col0( 1 );
-	pls->env0(x_min, x_max, y_min[blocks], y_max[blocks], 0, 0 );
-	pls->col0( 2 );
-	pls->lab("time",label[blocks].c_str(),title[blocks].c_str());
-	pls->col0( 3 );
-	for(int i = 0;i<NJOINTS;i++)
-	pls->line(cur_size , time.linearize(), buf[blocks][i].linearize());
+	for(int i = 0; i < this->NBLOCKS;i++)
+	{
+		pls->adv(i + 1);
+		pls->col0( 1 );
+		pls->env0(x_min, x_max, y_min[i], y_max[i], 0, 0 );
+		pls->col0( 2 );
+		pls->lab("time",label[i].c_str(),title[i].c_str());
+		pls->col0( 3 );
+		for(int j = 0;j<NJOINTS;j++)
+			pls->line(cur_size , time.linearize(), buf[i][j].linearize());
+	}
 }
