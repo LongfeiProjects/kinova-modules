@@ -21,12 +21,12 @@ kinova_status::kinova_status(int i)
 	int NJOINTS = 6;
 	int chunk_dim = 500;
 	PLFLT x_min = 0;
-	PLFLT x_max = 10;
-	PLFLT low_thresh = 2;
-	PLFLT high_thresh = 2;
-	static const double d_a[] = {-180,-30,-10};
+	PLFLT x_max = 100;
+	PLFLT low_thresh = 5;
+	PLFLT high_thresh = 5;
+	static const double d_a[] = {-360,-30,-10};
 	std::vector<PLFLT> y_min(d_a, end(d_a));
-	static const double d_b[] = {180,30,10};
+	static const double d_b[] = {360,30,10};
 	std::vector<PLFLT>y_max(d_b, end(d_b));
 	const char *s_a[] = {"deg/s","Nm","A"};
 	std::vector<std::string> label(s_a, end(s_a));
@@ -53,75 +53,30 @@ kinova_status::kinova_status(int i)
 void kinova_status::LaunchThread()
 {
 	this->reader_stats = new boost::thread(boost::bind(&kinova_status::Reading,this));
-	//this->log_stats = new boost::thread(boost::bind(&kinova_status::Logging,this));
+	this->log_stats = new boost::thread(boost::bind(&kinova_status::Logging,this));
 }
 
 void kinova_status::CloseThread()
 {
 	this->running.store(false,boost::memory_order_release);
 	this->reader_stats->join();
-	//this->log_stats->join();
+	this->log_stats->join();
 	std::cout<<"close all thread"<<std::endl;
 }
 
 // KINOVA API DEPENDANT // // in reading i update the value for control
 void kinova_status::Reading()
 {
-	//DEBUG
-	std::cout<< "begin reading"<<std::endl;
-	//---
 	this->tStart = clock();
-	//DEBUG
-	std::cout<< "after tstart = clock"<<std::endl;
-	//---
 	while(this->running.load(boost::memory_order_acquire))
 	//while(true)
 	{
-		//DEBUG
-		//std::cout<<"begin of reading cycle"<<std::endl;
-		//---
 		GeneralInformations cur;
 		(*MyGetGeneralInformations)(cur);
 		this->ReadTimeStamp(cur);
 		this->ReadJoints(cur);
 		this->ReadCartesian(cur);
 		this->ReadCurrents(cur);
-		//DEBUG
-		std::vector<double> * ptr;
-		this->comp_t.pop(ptr);
-		std::cout<<"time   ";
-		for(int i = 0 ;i<1;i++)
-		{
-			std::cout << (*ptr)[i]<< " ";
-		}
-		std::cout<<std::endl;
-
-		this->ang_pos.pop(ptr);
-		std::cout<<"ang pos   ";
-		for(int i = 0 ;i<6;i++)
-		{
-			std::cout << (*ptr)[i]<< " ";
-		}
-		std::cout<<std::endl;
-
-		this->ang_tau.pop(ptr);
-		std::cout<<"ang tau   ";
-		for(int i = 0 ;i<6;i++)
-		{
-			std::cout << (*ptr)[i]<< " ";
-		}
-		std::cout<<std::endl;
-
-		this->mot_amp.pop(ptr);
-		std::cout<<"mot_amp   ";
-		for(int i = 0 ;i<6;i++)
-		{
-			std::cout << (*ptr)[i]<< " ";
-		}
-		std::cout<<std::endl;
-
-		//std::cout<<"end of reading cycle"<<std::endl;
-		//---
 	}
 	std::cout<<"im out of Reading thread"<<std::endl;
 }
@@ -138,31 +93,22 @@ void kinova_status::Logging()
 			vis.Update(visvec);
 			vis.Plot();
 		}
-
 	}
 	std::cout<<"im out of Logging thread"<<std::endl;
 }
 
-// FROM THIS POINT FUNCTIONS KINOVA API DEPENDANT //
+// FROM THIS POINT FUNCTIONS are KINOVA API DEPENDANT //
 
 void kinova_status::ReadTimeStamp(GeneralInformations & info)
 {
-    //DEBUG
-	//std::cout<<"1"<<std::endl;
-	//---
     std::vector<double> t_rob(1),t_cur(1);
 
     t_cur[0] = (double)((clock() - tStart)/CLOCKS_PER_SEC);
     t_rob[0] = info.TimeFromStartup;
-    //DEBUG
-   	//std::cout<<"2"<<std::endl;
-   	//---
+
 	this->ds_comp_t.push_back(t_cur);
 	// i can write for the vis less often then the other op
 	this->comp_t.push( &(ds_comp_t.back()) );
-	 //DEBUG
-	//std::cout<<"3"<<std::endl;
-	//---
 	this->ds_robot_t.push_back(t_rob);
 
 }
@@ -233,7 +179,7 @@ int kinova_status::Read4Vis(std::vector<std::vector<double>* > & lastval)
 {
 	std::vector<double>* app;
 
-	if( !this->comp_t.empty() && !this->ang_pos.empty() && !this->ang_tau.empty() && !this->mot_amp.empty())
+	if( !(this->comp_t.empty()) && !(this->ang_pos.empty()) && !(this->ang_tau.empty()) && !(this->mot_amp.empty()) )
 	{
 		//copy last time
 		this->comp_t.pop(app);
