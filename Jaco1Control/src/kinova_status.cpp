@@ -53,32 +53,77 @@ kinova_status::kinova_status(int i)
 void kinova_status::LaunchThread()
 {
 	this->reader_stats = new boost::thread(boost::bind(&kinova_status::Reading,this));
-	this->log_stats = new boost::thread(boost::bind(&kinova_status::Logging,this));
+	//this->log_stats = new boost::thread(boost::bind(&kinova_status::Logging,this));
 }
 
 void kinova_status::CloseThread()
 {
 	this->running.store(false,boost::memory_order_release);
 	this->reader_stats->join();
-	this->log_stats->join();
+	//this->log_stats->join();
+	std::cout<<"close all thread"<<std::endl;
 }
 
 // KINOVA API DEPENDANT // // in reading i update the value for control
 void kinova_status::Reading()
 {
+	//DEBUG
+	std::cout<< "begin reading"<<std::endl;
+	//---
 	this->tStart = clock();
+	//DEBUG
+	std::cout<< "after tstart = clock"<<std::endl;
+	//---
 	while(this->running.load(boost::memory_order_acquire))
+	//while(true)
 	{
+		//DEBUG
+		//std::cout<<"begin of reading cycle"<<std::endl;
+		//---
 		GeneralInformations cur;
 		(*MyGetGeneralInformations)(cur);
 		this->ReadTimeStamp(cur);
 		this->ReadJoints(cur);
 		this->ReadCartesian(cur);
-		//this->ReadCurrents(cur);
+		this->ReadCurrents(cur);
 		//DEBUG
+		std::vector<double> * ptr;
+		this->comp_t.pop(ptr);
+		std::cout<<"time   ";
+		for(int i = 0 ;i<1;i++)
+		{
+			std::cout << (*ptr)[i]<< " ";
+		}
+		std::cout<<std::endl;
+
+		this->ang_pos.pop(ptr);
+		std::cout<<"ang pos   ";
+		for(int i = 0 ;i<6;i++)
+		{
+			std::cout << (*ptr)[i]<< " ";
+		}
+		std::cout<<std::endl;
+
+		this->ang_tau.pop(ptr);
+		std::cout<<"ang tau   ";
+		for(int i = 0 ;i<6;i++)
+		{
+			std::cout << (*ptr)[i]<< " ";
+		}
+		std::cout<<std::endl;
+
+		this->mot_amp.pop(ptr);
+		std::cout<<"mot_amp   ";
+		for(int i = 0 ;i<6;i++)
+		{
+			std::cout << (*ptr)[i]<< " ";
+		}
+		std::cout<<std::endl;
+
+		//std::cout<<"end of reading cycle"<<std::endl;
 		//---
 	}
-	std::cout<<"im out thread"<<std::endl;
+	std::cout<<"im out of Reading thread"<<std::endl;
 }
 
 // in logging i update the value for logging and visualization
@@ -87,28 +132,37 @@ void kinova_status::Logging()
 	while(this->running.load(boost::memory_order_acquire))
 	{
 		std::vector<std::vector<double>* > visvec;
-		this->Read4Vis(visvec);
-		vis.Update(visvec);
-		vis.Plot();
+		int readckeck=this->Read4Vis(visvec);
+		if(readckeck)
+		{
+			vis.Update(visvec);
+			vis.Plot();
+		}
 
 	}
-
+	std::cout<<"im out of Logging thread"<<std::endl;
 }
 
 // FROM THIS POINT FUNCTIONS KINOVA API DEPENDANT //
 
 void kinova_status::ReadTimeStamp(GeneralInformations & info)
 {
-
+    //DEBUG
+	//std::cout<<"1"<<std::endl;
+	//---
     std::vector<double> t_rob(1),t_cur(1);
 
-    t_cur[0] = (double)(clock() - tStart)/CLOCKS_PER_SEC;
+    t_cur[0] = (double)((clock() - tStart)/CLOCKS_PER_SEC);
     t_rob[0] = info.TimeFromStartup;
-
+    //DEBUG
+   	//std::cout<<"2"<<std::endl;
+   	//---
 	this->ds_comp_t.push_back(t_cur);
 	// i can write for the vis less often then the other op
 	this->comp_t.push( &(ds_comp_t.back()) );
-
+	 //DEBUG
+	//std::cout<<"3"<<std::endl;
+	//---
 	this->ds_robot_t.push_back(t_rob);
 
 }
@@ -175,22 +229,31 @@ void kinova_status::ReadCurrents(GeneralInformations & info)
 	this->mot_amp.push( &(ds_mot_amp.back()) );
 }
 
-void kinova_status::Read4Vis(std::vector<std::vector<double>* > & lastval)
+int kinova_status::Read4Vis(std::vector<std::vector<double>* > & lastval)
 {
 	std::vector<double>* app;
-	//copy last time
-	this->comp_t.pop(app);
-	lastval.push_back(app);
-	//copy joint
-	this->ang_pos.pop(app);
-	lastval.push_back(app);
-	// copy tau
-	this->ang_tau.pop(app);
-	lastval.push_back(app);
-	// copy mot ampere
-	this->mot_amp.pop(app);
-	lastval.push_back(app);
 
+	if( !this->comp_t.empty() && !this->ang_pos.empty() && !this->ang_tau.empty() && !this->mot_amp.empty())
+	{
+		//copy last time
+		this->comp_t.pop(app);
+		lastval.push_back(app);
+		//copy joint
+		this->ang_pos.pop(app);
+		lastval.push_back(app);
+		// copy tau
+		this->ang_tau.pop(app);
+		lastval.push_back(app);
+		// copy mot ampere
+		this->mot_amp.pop(app);
+		lastval.push_back(app);
+	}
+	else
+	{
+		return 0;
+	}
+
+	return 1;
 }
 
 

@@ -76,7 +76,7 @@ kinova::kinova() : stats(1)
 				std::cout << "Cannot initializes the API." << std::endl;
 			}
 
-            this->stats.LaunchThread();
+            //this->stats.LaunchThread();
 
 		}
 

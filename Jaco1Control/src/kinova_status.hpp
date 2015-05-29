@@ -87,7 +87,7 @@ namespace kinenv
 		    void ReadJoints(GeneralInformations & info);
 		    void ReadCartesian(GeneralInformations & info);
 		    void ReadCurrents(GeneralInformations & info);
-		    void Read4Vis(std::vector<std::vector<double>* > & lastval);
+		    int Read4Vis(std::vector<std::vector<double>* > & lastval);
 
 	};
 }

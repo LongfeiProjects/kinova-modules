@@ -12,13 +12,11 @@ int main()
 
     //mybot.Move2Home();
 	//mybot.FeedForward(namefile,limitation);
-
 	//DEBUG
 	//std::cout<<"before exec"<<std::endl;
 	//----
-
 	//mybot.Exec();
-
+	mybot.stats.LaunchThread();
 	while(!stop)
 	{
 		//usleep(SLEEP_INTERVAL);
