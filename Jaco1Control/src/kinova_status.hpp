@@ -56,11 +56,12 @@ namespace kinenv
 			int (*MyGetGeneralInformations)(GeneralInformations &);
 			int (*MyGetGlobalTrajectoryInfo)(TrajectoryFIFO &);
 			visualization vis;
-
+			int Max_DS_allowed;
 		public:
 			boost::atomic<bool> running;
 			boost::thread* reader_stats;
 			boost::thread* log_stats;
+			boost::thread* garbage_collection;
 			clock_t tStart;
             // for logging          for visualizing      for control
 			DataStore ds_ang_pos;	DataFlow ang_pos;
@@ -70,6 +71,7 @@ namespace kinenv
 			DataStore ds_comp_t;	DataFlow comp_t;
 			DataStore ds_robot_t;
 			DataStore ds_cart_pos;
+
 
 
 			kinova_status();
@@ -82,6 +84,7 @@ namespace kinenv
 			void CloseThread();
 		    void Reading();
 		    void Logging();
+		    void Cleaning();
 
 		    void ReadTimeStamp(GeneralInformations & info);
 		    void ReadJoints(GeneralInformations & info);

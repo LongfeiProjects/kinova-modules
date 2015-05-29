@@ -17,6 +17,7 @@ kinova_status::kinova_status(int i)
 , mot_amp(0)
 , comp_t(0)
 {
+	Max_DS_allowed = 10000;
 	int NBLOCKS = 3;
 	int NJOINTS = 6;
 	int chunk_dim = 500;
@@ -38,6 +39,7 @@ kinova_status::kinova_status(int i)
 	MyGetGlobalTrajectoryInfo = (int (*)(TrajectoryFIFO &)) dlsym(APIhandle,"GetGlobalTrajectoryInfo");
 	reader_stats = NULL;
 	log_stats = NULL;
+	garbage_collection = NULL;
 }
 
 // copy constructor. necessary with atomic variable
@@ -54,6 +56,7 @@ void kinova_status::LaunchThread()
 {
 	this->reader_stats = new boost::thread(boost::bind(&kinova_status::Reading,this));
 	this->log_stats = new boost::thread(boost::bind(&kinova_status::Logging,this));
+	this->garbage_collection = new boost::thread(boost::bind(&kinova_status::Cleaning,this));
 }
 
 void kinova_status::CloseThread()
@@ -61,6 +64,7 @@ void kinova_status::CloseThread()
 	this->running.store(false,boost::memory_order_release);
 	this->reader_stats->join();
 	this->log_stats->join();
+	this->garbage_collection->join();
 	std::cout<<"close all thread"<<std::endl;
 }
 
@@ -96,6 +100,26 @@ void kinova_status::Logging()
 	}
 	std::cout<<"im out of Logging thread"<<std::endl;
 }
+
+void kinova_status::Cleaning()
+{
+	while(this->running.load(boost::memory_order_acquire))
+	{
+		if(this->ds_ang_pos.size()>this->Max_DS_allowed)
+		{
+			this->ds_ang_pos.pop_front();
+			this->ds_ang_tau.pop_front();
+			this->ds_cart_f.pop_front();
+			this->ds_cart_pos.pop_front();
+			this->ds_comp_t.pop_front();
+			this->ds_mot_amp.pop_front();
+			this->ds_robot_t.pop_front();
+		}
+	}
+	std::cout<<"im out of Cleaning thread"<<std::endl;
+
+}
+
 
 // FROM THIS POINT FUNCTIONS are KINOVA API DEPENDANT //
 
