@@ -1,21 +1,17 @@
 /*
- * kinova.cpp
+ * kinova_conotroller.hpp
  *
  *  Created on: May 11, 2015
  *      Author: vale
  */
 
-#include "kinova.hpp"
-#include <fstream>
-#include <sstream>
-
-using namespace kinenv;
+#include "kinova_controller.hpp"
 
 
 
 //private function //
 
-POSITION_TYPE kinova::InitPositionType(int value)
+POSITION_TYPE kinova_controller::InitPositionType(int value)
 {
 	POSITION_TYPE p;
 	if(value == 1)
@@ -31,117 +27,22 @@ POSITION_TYPE kinova::InitPositionType(int value)
 }
 
 // public function//
-kinova::kinova() : stats(1)
+kinova_controller::kinova_controller()
 {
-    //DEBUG
-	std::cout<<"dentro costruttore kinova"<<std::endl;
-    //---
 	APIhandle = dlopen("Kinova.API.USBCommandLayerUbuntu.so",RTLD_NOW|RTLD_GLOBAL);
-	//DEBUG
-	std::cout<<"dentro costruttore kinova"<<std::endl;
-	//---
-
 	if(APIhandle != NULL)
 	{
-		MyInitAPI = (int (*)()) dlsym(APIhandle,"InitAPI");
-		MyCloseAPI = (int (*)()) dlsym(APIhandle,"CloseAPI");
-		MyStartControlAPI = (int (*)()) dlsym(APIhandle,"StartControlAPI");
-		MyStopControlAPI =  (int (*)()) dlsym(APIhandle,"StopControlAPI");
 		MySetCartesianControl = (int (*)()) dlsym(APIhandle,"SetCartesianControl");
 		MySendAdvanceTrajectory = (int (*)(TrajectoryPoint)) dlsym(APIhandle,"SendAdvanceTrajectory");
 		MyMoveHome = (int (*)()) dlsym(APIhandle,"MoveHome");
-
-		//We validate that all the functions were loaded corectly.
-		if((MyInitAPI == NULL) || (MyCloseAPI == NULL) ||
-		    (MyStartControlAPI == NULL) || (MySendAdvanceTrajectory == NULL) || (MyMoveHome == NULL) )
-		{
-			std::cout << "Can't load all the functions from the library." << std::endl;
-		}
-		else
-		{
-			//Init the API
-			bool result = (*MyInitAPI)();
-
-			if(result == SUCCESS)
-			{
-				result = (*MyStartControlAPI)();
-			}
-
-			if(result == SUCCESS)
-			{
-				bool canExecuteProgram = true;
-			}
-			else
-			{
-				std::cout << "Cannot initializes the API." << std::endl;
-			}
-
-            //this->stats.LaunchThread();
-
-		}
-
-
 	}
 
 }
-
-kinova::~kinova(void)
-{
-	//stats.~kinova_status();
-	(*MyStopControlAPI)();
-	(*MyCloseAPI)();
-}
-
-int ReadFile(std::string namefile,std::vector< std::vector<double> > & value)
-{
-	std::ifstream infile;
-	int traj;
-
-	try
-    {
-	  infile.open(namefile.c_str(),std::ifstream::in);
-
-	  std::string line;
-
-	  // in the first line is defined the kind of trajectory
-	  std::getline(infile, line);
-	  std::stringstream ss1(line);
-	  if ( !(ss1 >> traj) )
-	  {
-	     std::cout<<"problem reading the kind of control"<< std::endl;
-	  }
-
-	  while (std::getline(infile, line))
-	  {
-			std::stringstream ss(line);
-			std::vector<double> app;
-			while( !ss.eof() )
-			{
-				double ff;
-				if ( ss >> ff)
-				{
-				   app.push_back(ff);
-				}
-
-			}
-			if(!app.empty())
-			{
-				value.push_back(app);
-			}
+kinova_controller::~kinova_controller()
+{}
 
 
-	  }
-	  infile.close();
-    }
-    catch (std::ifstream::failure e)
-    {
-	  std::cerr << "Exception opening/reading/closing file\n";
-    }
-
-    return traj;
-}
-
-bool kinova::Move2Home()
+bool kinova_controller::Move2Home()
 {
 	bool result = (*MyMoveHome)();
 	usleep(3000);
@@ -149,12 +50,8 @@ bool kinova::Move2Home()
 }
 
 
- void  kinova::FeedForward(std::string namefile,bool limitation)
+ void  kinova_controller::FeedForward(std::vector< std::vector<double> > & value,int controltype,bool limitation)
 {
-
-	std::vector< std::vector<double> > value;
-    int controltype = ReadFile(namefile,value);
-
 
     std::cout <<"controltype= "<< controltype <<std::endl;
     std::cout <<"value.size()= "<< value.size() <<std::endl;
@@ -209,7 +106,7 @@ bool kinova::Move2Home()
 }
 
 
-bool  kinova::Exec()
+bool  kinova_controller::ExecController()
 {
 	//DEBUG
     std::cout << "dimension of ff= "<< ff.size() << std::endl;
@@ -219,7 +116,7 @@ bool  kinova::Exec()
 
 		//here i can insert a simple pid controller
 		(*MySendAdvanceTrajectory)(ff[i]);
-		usleep(SLEEP_INTERVAL);
+		//usleep(SLEEP_INTERVAL);
 		std::cout << i << std::endl;
 
 	}

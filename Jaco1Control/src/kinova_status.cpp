@@ -1,15 +1,8 @@
 #include "kinova_status.hpp"
 
 
-using namespace kinenv;
 
 kinova_status::kinova_status()
-{
-
-
-}
-
-kinova_status::kinova_status(int i)
 : running(true)
 , ang_pos(0)
 , ang_tau(0)
@@ -34,37 +27,61 @@ kinova_status::kinova_status(int i)
 	const char *s_b[] = {"joints","torques","currents"};
 	std::vector<std::string> title(s_b, end(s_b));
 	vis = visualization(NBLOCKS,NJOINTS,chunk_dim,x_min,x_max,low_thresh,high_thresh,y_min,y_max,label,title);
-	void * APIhandle = dlopen("Kinova.API.USBCommandLayerUbuntu.so",RTLD_NOW|RTLD_GLOBAL);
-	MyGetGeneralInformations = (int (*)(GeneralInformations &)) dlsym(APIhandle,"GetGeneralInformations");
-	MyGetGlobalTrajectoryInfo = (int (*)(TrajectoryFIFO &)) dlsym(APIhandle,"GetGlobalTrajectoryInfo");
 	reader_stats = NULL;
 	log_stats = NULL;
 	garbage_collection = NULL;
+	void * APIhandle = dlopen("Kinova.API.USBCommandLayerUbuntu.so",RTLD_NOW|RTLD_GLOBAL);
+	MyInitAPI = (int (*)()) dlsym(APIhandle,"InitAPI");
+	MyCloseAPI = (int (*)()) dlsym(APIhandle,"CloseAPI");
+	MyStartControlAPI = (int (*)()) dlsym(APIhandle,"StartControlAPI");
+	MyStopControlAPI =  (int (*)()) dlsym(APIhandle,"StopControlAPI");
+	MyGetGeneralInformations = (int (*)(GeneralInformations &)) dlsym(APIhandle,"GetGeneralInformations");
+	MyGetGlobalTrajectoryInfo = (int (*)(TrajectoryFIFO &)) dlsym(APIhandle,"GetGlobalTrajectoryInfo");
+	//We test if that all the functions were loaded corectly.
+	if((MyInitAPI == NULL) || (MyCloseAPI == NULL) || (MyStartControlAPI == NULL) )
+	{
+		std::cout << "Can't load all the functions from the library." << std::endl;
+	}
+	else
+	{
+		//Init the API
+		bool result = (*MyInitAPI)();
+
+		if(result == SUCCESS)
+		{
+			result = (*MyStartControlAPI)();
+		}
+
+		if(result == SUCCESS)
+		{
+			bool canExecuteProgram = true;
+		}
+		else
+		{
+			std::cout << "Cannot initializes the API." << std::endl;
+		}
+	}
 }
 
-// copy constructor. necessary with atomic variable
-/*kinova_status::kinova_status(kinova_status & sts)
-{
-	this->MyGetGeneralInformations = sts.MyGetGeneralInformations;
-	this->MyGetGlobalTrajectoryInfo = sts.MyGetGlobalTrajectoryInfo;
-	this->reader_stats = sts.reader_stats;
-	this->running.;
+kinova_status::~kinova_status()
+{}
 
-}*/
-
-void kinova_status::LaunchThread()
+void kinova_status::Start()
 {
 	this->reader_stats = new boost::thread(boost::bind(&kinova_status::Reading,this));
 	this->log_stats = new boost::thread(boost::bind(&kinova_status::Logging,this));
 	this->garbage_collection = new boost::thread(boost::bind(&kinova_status::Cleaning,this));
 }
 
-void kinova_status::CloseThread()
+void kinova_status::Stop()
 {
 	this->running.store(false,boost::memory_order_release);
 	this->reader_stats->join();
 	this->log_stats->join();
 	this->garbage_collection->join();
+	// close api kinova
+	(*MyStopControlAPI)();
+	(*MyCloseAPI)();
 	std::cout<<"close all thread"<<std::endl;
 }
 
@@ -105,7 +122,7 @@ void kinova_status::Cleaning()
 {
 	while(this->running.load(boost::memory_order_acquire))
 	{
-		if(this->ds_ang_pos.size()>this->Max_DS_allowed)
+		if(this->ds_ang_pos.size() > (unsigned int)(this->Max_DS_allowed) )
 		{
 			this->ds_ang_pos.pop_front();
 			this->ds_ang_tau.pop_front();
