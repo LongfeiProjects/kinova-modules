@@ -65,17 +65,17 @@ bool kinova_controller::Move2Home()
 		pointToSend.LimitationsActive = limitation;
 
 		//DEBUG
-		for(unsigned int jj = 0;jj<6;jj++)
-		{
-			std::cout <<value[i][jj]<<" ";
-		}
-		std::cout<<std::endl;
+		//for(unsigned int jj = 0;jj<6;jj++)
+		//{
+		//	std::cout <<value[i][jj]<<" ";
+		//}
+		//std::cout<<std::endl;
 		//----
 
 		if(controltype==ANGULAR_POSITION || controltype==ANGULAR_VELOCITY)
 		{
 			//DEBUG
-			std::cout<<"sono nel lato joint"<<std::endl;
+			//std::cout<<"sono nel lato joint"<<std::endl;
 			//----
 			pointToSend.Position.Actuators.Actuator1 = value[i][0];
 			pointToSend.Position.Actuators.Actuator2 = value[i][1];

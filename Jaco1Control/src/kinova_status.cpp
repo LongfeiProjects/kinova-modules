@@ -10,7 +10,7 @@ kinova_status::kinova_status()
 , mot_amp(0)
 , comp_t(0)
 {
-	Max_DS_allowed = 10000;
+
 	int NBLOCKS = 3;
 	int NJOINTS = 6;
 	int chunk_dim = 500;
@@ -18,15 +18,16 @@ kinova_status::kinova_status()
 	PLFLT x_max = 100;
 	PLFLT low_thresh = 5;
 	PLFLT high_thresh = 5;
-	static const double d_a[] = {-360,-30,-10};
-	std::vector<PLFLT> y_min(d_a, end(d_a));
-	static const double d_b[] = {360,30,10};
-	std::vector<PLFLT>y_max(d_b, end(d_b));
-	const char *s_a[] = {"deg/s","Nm","A"};
-	std::vector<std::string> label(s_a, end(s_a));
-	const char *s_b[] = {"joints","torques","currents"};
-	std::vector<std::string> title(s_b, end(s_b));
-	vis = visualization(NBLOCKS,NJOINTS,chunk_dim,x_min,x_max,low_thresh,high_thresh,y_min,y_max,label,title);
+	const double d_a[] = {-360,-30,-10};
+	//std::vector<PLFLT> y_min(d_a, end(d_a));
+	const double d_b[] = {360,30,10};
+	//std::vector<PLFLT>y_max(d_b, end(d_b));
+	const char *s_a[] = {"deg","Nm","A"};
+	//std::vector<std::string> label(s_a, end(s_a));
+	const char *s_b[]= {"joints","torques","currents"};
+	//std::vector<std::string> title(s_b, end(s_b));
+	vis = visualization(NBLOCKS,NJOINTS,chunk_dim,x_min,x_max,low_thresh,high_thresh,d_a,d_b,s_a,s_b);
+	Max_DS_allowed = 10000;
 	reader_stats = NULL;
 	log_stats = NULL;
 	garbage_collection = NULL;
@@ -37,10 +38,11 @@ kinova_status::kinova_status()
 	MyStopControlAPI =  (int (*)()) dlsym(APIhandle,"StopControlAPI");
 	MyGetGeneralInformations = (int (*)(GeneralInformations &)) dlsym(APIhandle,"GetGeneralInformations");
 	MyGetGlobalTrajectoryInfo = (int (*)(TrajectoryFIFO &)) dlsym(APIhandle,"GetGlobalTrajectoryInfo");
+	MyGetAngularVelocity = (int (*)(AngularPosition &)) dlsym(APIhandle,"GetAngularVelocity");
 	//We test if that all the functions were loaded corectly.
 	if((MyInitAPI == NULL) || (MyCloseAPI == NULL) || (MyStartControlAPI == NULL) )
 	{
-		std::cout << "Can't load all the functions from the library." << std::endl;
+		std::cout << "Can't load the inizialization functions from the library." << std::endl;
 	}
 	else
 	{
@@ -93,9 +95,11 @@ void kinova_status::Reading()
 	//while(true)
 	{
 		GeneralInformations cur;
+		AngularPosition     ap;
 		(*MyGetGeneralInformations)(cur);
+		(*MyGetAngularVelocity)(ap);
 		this->ReadTimeStamp(cur);
-		this->ReadJoints(cur);
+		this->ReadJoints(cur,ap);
 		this->ReadCartesian(cur);
 		this->ReadCurrents(cur);
 	}
@@ -125,6 +129,7 @@ void kinova_status::Cleaning()
 		if(this->ds_ang_pos.size() > (unsigned int)(this->Max_DS_allowed) )
 		{
 			this->ds_ang_pos.pop_front();
+			this->ds_ang_vel.pop_front();
 			this->ds_ang_tau.pop_front();
 			this->ds_cart_f.pop_front();
 			this->ds_cart_pos.pop_front();
@@ -154,19 +159,30 @@ void kinova_status::ReadTimeStamp(GeneralInformations & info)
 
 }
 
-void kinova_status::ReadJoints(GeneralInformations & info)
+void kinova_status::ReadJoints(GeneralInformations & info,AngularPosition & ap)
 {
 	std::vector<double> app(6);
-
 	app[0]=info.Position.Actuators.Actuator1;
 	app[1]=info.Position.Actuators.Actuator2;
 	app[2]=info.Position.Actuators.Actuator3;
 	app[3]=info.Position.Actuators.Actuator4;
 	app[4]=info.Position.Actuators.Actuator5;
 	app[5]=info.Position.Actuators.Actuator6;
+
 	this->ds_ang_pos.push_back(app);
+	this->dl_ang_pos.store( &(ds_ang_pos.back()),boost::memory_order_release);
 	// i can write for the vis less often then the other op
 	this->ang_pos.push( &(ds_ang_pos.back()) );
+
+	app[0]=ap.Actuators.Actuator1;
+	app[1]=ap.Actuators.Actuator2;
+	app[2]=ap.Actuators.Actuator3;
+	app[3]=ap.Actuators.Actuator4;
+	app[4]=ap.Actuators.Actuator5;
+	app[5]=ap.Actuators.Actuator6;
+
+	this->ds_ang_vel.push_back(app);
+	this->dl_ang_vel.store(&(ds_ang_vel.back()),boost::memory_order_release);
 
 	app[0]=info.Force.Actuators.Actuator1;
 	app[1]=info.Force.Actuators.Actuator2;
@@ -174,7 +190,9 @@ void kinova_status::ReadJoints(GeneralInformations & info)
 	app[3]=info.Force.Actuators.Actuator4;
 	app[4]=info.Force.Actuators.Actuator5;
 	app[5]=info.Force.Actuators.Actuator6;
+
 	this->ds_ang_tau.push_back(app);
+	this->dl_ang_tau.store( &(ds_ang_tau.back()),boost::memory_order_release);
 	// i can write for the vis less often then the other op
 	this->ang_tau.push( &(ds_ang_tau.back()) );
 
@@ -243,5 +261,13 @@ int kinova_status::Read4Vis(std::vector<std::vector<double>* > & lastval)
 	return 1;
 }
 
-
+void kinova_status::GetLastValue(std::vector<double>& res, std::string type)
+{
+	if(type.compare("j_pos") == 0)
+		res = *(this->dl_ang_pos.load(boost::memory_order_acquire));
+	else if(type.compare("j_vel") == 0)
+		res = *(this->dl_ang_pos.load(boost::memory_order_acquire));
+	else if(type.compare("j_tau") == 0)
+	   res = *(this->dl_ang_pos.load(boost::memory_order_acquire));
+}
 

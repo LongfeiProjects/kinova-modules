@@ -51,6 +51,7 @@ class kinova_status : public stats
 		int (*MyStartControlAPI)();
 		int (*MyStopControlAPI)();
 		int (*MyGetGeneralInformations)(GeneralInformations &);
+		int (*MyGetAngularVelocity)(AngularPosition &);
 		int (*MyGetGlobalTrajectoryInfo)(TrajectoryFIFO &);
 		visualization vis;
 		int Max_DS_allowed;
@@ -61,8 +62,9 @@ class kinova_status : public stats
 		boost::thread* garbage_collection;
 		clock_t tStart;
 		// for logging          for visualizing      for control
-		DataStore ds_ang_pos;	DataFlow ang_pos;
-		DataStore ds_ang_tau;	DataFlow ang_tau;
+		DataStore ds_ang_pos;	DataFlow ang_pos;    DataLast dl_ang_pos;
+		DataStore ds_ang_vel;					     DataLast dl_ang_vel;
+		DataStore ds_ang_tau;	DataFlow ang_tau;    DataLast dl_ang_tau;
 		DataStore ds_cart_f;	DataFlow cart_f;
 		DataStore ds_mot_amp;	DataFlow mot_amp;
 		DataStore ds_comp_t;	DataFlow comp_t;
@@ -79,7 +81,7 @@ class kinova_status : public stats
 		void Cleaning();
 
 		void ReadTimeStamp(GeneralInformations & info);
-		void ReadJoints(GeneralInformations & info);
+		void ReadJoints(GeneralInformations & info, AngularPosition & ap);
 		void ReadCartesian(GeneralInformations & info);
 		void ReadCurrents(GeneralInformations & info);
 		int Read4Vis(std::vector<std::vector<double>* > & lastval);

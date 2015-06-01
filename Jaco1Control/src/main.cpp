@@ -1,8 +1,4 @@
-
 #include "robot.hpp"
-
-
-
 
 int main()
 {
@@ -11,9 +7,7 @@ int main()
 	kinova_status * st= new kinova_status();
 	kinova_controller * ct = new kinova_controller();
 	robot bot(st,ct);
-
+	bot.Exec();
 
 	return 1;
-
-
 }
