@@ -57,6 +57,7 @@ class kinova_status : public stats
 		int Max_DS_allowed;
 	public:
 		boost::atomic<bool> running;
+		boost::atomic<bool> first_write;
 		boost::thread* reader_stats;
 		boost::thread* log_stats;
 		boost::thread* garbage_collection;

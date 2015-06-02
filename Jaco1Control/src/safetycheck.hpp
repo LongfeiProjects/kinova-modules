@@ -72,17 +72,14 @@ class safetycheck
 
 	std::vector<box> bb;
 	std::map< std::string,range> rs;
+
+public:
+	std::vector<std::string> checklist;
+
 	safetycheck(){};
 	safetycheck(std::vector<std::vector<double> > l_down_left_corner,std::vector<std::vector<double> > l_dims,
 				std::vector<std::vector<double> > l_min,std::vector<std::vector<double> > l_max, std::vector<std::string> names)
 	{
-
-		//istanziate bounding box
-		for(unsigned int i =0;i<l_down_left_corner.size();i++)
-		{
-			box b(l_down_left_corner[i],l_dims[i])
-			this->bb.push_back(b);
-		}
 
 		// istanziate the map
 		for(unsigned int i =0;i<names.size();i++)
@@ -90,8 +87,23 @@ class safetycheck
 			range r(l_min[i],l_max[i]);
 			this->rs.insert(std::pair<std::string,range>(names[i],r));
 		}
+		//istanziate bounding box
+		for(unsigned int i =0;i<l_down_left_corner.size();i++)
+		{
+			box b(l_down_left_corner[i],l_dims[i]);
+			this->bb.push_back(b);
+		}
+
+		// i save the cheklist
+		checklist = names;
+		// if i define a bounding box i add the bounding box in the cheklist
+		if(l_down_left_corner.size()>0)
+		{
+			checklist.push_back("f_tau");
+		}
+
 	}
-	 bool VerifyViolation( std::vector< std::vector<double > > valuelist,std::vector<std::string> list_of_ckeck);
+	 bool VerifyViolation( std::vector< std::vector<double > > valuelist);
 
 
 };

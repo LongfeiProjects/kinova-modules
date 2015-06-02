@@ -24,7 +24,6 @@ class robot
 
 		boost::atomic<bool> stop;
 
-
 		robot()
 		{};
 

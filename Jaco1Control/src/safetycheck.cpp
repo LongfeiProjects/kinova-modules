@@ -3,13 +3,13 @@
 
  // if return false i dont have any violation
 //  if i return true i have violation
- bool safetycheck::VerifyViolation(std::vector< std::vector<double > > valuelist, std::vector<std::string> list_of_ckeck)
+ bool safetycheck::VerifyViolation(std::vector< std::vector<double > > valuelist)
  {
 	 bool valid;
 	 // if one of the control fail i return true
 	 for(unsigned int i =0;i<valuelist.size();i++)
 	 {
-		 if(list_of_ckeck[i].compare("BoundingBox"))
+		 if(checklist[i].compare("f_tau") == 0 )
 		 {
 			 for(unsigned int j = 0;j<this->bb.size();j++)
 			 {
@@ -23,10 +23,10 @@
 		 }
 		 else
 		 {
-			 valid = this->rs[list_of_ckeck[i]].IsValid(valuelist[i]);
+			 valid = this->rs[checklist[i]].IsValid(valuelist[i]);
 			 if(!valid)
 			 {
-				 std::cout<< "violated "<< list_of_ckeck[i] << std::endl;
+				 std::cout<< "violated "<< checklist[i] << std::endl;
 				 return true;
 			 }
 		 }

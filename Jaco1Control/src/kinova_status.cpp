@@ -4,13 +4,14 @@
 
 kinova_status::kinova_status()
 : running(true)
+, first_write(false)
 , ang_pos(0)
 , ang_tau(0)
 , cart_f(0)
 , mot_amp(0)
 , comp_t(0)
 {
-
+	// move this guy outside the constructor
 	int NBLOCKS = 3;
 	int NJOINTS = 6;
 	int chunk_dim = 500;
@@ -27,6 +28,7 @@ kinova_status::kinova_status()
 	const char *s_b[]= {"joints","torques","currents"};
 	std::vector<std::string> title(s_b,End(s_b));
 	vis = visualization(NBLOCKS,NJOINTS,chunk_dim,x_min,x_max,low_thresh,high_thresh,y_min,y_max,label,title);
+	//----
 
 	Max_DS_allowed = 10000;
 	reader_stats = NULL;
@@ -94,7 +96,6 @@ void kinova_status::Reading()
 {
 	this->tStart = clock();
 	while(this->running.load(boost::memory_order_acquire))
-	//while(true)
 	{
 		GeneralInformations cur;
 		AngularPosition     ap;
@@ -104,6 +105,10 @@ void kinova_status::Reading()
 		this->ReadJoints(cur,ap);
 		this->ReadCartesian(cur);
 		this->ReadCurrents(cur);
+		if(!first_write.load(boost::memory_order_acquire))
+		{
+			first_write.store(true,boost::memory_order_release);
+		}
 	}
 	std::cout<<"im out of Reading thread"<<std::endl;
 }
@@ -266,14 +271,26 @@ int kinova_status::Read4Vis(std::vector<std::vector<double>* > & lastval)
 
 void kinova_status::GetLastValue(std::vector<double>& res, std::string type)
 {
-	// FIX HERE!!! verify compare and empty case scenario
-	if(type.compare("j_pos") == 0)
-		res = *(this->dl_ang_pos.load(boost::memory_order_acquire));
-	else if(type.compare("j_vel") == 0)
-		res = *(this->dl_ang_pos.load(boost::memory_order_acquire));
-	else if(type.compare("j_tau") == 0)
-	   res = *(this->dl_ang_pos.load(boost::memory_order_acquire));
-	else if(type.compare("j_tau") == 0)
-		res = *(this->dl_cart_f.load(boost::memory_order_acquire));
+	if(first_write.load(boost::memory_order_acquire))
+	{
+		if(type.compare("j_pos") == 0)
+		{	//DEBUG
+			//std::cout<<"reading last joints"<<std::endl;
+			//---
+			res = *(this->dl_ang_pos.load(boost::memory_order_acquire));
+		}
+		else if(type.compare("j_vel") == 0)
+		{
+			res = *(this->dl_ang_pos.load(boost::memory_order_acquire));
+		}
+		else if(type.compare("j_tau") == 0)
+		{
+		   res = *(this->dl_ang_pos.load(boost::memory_order_acquire));
+		}
+		else if(type.compare("f_tau") == 0)
+		{
+			res = *(this->dl_cart_f.load(boost::memory_order_acquire));
+		}
+	}
 }
 
