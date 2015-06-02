@@ -22,10 +22,10 @@ typedef boost::atomic<std::vector<double>* >          DataLast;
 
 
 
-#define SLEEP_INTERVAL 10000    // ms    // with this value i control the sleep interval beetween
-#define TORQUE_LIMIT 20         // Nm
-#define EXT_FORCE_LIM  10       // Nm
-#define VELOCITY_LIM   25       // percentage reduce
+//#define SLEEP_INTERVAL 10000    // ms    // with this value i control the sleep interval beetween
+//#define TORQUE_LIMIT 20         // Nm
+//#define EXT_FORCE_LIM  10       // Nm
+//#define VELOCITY_LIM   25       // percentage reduce
 
 class kinova_status : public stats
 {
@@ -65,7 +65,7 @@ class kinova_status : public stats
 		DataStore ds_ang_pos;	DataFlow ang_pos;    DataLast dl_ang_pos;
 		DataStore ds_ang_vel;					     DataLast dl_ang_vel;
 		DataStore ds_ang_tau;	DataFlow ang_tau;    DataLast dl_ang_tau;
-		DataStore ds_cart_f;	DataFlow cart_f;
+		DataStore ds_cart_f;	DataFlow cart_f;	 DataLast dl_cart_f;
 		DataStore ds_mot_amp;	DataFlow mot_amp;
 		DataStore ds_comp_t;	DataFlow comp_t;
 		DataStore ds_robot_t;

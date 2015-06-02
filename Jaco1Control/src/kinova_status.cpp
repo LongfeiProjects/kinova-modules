@@ -19,18 +19,20 @@ kinova_status::kinova_status()
 	PLFLT low_thresh = 5;
 	PLFLT high_thresh = 5;
 	const double d_a[] = {-360,-30,-10};
-	//std::vector<PLFLT> y_min(d_a, end(d_a));
+	std::vector<PLFLT> y_min(d_a,End(d_a));
 	const double d_b[] = {360,30,10};
-	//std::vector<PLFLT>y_max(d_b, end(d_b));
+	std::vector<PLFLT>y_max(d_b,End(d_b));
 	const char *s_a[] = {"deg","Nm","A"};
-	//std::vector<std::string> label(s_a, end(s_a));
+	std::vector<std::string> label(s_a,End(s_a));
 	const char *s_b[]= {"joints","torques","currents"};
-	//std::vector<std::string> title(s_b, end(s_b));
-	vis = visualization(NBLOCKS,NJOINTS,chunk_dim,x_min,x_max,low_thresh,high_thresh,d_a,d_b,s_a,s_b);
+	std::vector<std::string> title(s_b,End(s_b));
+	vis = visualization(NBLOCKS,NJOINTS,chunk_dim,x_min,x_max,low_thresh,high_thresh,y_min,y_max,label,title);
+
 	Max_DS_allowed = 10000;
 	reader_stats = NULL;
 	log_stats = NULL;
 	garbage_collection = NULL;
+
 	void * APIhandle = dlopen("Kinova.API.USBCommandLayerUbuntu.so",RTLD_NOW|RTLD_GLOBAL);
 	MyInitAPI = (int (*)()) dlsym(APIhandle,"InitAPI");
 	MyCloseAPI = (int (*)()) dlsym(APIhandle,"CloseAPI");
@@ -218,6 +220,7 @@ void kinova_status::ReadCartesian(GeneralInformations & info)
 	app[4]=info.Force.CartesianPosition.ThetaY;
 	app[5]=info.Force.CartesianPosition.ThetaZ;
 	this->ds_cart_f.push_back(app);
+	this->dl_cart_f.store( &(ds_cart_f.back()),boost::memory_order_release);
 }
 
 void kinova_status::ReadCurrents(GeneralInformations & info)
@@ -263,11 +266,14 @@ int kinova_status::Read4Vis(std::vector<std::vector<double>* > & lastval)
 
 void kinova_status::GetLastValue(std::vector<double>& res, std::string type)
 {
+	// FIX HERE!!! verify compare and empty case scenario
 	if(type.compare("j_pos") == 0)
 		res = *(this->dl_ang_pos.load(boost::memory_order_acquire));
 	else if(type.compare("j_vel") == 0)
 		res = *(this->dl_ang_pos.load(boost::memory_order_acquire));
 	else if(type.compare("j_tau") == 0)
 	   res = *(this->dl_ang_pos.load(boost::memory_order_acquire));
+	else if(type.compare("j_tau") == 0)
+		res = *(this->dl_cart_f.load(boost::memory_order_acquire));
 }
 

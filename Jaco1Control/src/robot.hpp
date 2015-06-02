@@ -10,6 +10,7 @@
 
 #include "kinova_status.hpp"
 #include "kinova_controller.hpp"
+#include "safetycheck.hpp"
 #include <SFML/Window.hpp>
 #include <SFML/Graphics.hpp>
 
@@ -18,36 +19,43 @@ class robot
 	public:
 		boost::shared_ptr<stats>  st;
 		boost::shared_ptr<controller>  contr;
+		safetycheck check;
+		boost::thread* safety_check;
+
+		boost::atomic<bool> stop;
+
 
 		robot()
 		{};
 
-		robot(stats * _st,controller * _ct)
+		robot(stats * _st,controller * _ct,safetycheck _check)
 		: st(_st)
 		,contr(_ct)
-		{};
+		,stop(false)
+		{
+			this->check = _check;
+			this->safety_check = NULL;
+		};
 
 		inline void Exec()
 		{
-			bool stop = false;
-			st->Start();
-			while(!stop)
+			this->StartAllThread();
+			while(!this->stop.load(boost::memory_order_acquire) )
 			{
-				//usleep(SLEEP_INTERVAL);
-				//DEBUG
-				//std::cout<< "im in the main cycle"<<std::endl;
-				//---
 				if (sf::Keyboard::isKeyPressed(sf::Keyboard::C))
 				{
 					std::cout<< "---------------------------------------------------------"<<std::endl;
-					stop = true;
-					st->Stop();
+					this->stop.load(boost::memory_order_acquire);
+					this->StopAllThread();
 				}
 
 			}
 			std::cout<< "im out the main cycle"<<std::endl;
 		};
 
+		void StartAllThread();
+		void StopAllThread();
+		void Cheking();
 };
 
 

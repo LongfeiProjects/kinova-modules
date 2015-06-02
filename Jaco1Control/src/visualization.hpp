@@ -18,7 +18,7 @@
 #include <boost/circular_buffer.hpp>
 #include "common.hpp"
 
-
+// data strucuture for visualization
 struct data_vis
 {
 	int NBLOCKS;
@@ -34,11 +34,11 @@ struct data_vis
 	std::vector<std::string> title;
 	data_vis(){};
 	data_vis(int _NBLOCKS,int _NJOINTS,int _chunk_dim,PLFLT _x_min,PLFLT _x_max,PLFLT _low_thresh,PLFLT _high_thresh,
-			  const double d_a[],const double d_b[],const char *s_a[],const char *s_b[])
-	//: y_min(d_a, end(d_a))
-	//, y_max(d_b, end(d_b))
-	//, label(s_a, end(s_a))
-	//, title(s_b, end(s_b))  FIX IT!!!!
+			std::vector<PLFLT>  d_a,std::vector<PLFLT>  d_b,std::vector<std::string> s_a,std::vector<std::string> s_b)
+	: y_min(d_a)
+	, y_max(d_b)
+	, label(s_a)
+	, title(s_b)
 	{
 		//y_min = std::vector<PLFLT>(d_a, end(d_a)); not work
 		this->NBLOCKS = _NBLOCKS;
@@ -58,8 +58,8 @@ class visualization
 {
 public:
 	visualization();
-	visualization(int NBLOCKS,int NJOINTS,int chunk_dim,PLFLT x_min,PLFLT x_max,PLFLT low_thresh,PLFLT high_thresh,const double y_min[],
-                   const double y_max[],const char * label[],const char * title[]);
+	visualization(int NBLOCKS,int NJOINTS,int chunk_dim,PLFLT x_min,PLFLT x_max,PLFLT low_thresh,PLFLT high_thresh,
+				   std::vector<PLFLT> y_min,std::vector<PLFLT> y_max,std::vector<std::string> label,std::vector<std::string> title);
 	visualization(data_vis data);
 
     void Plot();

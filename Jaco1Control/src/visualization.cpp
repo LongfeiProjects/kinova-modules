@@ -2,11 +2,11 @@
 
 visualization::visualization()
 {}
-visualization::visualization(int NBLOCKS,int NJOINTS,int chunk_dim,PLFLT x_min,PLFLT x_max,PLFLT low_thresh,PLFLT high_thresh,const double y_min[3],
-		                        const double y_max[],const char * label[],const char * title[])
+visualization::visualization(int NBLOCKS,int NJOINTS,int chunk_dim,PLFLT x_min,PLFLT x_max,PLFLT low_thresh,PLFLT high_thresh,
+								std::vector<PLFLT> y_min,std::vector<PLFLT> y_max,std::vector<std::string> label,std::vector<std::string> title)
 : data(NBLOCKS,NJOINTS,chunk_dim,x_min,x_max,low_thresh,high_thresh,y_min,y_max,label,title)
 {
-	// initialization strema
+	// initialization stream
 	pls = new plstream();
     pls->sdev("wxwidgets");
 	pls->spage(0,0,800,900,0,0);
