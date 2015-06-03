@@ -38,18 +38,26 @@ class robot
 
 		inline void Exec()
 		{
-			this->StartAllThread();
-			while(!this->stop.load(boost::memory_order_acquire) )
+			try
 			{
-				if (sf::Keyboard::isKeyPressed(sf::Keyboard::C))
+				this->StartAllThread();
+				while(!this->stop.load(boost::memory_order_acquire) )
 				{
-					std::cout<< "---------------------------------------------------------"<<std::endl;
-					this->stop.load(boost::memory_order_acquire);
-					this->StopAllThread();
-				}
+					if (sf::Keyboard::isKeyPressed(sf::Keyboard::C))
+					{
+						std::cout<< "---------------------------------------------------------"<<std::endl;
+						this->stop.store(true,boost::memory_order_release);;
+						this->StopAllThread();
+					}
 
+				}
+				std::cout<< "im out the main cycle"<<std::endl;
 			}
-			std::cout<< "im out the main cycle"<<std::endl;
+			catch(const std::exception &e)
+			{
+				std::cout<< "something gone wrong"<<std::endl;
+				this->StopAllThread();
+			}
 		};
 
 		void StartAllThread();

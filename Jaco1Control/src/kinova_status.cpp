@@ -60,7 +60,7 @@ kinova_status::kinova_status()
 
 		if(result == SUCCESS)
 		{
-			bool canExecuteProgram = true;
+			std::cout<<"can execute program"<<std::endl;
 		}
 		else
 		{
@@ -216,6 +216,7 @@ void kinova_status::ReadCartesian(GeneralInformations & info)
 	app[4]=info.Position.CartesianPosition.ThetaY;
 	app[5]=info.Position.CartesianPosition.ThetaZ;
 	this->ds_cart_pos.push_back(app);
+	this->dl_cart_pos.store( &(ds_cart_pos.back()),boost::memory_order_release);
 
 
 	app[0]=info.Force.CartesianPosition.X;
@@ -269,7 +270,7 @@ int kinova_status::Read4Vis(std::vector<std::vector<double>* > & lastval)
 	return 1;
 }
 
-void kinova_status::GetLastValue(std::vector<double>& res, std::string type)
+bool kinova_status::GetLastValue(std::vector<double>& res, std::string type)
 {
 	if(first_write.load(boost::memory_order_acquire))
 	{
@@ -281,16 +282,24 @@ void kinova_status::GetLastValue(std::vector<double>& res, std::string type)
 		}
 		else if(type.compare("j_vel") == 0)
 		{
-			res = *(this->dl_ang_pos.load(boost::memory_order_acquire));
+			res = *(this->dl_ang_vel.load(boost::memory_order_acquire));
 		}
 		else if(type.compare("j_tau") == 0)
 		{
-		   res = *(this->dl_ang_pos.load(boost::memory_order_acquire));
+		   res = *(this->dl_ang_tau.load(boost::memory_order_acquire));
 		}
-		else if(type.compare("f_tau") == 0)
+		else if(type.compare("cart_f") == 0)
 		{
 			res = *(this->dl_cart_f.load(boost::memory_order_acquire));
 		}
+		else if(type.compare("cart_pos") == 0)
+		{
+			res = *(this->dl_cart_pos.load(boost::memory_order_acquire));
+		}
+
+
+		return true;
 	}
+	return false;
 }
 

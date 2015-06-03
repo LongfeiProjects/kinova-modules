@@ -81,7 +81,7 @@ public:
 				std::vector<std::vector<double> > l_min,std::vector<std::vector<double> > l_max, std::vector<std::string> names)
 	{
 
-		// istanziate the map
+		// istanziate the map with the ranges
 		for(unsigned int i =0;i<names.size();i++)
 		{
 			range r(l_min[i],l_max[i]);
@@ -99,7 +99,7 @@ public:
 		// if i define a bounding box i add the bounding box in the cheklist
 		if(l_down_left_corner.size()>0)
 		{
-			checklist.push_back("f_tau");
+			checklist.push_back("cart_pos");
 		}
 
 	}

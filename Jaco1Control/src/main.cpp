@@ -16,8 +16,8 @@ int main()
 	std::vector<std::string> chekclist(cl,End(cl));
 	const double joint_min[] = {-10000,47,19,-10000,-10000,-10000}; // deg
 	const double joint_max[] = {10000,313,341,10000,10000,10000}; // deg
-	const double tau_min[] = {-10}; // Nm
-	const double tau_max[] = {10};  // nm
+	const double tau_min[] = {-15}; // Nm
+	const double tau_max[] = {15};  // nm
 	std::vector<double> j_min(joint_min,End(joint_min)),j_max(joint_max,End(joint_max));
 	std::vector<double> t_min(tau_min,End(tau_min)),t_max(tau_max,End(tau_max));
 

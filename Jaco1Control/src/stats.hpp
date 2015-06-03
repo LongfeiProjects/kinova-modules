@@ -25,7 +25,7 @@ class stats
 {
    public:
       // pure virtual function
-      virtual void GetLastValue(std::vector<double>& , std::string type ) = 0;
+      virtual bool GetLastValue(std::vector<double>& , std::string type ) = 0;
       virtual void Start() = 0;
       virtual void Stop() = 0;
       virtual ~stats(){};

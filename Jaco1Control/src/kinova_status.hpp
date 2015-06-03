@@ -70,7 +70,7 @@ class kinova_status : public stats
 		DataStore ds_mot_amp;	DataFlow mot_amp;
 		DataStore ds_comp_t;	DataFlow comp_t;
 		DataStore ds_robot_t;
-		DataStore ds_cart_pos;
+		DataStore ds_cart_pos;              		 DataLast dl_cart_pos;
 
 		kinova_status();
 		~kinova_status();
@@ -86,7 +86,7 @@ class kinova_status : public stats
 		void ReadCartesian(GeneralInformations & info);
 		void ReadCurrents(GeneralInformations & info);
 		int Read4Vis(std::vector<std::vector<double>* > & lastval);
-		void GetLastValue(std::vector<double>& , std::string type );
+		bool GetLastValue(std::vector<double>& , std::string type );
 
 };
 
