@@ -20,62 +20,75 @@
 #include <boost/atomic.hpp>
 #include <boost/date_time.hpp>
 #include <boost/shared_ptr.hpp>
+#include "common.hpp"
 
 class controller
 {
-
 public:
-	virtual bool ExecController() = 0;
-	virtual ~controller(){};
+    double P;
+    double I;
+    double D;
+    double time_interval; // controller frequency
+    int index;  // current value
+    std::vector<std::vector<double> > last_current_values; // variable to storage values for control purpose;
+    std::vector<std::string> measured_value; // vector of string that describe the value that want to measure and in which order we want them
 
-	inline int ReadFile(std::string namefile,std::vector< std::vector<double> > & value)
-	{
-		std::ifstream infile;
-		int traj;
+	public:
+    	virtual bool Move2Home() = 0;
+    	virtual bool InitController(std::vector<std::vector<double> > initial_state) = 0;
+		virtual bool ExecController(std::vector<std::vector<double> > current_state) = 0;
+		virtual void SendSingleCommand(std::vector<double> cmd) = 0;
+		virtual std::vector <double> PID(std::vector<std::vector<double> > ff,std::vector<std::vector<double> > current_state) = 0;
+		virtual ~controller(){};
 
-		try
-	    {
-		  infile.open(namefile.c_str(),std::ifstream::in);
+		inline int ReadFile(std::string namefile,std::vector< std::vector<double> > & value)
+		{
+			std::ifstream infile;
+			int traj;
 
-		  std::string line;
+			try
+			{
+			  infile.open(namefile.c_str(),std::ifstream::in);
 
-		  // in the first line is defined the kind of trajectory
-		  std::getline(infile, line);
-		  std::stringstream ss1(line);
-		  if ( !(ss1 >> traj) )
-		  {
-		     std::cout<<"problem reading the kind of control"<< std::endl;
-		  }
+			  std::string line;
 
-		  while (std::getline(infile, line))
-		  {
-				std::stringstream ss(line);
-				std::vector<double> app;
-				while( !ss.eof() )
-				{
-					double ff;
-					if ( ss >> ff)
+			  // in the first line is defined the kind of trajectory
+			  std::getline(infile, line);
+			  std::stringstream ss1(line);
+			  if ( !(ss1 >> traj) )
+			  {
+				 std::cout<<"problem reading the kind of control"<< std::endl;
+			  }
+
+			  while (std::getline(infile, line))
+			  {
+					std::stringstream ss(line);
+					std::vector<double> app;
+					while( !ss.eof() )
 					{
-					   app.push_back(ff);
+						double ff;
+						if ( ss >> ff)
+						{
+						   app.push_back(ff);
+						}
+
+					}
+					if(!app.empty())
+					{
+						value.push_back(app);
 					}
 
-				}
-				if(!app.empty())
-				{
-					value.push_back(app);
-				}
 
+			  }
+			  infile.close();
+			}
+			catch (std::ifstream::failure e)
+			{
+			  std::cerr << "Exception opening/reading/closing file\n";
+			}
 
-		  }
-		  infile.close();
-	    }
-	    catch (std::ifstream::failure e)
-	    {
-		  std::cerr << "Exception opening/reading/closing file\n";
-	    }
-
-	    return traj;
-	}
+			return traj;
+		}
 
 
 };

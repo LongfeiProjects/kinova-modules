@@ -4,11 +4,11 @@ int main()
 {
 
 	kinova_status * st= new kinova_status();
-	kinova_controller * ct = new kinova_controller();
+	kinova_controller * ct = new kinova_controller(); // TO FIX
 
 	// define bounding box
-	const double bb_point[] = {-0.2,-0.2,-0.4};
-    const double bb_dims[]  = {1,0.4,0.5};
+	const double bb_point[] = {-0.6,-0.2,-0.4};
+    const double bb_dims[]  = {1.2,0.4,0.7};
     std::vector<double> bb_p(bb_point,End(bb_point)),bb_d(bb_dims,End(bb_dims));
 
 	// define all the limit

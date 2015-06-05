@@ -24,13 +24,13 @@
 				 // i copy the first 3 values of valuelist[i] (the cartesian position)
 				 std::vector<double> cart_pos(valuelist[i].begin(),valuelist[i].begin() + 3);
 				 // DEBUG
-				 std::cout<< "cart pos"<<std::endl;
+				 /*std::cout<< "cart pos"<<std::endl;
 				 for(unsigned int ii =0;ii<cart_pos.size();ii++)
 				 {
 					 std::cout<<cart_pos[ii]<<" ";
 				 }
 					 std::cout<<std::endl;
-				 //---
+				 //---*/
 				 valid = bb[j].OutBox(cart_pos);
 				 if(!valid)
 				 {

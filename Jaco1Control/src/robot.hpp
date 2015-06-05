@@ -43,6 +43,26 @@ class robot
 				this->StartAllThread();
 				while(!this->stop.load(boost::memory_order_acquire) )
 				{
+					std::vector<std::vector<double> > cur_val;
+					bool read_data = false;
+					for(unsigned int i = 0;i<contr->measured_value.size();i++)
+					{
+						std::vector<double> res;
+						read_data = st->GetLastValue(res,check.checklist[i]);
+						if(read_data)
+						{
+							cur_val.push_back(res);
+						}
+					}
+
+					if(read_data)
+					{
+						if(contr->index == -1)
+							contr->InitController(cur_val);
+						else
+							contr->ExecController(cur_val);
+					}
+
 					if (sf::Keyboard::isKeyPressed(sf::Keyboard::C))
 					{
 						std::cout<< "---------------------------------------------------------"<<std::endl;

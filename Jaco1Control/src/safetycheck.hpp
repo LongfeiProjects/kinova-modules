@@ -11,7 +11,9 @@
 #include "geometry.hpp"
 #include "common.hpp"
 #include <map>
+#include <iostream>
 
+// to build the bounding box i have to provide the lower 3d point that is in the fourth quadrant of the xy plane of the reference system of the robot
 struct box
 {
 	std::vector<double> min_point; // position of the bottom left corner of the box in the cartesian space
@@ -21,6 +23,19 @@ struct box
 	: min_point(down_left_corner)
 	{
 		max_point = down_left_corner + dims;
+
+		// DEBUG
+		/*std::cout<<"down_left_corner"<<std::endl;
+		for(unsigned int i =0;i<down_left_corner.size();i++)
+		{
+			std::cout << down_left_corner[i] << std::endl;
+		}
+		std::cout<<"up_right_corner"<<std::endl;
+		for(unsigned int i =0;i<max_point.size();i++)
+		{
+			std::cout << max_point[i] << std::endl;
+		}*/
+		//---
 	}
 
 	bool OutBox(std::vector<double> cp)
