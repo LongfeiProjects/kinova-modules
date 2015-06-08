@@ -23,19 +23,6 @@ struct box
 	: min_point(down_left_corner)
 	{
 		max_point = down_left_corner + dims;
-
-		// DEBUG
-		/*std::cout<<"down_left_corner"<<std::endl;
-		for(unsigned int i =0;i<down_left_corner.size();i++)
-		{
-			std::cout << down_left_corner[i] << std::endl;
-		}
-		std::cout<<"up_right_corner"<<std::endl;
-		for(unsigned int i =0;i<max_point.size();i++)
-		{
-			std::cout << max_point[i] << std::endl;
-		}*/
-		//---
 	}
 
 	bool OutBox(std::vector<double> cp)
@@ -43,7 +30,6 @@ struct box
 		bool result =  box_contains_point_nd( cp.size(), &(this->min_point[0]), &(this->max_point[0]),&(cp[0]));
 		return !result;
 	}
-
 };
 
 
@@ -58,7 +44,7 @@ struct range
 		max = _max;
 	}
 
-	bool IsValid(std::vector<double> test)
+	bool IsValid(State test)
 	{
 		if(min.size() == 1 && max.size() == 1)
 		{
@@ -118,7 +104,7 @@ public:
 		}
 
 	}
-	 bool VerifyViolation( std::vector< std::vector<double > > valuelist);
+	 bool VerifyViolation( std::vector<State> valuelist);
 
 
 };

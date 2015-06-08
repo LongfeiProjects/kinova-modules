@@ -21,7 +21,7 @@ class kinova_controller : public controller
 	int (*MyMoveHome)();
 
 public:
-	std::vector<std::vector<double> > ff;
+	std::vector<State> ff;
 	int controltype;
 	bool limitation;
 
@@ -31,11 +31,11 @@ public:
 
 	POSITION_TYPE InitPositionType(int value);
 	bool Move2Home();
-	TrajectoryPoint ConvertControl( std::vector<double> & value);
-	void SendSingleCommand(std::vector<double> cmd);
-	std::vector<double> PID(std::vector<std::vector<double> > ff,std::vector<std::vector<double> > current_state);
-	bool InitController(std::vector<std::vector<double> > initial_state);
-	bool ExecController(std::vector<std::vector<double> > current_state);
+	TrajectoryPoint ConvertControl( State & value);
+	void SendSingleCommand(State cmd);
+	State PID(std::vector<State> ff,std::vector<State> current_state);
+	bool InitController(std::vector<State> initial_state);
+	bool ExecController(std::vector<State> current_state);
 
 };
 

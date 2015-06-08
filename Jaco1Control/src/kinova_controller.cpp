@@ -7,8 +7,6 @@
 
 #include "kinova_controller.hpp"
 
-
-
 //private function //
 
 POSITION_TYPE kinova_controller::InitPositionType(int value)
@@ -62,7 +60,7 @@ bool kinova_controller::Move2Home()
 	usleep(3000);
 	return result;
 }
-TrajectoryPoint  kinova_controller::ConvertControl( std::vector<double> & value)
+TrajectoryPoint  kinova_controller::ConvertControl( State & value)
 {
 	TrajectoryPoint pointToSend;
 	pointToSend.InitStruct();
@@ -93,7 +91,7 @@ TrajectoryPoint  kinova_controller::ConvertControl( std::vector<double> & value)
 	}
 	return pointToSend;
 }
-void kinova_controller::SendSingleCommand(std::vector<double> cmd)
+void kinova_controller::SendSingleCommand(State cmd)
 {
 	 TrajectoryPoint p;
 	 p = this->ConvertControl(cmd);
@@ -106,9 +104,9 @@ void kinova_controller::SendSingleCommand(std::vector<double> cmd)
 // f[0] = desired joint velocity
 // current_state[0] = actual joint position
 // current state[1] = actual joint velocity
-std::vector <double> kinova_controller::PID(std::vector<std::vector<double> > ff,std::vector<std::vector<double> > current_state)
+State kinova_controller::PID(std::vector<State> ff,std::vector<State> current_state)
 {
-	std::vector<double> result;
+	State result;
 	 // euler integration of velocity(ode1)
 	last_current_values[0] = last_current_values[0] + (this->time_interval*ff[0]);
 	// euler integration of the joint error position
@@ -117,10 +115,10 @@ std::vector <double> kinova_controller::PID(std::vector<std::vector<double> > ff
 	result = (P*(ff[0] - current_state[1])) + (I*last_current_values[1]) + ff[0];
 	return result;
 }
-bool kinova_controller::InitController(std::vector<std::vector<double> > initial_state)
+bool kinova_controller::InitController(std::vector<State> initial_state)
 {
 	 this->Move2Home();
-	 std::vector<double> zero(6,0);
+	 State zero(6,0);
 	 last_current_values.push_back(initial_state[0]);
 	 last_current_values.push_back(zero);
 	 last_current_values.push_back(zero);
@@ -128,16 +126,16 @@ bool kinova_controller::InitController(std::vector<std::vector<double> > initial
 	 index = 0;
 	 return true;
 }
-bool  kinova_controller::ExecController(std::vector<std::vector<double> > current_state)
+bool  kinova_controller::ExecController(std::vector<State> current_state)
 {
-	std::vector<std::vector<double> > feedforward;
+	// build the vector of vector of value that rapresent the reference to the control module
+	std::vector<State> feedforward;
     feedforward.push_back(ff[index]);
-	std::vector<double> result = this->PID(feedforward,current_state);
+	State result = this->PID(feedforward,current_state);
 	this->SendSingleCommand(result);
-    // using this control i will keep the last value
+    // using this if statement i will keep the last value when i will reach the end of this->ff vector
 	if(index<(int)feedforward.size())
 		index = index + 1;
-
 	return true;
 }
 

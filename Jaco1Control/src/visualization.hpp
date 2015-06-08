@@ -10,10 +10,8 @@
 
 #include <cstdio>
 #include <cstdlib>
-#include <iostream>
 #include <cstring>
 #include <cmath>
-#include <vector>
 #include <plplot/plstream.h>
 #include <boost/circular_buffer.hpp>
 #include "common.hpp"
@@ -40,7 +38,6 @@ struct data_vis
 	, label(s_a)
 	, title(s_b)
 	{
-		//y_min = std::vector<PLFLT>(d_a, end(d_a)); not work
 		this->NBLOCKS = _NBLOCKS;
 		this->NJOINTS = _NJOINTS;
 		this->chunk_dim = _chunk_dim;
@@ -63,7 +60,7 @@ public:
 	visualization(data_vis data);
 
     void Plot();
-    void Update(std::vector<std::vector<double>* > & lastval);
+    void Update(std::vector<State_ptr> & lastval);
 
 private:
     plstream *pls;

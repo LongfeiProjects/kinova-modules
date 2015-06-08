@@ -16,12 +16,6 @@
 #include "visualization.hpp"
 
 
-typedef boost::lockfree::queue<std::vector<double>* > DataFlow;
-typedef std::list<std::vector<double> >               DataStore;
-typedef boost::atomic<std::vector<double>* >          DataLast;
-
-
-
 //#define SLEEP_INTERVAL 10000    // ms    // with this value i control the sleep interval beetween
 //#define TORQUE_LIMIT 20         // Nm
 //#define EXT_FORCE_LIM  10       // Nm
@@ -85,8 +79,8 @@ class kinova_status : public stats
 		void ReadJoints(GeneralInformations & info, AngularPosition & ap);
 		void ReadCartesian(GeneralInformations & info);
 		void ReadCurrents(GeneralInformations & info);
-		int Read4Vis(std::vector<std::vector<double>* > & lastval);
-		bool GetLastValue(std::vector<double>& , std::string type );
+		int Read4Vis(std::vector<State_ptr > & lastval);
+		bool GetLastValue(State& , std::string type );
 
 };
 

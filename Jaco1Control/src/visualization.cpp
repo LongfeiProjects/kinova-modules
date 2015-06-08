@@ -56,27 +56,15 @@ visualization::visualization(data_vis data)
 }
 
 // update order: time,joints,torque,current
-void visualization::Update(std::vector<std::vector<double>* > & lastval)
+void visualization::Update(std::vector<State_ptr> & lastval)
 {
-	//DEBUG
-	//std::cout<<"lastval.size = "<<lastval.size()<<std::endl;
-	//std::cout<<"buf.size = "<<buf.size()<<std::endl;
-	//std::cout<< "update time in Update" << std::endl;
-	//---
 	// update time
 	time.push_back(lastval[0]->at(0));
-
-	//DEBUG
-	//std::cout<< "update other variables in Update" << std::endl;
-	//---
-	// update the other value
+	// update the other values
 	for(unsigned int i=0;i<buf.size();i++)
 	{
-		//DEBUG
-		//std::cout<<"current buf size = "<< buf[i].size()<<std::endl;
-		//---
-
 		for(int j=0;j<data.NJOINTS;j++)
+			// latval[i +1] because the first value is time
 			buf[i][j].push_back(lastval[i + 1]->at(j));
 	}
 

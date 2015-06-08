@@ -98,11 +98,11 @@ void kinova_status::Reading()
 	while(this->running.load(boost::memory_order_acquire))
 	{
 		GeneralInformations cur;
-		AngularPosition     ap;
+		AngularPosition     av;
 		(*MyGetGeneralInformations)(cur);
-		(*MyGetAngularVelocity)(ap);
+		(*MyGetAngularVelocity)(av);
 		this->ReadTimeStamp(cur);
-		this->ReadJoints(cur,ap);
+		this->ReadJoints(cur,av);
 		this->ReadCartesian(cur);
 		this->ReadCurrents(cur);
 		if(!first_write.load(boost::memory_order_acquire))
@@ -118,7 +118,7 @@ void kinova_status::Logging()
 {
 	while(this->running.load(boost::memory_order_acquire))
 	{
-		std::vector<std::vector<double>* > visvec;
+		std::vector<State_ptr> visvec;
 		int readckeck=this->Read4Vis(visvec);
 		if(readckeck)
 		{
@@ -154,7 +154,7 @@ void kinova_status::Cleaning()
 
 void kinova_status::ReadTimeStamp(GeneralInformations & info)
 {
-    std::vector<double> t_rob(1),t_cur(1);
+    State t_rob(1),t_cur(1);
 
     t_cur[0] = (double)((clock() - tStart)/CLOCKS_PER_SEC);
     t_rob[0] = info.TimeFromStartup;
@@ -166,9 +166,9 @@ void kinova_status::ReadTimeStamp(GeneralInformations & info)
 
 }
 
-void kinova_status::ReadJoints(GeneralInformations & info,AngularPosition & ap)
+void kinova_status::ReadJoints(GeneralInformations & info,AngularPosition & av)
 {
-	std::vector<double> app(6);
+	State app(6);
 	app[0]=info.Position.Actuators.Actuator1;
 	app[1]=info.Position.Actuators.Actuator2;
 	app[2]=info.Position.Actuators.Actuator3;
@@ -181,12 +181,12 @@ void kinova_status::ReadJoints(GeneralInformations & info,AngularPosition & ap)
 	// i can write for the vis less often then the other op
 	this->ang_pos.push( &(ds_ang_pos.back()) );
 
-	app[0]=ap.Actuators.Actuator1;
-	app[1]=ap.Actuators.Actuator2;
-	app[2]=ap.Actuators.Actuator3;
-	app[3]=ap.Actuators.Actuator4;
-	app[4]=ap.Actuators.Actuator5;
-	app[5]=ap.Actuators.Actuator6;
+	app[0]=av.Actuators.Actuator1;
+	app[1]=av.Actuators.Actuator2;
+	app[2]=av.Actuators.Actuator3;
+	app[3]=av.Actuators.Actuator4;
+	app[4]=av.Actuators.Actuator5;
+	app[5]=av.Actuators.Actuator6;
 
 	this->ds_ang_vel.push_back(app);
 	this->dl_ang_vel.store(&(ds_ang_vel.back()),boost::memory_order_release);
@@ -207,7 +207,7 @@ void kinova_status::ReadJoints(GeneralInformations & info,AngularPosition & ap)
 
 void kinova_status::ReadCartesian(GeneralInformations & info)
 {
-	std::vector<double> app(6);
+	State app(6);
 
 	app[0]=info.Position.CartesianPosition.X;
 	app[1]=info.Position.CartesianPosition.Y;
@@ -231,7 +231,7 @@ void kinova_status::ReadCartesian(GeneralInformations & info)
 
 void kinova_status::ReadCurrents(GeneralInformations & info)
 {
-	std::vector<double> app(6);
+	State app(6);
 	app[0]=info.Current.Actuators.Actuator1;
 	app[1]=info.Current.Actuators.Actuator2;
 	app[2]=info.Current.Actuators.Actuator3;
@@ -243,9 +243,9 @@ void kinova_status::ReadCurrents(GeneralInformations & info)
 	this->mot_amp.push( &(ds_mot_amp.back()) );
 }
 
-int kinova_status::Read4Vis(std::vector<std::vector<double>* > & lastval)
+int kinova_status::Read4Vis(std::vector<State_ptr> & lastval)
 {
-	std::vector<double>* app;
+	State_ptr app;
 
 	if( !(this->comp_t.empty()) && !(this->ang_pos.empty()) && !(this->ang_tau.empty()) && !(this->mot_amp.empty()) )
 	{
@@ -270,7 +270,7 @@ int kinova_status::Read4Vis(std::vector<std::vector<double>* > & lastval)
 	return 1;
 }
 
-bool kinova_status::GetLastValue(std::vector<double>& res, std::string type)
+bool kinova_status::GetLastValue(State& res, std::string type)
 {
 	if(first_write.load(boost::memory_order_acquire))
 	{

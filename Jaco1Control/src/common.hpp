@@ -11,7 +11,28 @@
 #include <vector>
 #include <cassert>
 #include <algorithm>
+#include <vector>
+#include <string>
+#include <iostream>
+#include <fstream>
+#include <sstream>
+#include <time.h>
+#include <boost/thread.hpp>
+#include <boost/lockfree/queue.hpp>
+#include <boost/atomic.hpp>
+#include <boost/date_time.hpp>
+#include <boost/shared_ptr.hpp>
+#include <armadillo>
 
+
+// typedef
+typedef arma::vec                                      State;
+typedef State*                                         State_ptr;
+typedef boost::lockfree::queue<State_ptr>              DataFlow;
+typedef std::list<State>                               DataStore;
+typedef boost::atomic<State_ptr>                       DataLast;
+
+// template function
 template<typename T, size_t N>
  T * End(T (&ra)[N]) {
     return ra + N;
@@ -31,8 +52,6 @@ std::vector<T> operator+(const std::vector<T>& a, const std::vector<T>& b)
                    std::back_inserter(result), std::plus<T>());
     return result;
 }
-
-
 template <typename T>
 std::vector<T> operator-(const std::vector<T>& a, const std::vector<T>& b)
 {
@@ -46,35 +65,24 @@ std::vector<T> operator-(const std::vector<T>& a, const std::vector<T>& b)
                    std::back_inserter(result), std::minus<T>());
     return result;
 }
-
 template <typename T>
-std::vector<T> operator*(T b,const std::vector<T>& a)
+T* GetData(std::vector<T>* vec)
 {
-	//FIX THIS!!!
-    //std::assert( a.size() == b.size() );
-
-    std::vector<T> result;
-    result.reserve(a.size());
-
-    std::transform(a.begin(), a.end(), a.begin(),
-    			   std::back_inserter(result),std::bind1st(std::multiplies<T>(),b));
-    return result;
+	T * p=&(*vec);
+	return p;
 }
 template <typename T>
-std::vector<T> operator*(const std::vector<T>& a,T b)
+T* GetData(arma::Col<T>* vec)
 {
-	//FIX THIS!!!
-    //std::assert( a.size() == b.size() );
-
-    std::vector<T> result;
-    result.reserve(a.size());
-
-    std::transform(a.begin(), a.end(), a.begin(),
-    			   std::back_inserter(result),std::bind1st(std::multiplies<T>(),b));
-    return result;
+	T * p = vec->memptr();
+}
+template <typename T>
+T* GetData(arma::Row<T>* vec)
+{
+	T * p = vec->memptr();
 }
 
 
-//ADD OPERATOR scalar product and subtraction
+
 
 #endif /* COMMON_HPP_ */
