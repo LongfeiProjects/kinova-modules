@@ -29,11 +29,13 @@ public:
 		virtual void SendSingleCommand(State cmd) = 0;
 		virtual State PID(std::vector<State> ff,std::vector<State> current_state) = 0;
 		virtual ~controller(){};
+		virtual void jacob0(double J0[][6], const double* input1)=0;
+		arma::mat J0(State & q,std::string type);
 
 		inline int ReadFile(std::string namefile,std::vector< State > & value)
 		{
 			std::ifstream infile;
-			int traj,Njoints;
+			int Njoints;
 
 			try
 			{
@@ -45,14 +47,7 @@ public:
 			  std::stringstream ss1(line);
 			  if ( !(ss1 >> Njoints) )
 			  {
-				  std::cout<<"problem reading the kind of control"<< std::endl;
-			  }
-			  // in the second line is defined the kind of trajectory
-			  std::getline(infile, line);
-			  std::stringstream ss2(line);
-			  if ( !(ss2 >> traj) )
-			  {
-				 std::cout<<"problem reading the kind of control"<< std::endl;
+				  std::cout<<"problem reading number of joint"<< std::endl;
 			  }
 
 			  while (std::getline(infile, line))
@@ -84,9 +79,8 @@ public:
 			  std::cerr << "Exception opening/reading/closing file\n";
 			}
 
-			return traj;
+			return Njoints;
 		}
-
 
 };
 

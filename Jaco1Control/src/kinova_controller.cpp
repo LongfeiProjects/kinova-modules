@@ -60,7 +60,7 @@ bool kinova_controller::Move2Home()
 	usleep(3000);
 	return result;
 }
-TrajectoryPoint  kinova_controller::ConvertControl( State & value)
+TrajectoryPoint  kinova_controller::ConvertControl(State & value)
 {
 	TrajectoryPoint pointToSend;
 	pointToSend.InitStruct();
@@ -68,6 +68,9 @@ TrajectoryPoint  kinova_controller::ConvertControl( State & value)
 	pointToSend.LimitationsActive = limitation;
 
 	//DEFINE LIMITATIONS HERE
+	pointToSend.Limitations.speedParameter1 = 0.5f;//We limit the translation velocity to 8 cm per second.
+	pointToSend.Limitations.speedParameter2 = 0.5f; //We limit the orientation velocity to 0.6 RAD per second
+
 
 
 	if(controltype==ANGULAR_POSITION || controltype==ANGULAR_VELOCITY)
@@ -140,4 +143,4 @@ bool  kinova_controller::ExecController(std::vector<State> current_state)
 }
 
 
-
+#include "Jaco.model"

@@ -2,10 +2,18 @@
 
 int main()
 {
-
+	// status reader
 	kinova_status * st= new kinova_status();
-	kinova_controller * ct = new kinova_controller(); // TO FIX
 
+	// controller
+	const double Pid_coef[] = {-10000,47,19}; // deg
+	std::vector<double> Pid(Pid_coef,End(Pid_coef));
+	std::string namefile = "ff.txt";
+	int controltype = 7;
+	bool limitation = 1;
+	kinova_controller * ct = new kinova_controller(Pid,namefile,controltype,limitation);
+
+	// checking module
 	// define bounding box
 	const double bb_point[] = {-0.6,-0.2,-0.4};
     const double bb_dims[]  = {1.2,0.4,0.7};

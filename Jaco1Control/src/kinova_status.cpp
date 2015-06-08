@@ -176,6 +176,12 @@ void kinova_status::ReadJoints(GeneralInformations & info,AngularPosition & av)
 	app[4]=info.Position.Actuators.Actuator5;
 	app[5]=info.Position.Actuators.Actuator6;
 
+	//DEBUG
+	//for(int i=0;i<6;i++)
+	//	std::cout<<app[i]<<" ";
+	//std::cout<<std::endl;
+	//---
+
 	this->ds_ang_pos.push_back(app);
 	this->dl_ang_pos.store( &(ds_ang_pos.back()),boost::memory_order_release);
 	// i can write for the vis less often then the other op

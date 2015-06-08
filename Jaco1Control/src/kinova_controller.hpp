@@ -36,6 +36,7 @@ public:
 	State PID(std::vector<State> ff,std::vector<State> current_state);
 	bool InitController(std::vector<State> initial_state);
 	bool ExecController(std::vector<State> current_state);
+	void jacob0(double J0[][6], const double* input1);
 
 };
 
