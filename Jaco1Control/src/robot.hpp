@@ -57,10 +57,10 @@ class robot
 					// control block
 					if(read_data)
 					{
-						/*if(contr->index == -1)
+						if(contr->index == -1)
 							contr->InitController(cur_val);
 						else
-							contr->ExecController(cur_val);*/
+							contr->ExecController(cur_val);
 					}
 
 					if (sf::Keyboard::isKeyPressed(sf::Keyboard::C))

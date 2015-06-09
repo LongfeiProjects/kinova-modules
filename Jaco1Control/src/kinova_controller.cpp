@@ -104,24 +104,31 @@ void kinova_controller::SendSingleCommand(State cmd)
 // last_current_values[0] = last joint position (desidered)
 // last_current_values[1] = last joint velocity  // not used
 // last_current_values[2] = integral of joint position error
-// f[0] = desired joint velocity
+// ff[0] = desired cartesian position
 // current_state[0] = actual joint position
 // current state[1] = actual joint velocity
 State kinova_controller::PID(std::vector<State> ff,std::vector<State> current_state)
 {
+
 	State result;
+	double lambda = 0.001; // bring outside
+	arma::mat J = this->J0(current_state[0],"trasl");
+	arma::mat I=arma::eye(J.n_rows,J.n_rows);
+	arma::mat J_brack = arma::inv(J*J.t() + I*lambda);
+	arma::mat J_damp = J.t()*(J_brack);
+	State qd_des = J_damp*ff[0];
 	 // euler integration of velocity(ode1)
-	last_current_values[0] = last_current_values[0] + (this->time_interval*ff[0]);
+	last_current_values[0] = last_current_values[0] + (this->time_interval*qd_des);
 	// euler integration of the joint error position
 	last_current_values[2] = last_current_values[2] +( (last_current_values[0]-current_state[0])*this->time_interval);
 	// computation of PI
-	result = (P*(ff[0] - current_state[1])) + (I*last_current_values[1]) + ff[0];
+	result = P*(qd_des - current_state[1]) + I*last_current_values[1] + qd_des;
 	return result;
 }
 bool kinova_controller::InitController(std::vector<State> initial_state)
 {
 	 this->Move2Home();
-	 State zero(6,0);
+	 State zero(6,0); // to check
 	 last_current_values.push_back(initial_state[0]);
 	 last_current_values.push_back(zero);
 	 last_current_values.push_back(zero);
@@ -135,7 +142,7 @@ bool  kinova_controller::ExecController(std::vector<State> current_state)
 	std::vector<State> feedforward;
     feedforward.push_back(ff[index]);
 	State result = this->PID(feedforward,current_state);
-	this->SendSingleCommand(result);
+	//this->SendSingleCommand(result);
     // using this if statement i will keep the last value when i will reach the end of this->ff vector
 	if(index<(int)feedforward.size())
 		index = index + 1;
