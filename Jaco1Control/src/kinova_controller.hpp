@@ -26,11 +26,12 @@ public:
 	bool limitation;
 
 	kinova_controller();
-	kinova_controller(std::vector<double> Pid,std::string namefile,int _controltype,bool _limitation);
+	kinova_controller(std::string namefile,std::vector<std::string> list_meas_value,
+						std::vector<double> Pid,int _controltype,bool _limitation,void * APIhandle);
 	~kinova_controller();
 
 	POSITION_TYPE InitPositionType(int value);
-	bool Move2Home();
+	int Move2Home();
 	TrajectoryPoint ConvertControl( State & value);
 	void SendSingleCommand(State cmd);
 	State PID(std::vector<State> ff,std::vector<State> current_state);

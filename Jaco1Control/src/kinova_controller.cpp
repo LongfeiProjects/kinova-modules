@@ -26,37 +26,48 @@ POSITION_TYPE kinova_controller::InitPositionType(int value)
 // public function//
 kinova_controller::kinova_controller()
 {
-	APIhandle = dlopen("Kinova.API.USBCommandLayerUbuntu.so",RTLD_NOW|RTLD_GLOBAL);
+	/*APIhandle = dlopen("Kinova.API.USBCommandLayerUbuntu.so",RTLD_NOW);
 	if(APIhandle != NULL)
 	{
 		MySetCartesianControl = (int (*)()) dlsym(APIhandle,"SetCartesianControl");
 		MySendAdvanceTrajectory = (int (*)(TrajectoryPoint)) dlsym(APIhandle,"SendAdvanceTrajectory");
 		MyMoveHome = (int (*)()) dlsym(APIhandle,"MoveHome");
-	}
+	}*/
 }
-kinova_controller::kinova_controller(std::vector<double> Pid,std::string namefile,int _controltype,bool _limitation)
+kinova_controller::kinova_controller(std::string namefile,std::vector<std::string> list_meas_value,
+										  std::vector<double> Pid,int _controltype,bool _limitation,void * _APIhandle)
 {
-	APIhandle = dlopen("Kinova.API.USBCommandLayerUbuntu.so",RTLD_NOW|RTLD_GLOBAL);
+	//APIhandle = dlopen("Kinova.API.USBCommandLayerUbuntu.so",RTLD_NOW|RTLD_GLOBAL);
+	APIhandle = _APIhandle;
 	if(APIhandle != NULL)
 	{
 		MySetCartesianControl = (int (*)()) dlsym(APIhandle,"SetCartesianControl");
 		MySendAdvanceTrajectory = (int (*)(TrajectoryPoint)) dlsym(APIhandle,"SendAdvanceTrajectory");
 		MyMoveHome = (int (*)()) dlsym(APIhandle,"MoveHome");
 	}
-	this->P = Pid[0];
-	this->I = Pid[1];
-	this->D = Pid[2];
-	index = -1; // for accessing inizialization procedure
-	this->time_interval = 0.01; // second
-	controltype = _controltype;
-	limitation = _limitation;
-	this->ReadFile(namefile,this->ff);
+	if((MySendAdvanceTrajectory == NULL) || (MySetCartesianControl == NULL) || (MyMoveHome == NULL))
+	{
+		perror( "Unable to initialize the command layer.");
+	}
+	else
+	{
+		this->P = Pid[0];
+		this->I = Pid[1];
+		this->D = Pid[2];
+		index = -1; // for accessing inizialization procedure
+		this->time_interval = 0.01; // second
+		this->measured_value = list_meas_value;
+		controltype = _controltype;
+		limitation = _limitation;
+		this->ReadFile(namefile,this->ff);
+	}
 }
 kinova_controller::~kinova_controller()
 {}
-bool kinova_controller::Move2Home()
+int kinova_controller::Move2Home()
 {
-	bool result = (*MyMoveHome)();
+	int result;
+	result = (*MyMoveHome)();
 	usleep(3000);
 	return result;
 }
@@ -99,7 +110,7 @@ void kinova_controller::SendSingleCommand(State cmd)
 	 TrajectoryPoint p;
 	 p = this->ConvertControl(cmd);
 	 (*MySendAdvanceTrajectory)(p);
-	 usleep(3000); // TO VERIFY
+	 //usleep(3000); // TO VERIFY
 }
 // last_current_values[0] = last joint position (desidered)
 // last_current_values[1] = last joint velocity  // not used
@@ -109,39 +120,69 @@ void kinova_controller::SendSingleCommand(State cmd)
 // current state[1] = actual joint velocity
 State kinova_controller::PID(std::vector<State> ff,std::vector<State> current_state)
 {
-
 	State result;
 	double lambda = 0.001; // bring outside
+	//DEBUG
+	std::cout<<"2.1"<<std::endl;
+	//----
 	arma::mat J = this->J0(current_state[0],"trasl");
 	arma::mat I=arma::eye(J.n_rows,J.n_rows);
 	arma::mat J_brack = arma::inv(J*J.t() + I*lambda);
 	arma::mat J_damp = J.t()*(J_brack);
 	State qd_des = J_damp*ff[0];
+	//DEBUG
+	std::cout<<"2.2"<<std::endl;
+	//----
 	 // euler integration of velocity(ode1)
 	last_current_values[0] = last_current_values[0] + (this->time_interval*qd_des);
 	// euler integration of the joint error position
 	last_current_values[2] = last_current_values[2] +( (last_current_values[0]-current_state[0])*this->time_interval);
 	// computation of PI
 	result = P*(qd_des - current_state[1]) + I*last_current_values[1] + qd_des;
+	//DEBUG
+	std::cout<<"2.3"<<std::endl;
+	//----
 	return result;
 }
 bool kinova_controller::InitController(std::vector<State> initial_state)
 {
-	 this->Move2Home();
-	 State zero(6,0); // to check
+	 //DEBUG
+	std::cout<<"0.1"<<std::endl;
+	//----
+	 State zero(6,0);
+	//DEBUG
+	std::cout<<"0.2"<<std::endl;
+	//----
 	 last_current_values.push_back(initial_state[0]);
 	 last_current_values.push_back(zero);
 	 last_current_values.push_back(zero);
+	 //DEBUG
+	std::cout<<"0.3"<<std::endl;
+	//----
 	 // this is really important! because in this way i can exit from initialization and start the execution of controller
 	 index = 0;
 	 return true;
 }
 bool  kinova_controller::ExecController(std::vector<State> current_state)
 {
-	// build the vector of vector of value that rapresent the reference to the control module
+	//DEBUG
+	std::cout<<"1"<<std::endl;
+	//----
+	// build the vector of vector of value that represent the reference to the control module
 	std::vector<State> feedforward;
     feedforward.push_back(ff[index]);
+    //DEBUG
+	std::cout<<"2"<<std::endl;
+	//----
 	State result = this->PID(feedforward,current_state);
+	//DEBUG
+	std::cout<<"3"<<std::endl;
+	//----
+	//DEBUG
+	for(unsigned int i =0;i<result.size();i++)
+		std::cout<<result[i]<<" ";
+	std::cout<<std::endl;
+	//---
 	//this->SendSingleCommand(result);
     // using this if statement i will keep the last value when i will reach the end of this->ff vector
 	if(index<(int)feedforward.size())

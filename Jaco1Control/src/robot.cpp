@@ -36,6 +36,7 @@ void robot::Cheking()
 			if(read_data)
 			{
 				this->check.VerifyViolation(cur_val);
+				// add control to stop robot if i violate something
 			}
 			// add control through interface
 			/*if (sf::Keyboard::isKeyPressed(sf::Keyboard::S))

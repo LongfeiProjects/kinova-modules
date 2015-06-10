@@ -35,7 +35,7 @@ kinova_status::kinova_status()
 	log_stats = NULL;
 	garbage_collection = NULL;
 
-	void * APIhandle = dlopen("Kinova.API.USBCommandLayerUbuntu.so",RTLD_NOW|RTLD_GLOBAL);
+	APIhandle = dlopen("Kinova.API.USBCommandLayerUbuntu.so",RTLD_NOW|RTLD_GLOBAL);
 	MyInitAPI = (int (*)()) dlsym(APIhandle,"InitAPI");
 	MyCloseAPI = (int (*)()) dlsym(APIhandle,"CloseAPI");
 	MyStartControlAPI = (int (*)()) dlsym(APIhandle,"StartControlAPI");
@@ -60,7 +60,7 @@ kinova_status::kinova_status()
 
 		if(result == SUCCESS)
 		{
-			std::cout<<"can execute program"<<std::endl;
+			std::cout<<"can execute program kinova status"<<std::endl;
 		}
 		else
 		{
@@ -109,6 +109,7 @@ void kinova_status::Reading()
 		{
 			first_write.store(true,boost::memory_order_release);
 		}
+		boost::this_thread::sleep(boost::posix_time::milliseconds(10000));
 	}
 	std::cout<<"im out of Reading thread"<<std::endl;
 }
@@ -177,9 +178,9 @@ void kinova_status::ReadJoints(GeneralInformations & info,AngularPosition & av)
 	app[5]=info.Position.Actuators.Actuator6;
 
 	//DEBUG
-	//for(int i=0;i<6;i++)
-	//	std::cout<<app[i]<<" ";
-	//std::cout<<std::endl;
+	for(int i=0;i<6;i++)
+		std::cout<<app[i]<<" ";
+	std::cout<<std::endl;
 	//---
 
 	this->ds_ang_pos.push_back(app);

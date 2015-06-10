@@ -48,7 +48,10 @@ class robot
 					for(unsigned int i = 0;i<contr->measured_value.size();i++)
 					{
 						State res;
-						read_data = st->GetLastValue(res,check.checklist[i]);
+						read_data = st->GetLastValue(res,contr->measured_value[i]);
+						//DEBUG
+						//std::cout<<"read_data= "<<read_data<<std::endl;
+						//---
 						if(read_data)
 						{
 							cur_val.push_back(res);
@@ -58,15 +61,29 @@ class robot
 					if(read_data)
 					{
 						if(contr->index == -1)
-							contr->InitController(cur_val);
+						{
+							//DEBUG
+							std::cout<<"before move2home"<<std::endl;
+							//---
+							contr->Move2Home();
+							//DEBUG
+							std::cout<<"after move2home"<<std::endl;
+							//---
+							//contr->InitController(cur_val);
+						}
 						else
-							contr->ExecController(cur_val);
+						{
+							//DEBUG
+							std::cout<<"im in exec controller"<<std::endl;
+							//---
+							//contr->ExecController(cur_val);
+						}
 					}
 
 					if (sf::Keyboard::isKeyPressed(sf::Keyboard::C))
 					{
 						std::cout<< "---------------------------------------------------------"<<std::endl;
-						this->stop.store(true,boost::memory_order_release);;
+						this->stop.store(true,boost::memory_order_release);
 						this->StopAllThread();
 					}
 
@@ -76,7 +93,12 @@ class robot
 			catch(const std::exception &e)
 			{
 				std::cout<< "something gone wrong"<<std::endl;
+				this->stop.store(true,boost::memory_order_release);
 				this->StopAllThread();
+				//DEBUG
+				std::cout<<" after stopping thread"<<std::endl;
+				//---
+				return;
 			}
 		};
 

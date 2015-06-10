@@ -39,7 +39,7 @@ class kinova_status : public stats
 		int (*MyGetSensorsInfo)(SensorsInfo &);
 		int (*MyGetActuatorAcceleration)(AngularAcceleration &);*/
 
-		// global info
+
 		int (*MyInitAPI)();
 		int (*MyCloseAPI)();
 		int (*MyStartControlAPI)();
@@ -50,6 +50,7 @@ class kinova_status : public stats
 		visualization vis;
 		int Max_DS_allowed;
 	public:
+		void * APIhandle;
 		boost::atomic<bool> running;
 		boost::atomic<bool> first_write;
 		boost::thread* reader_stats;
