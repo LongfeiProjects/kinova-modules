@@ -13,6 +13,8 @@
 class driverbot : stats
 {
 	public:
+	    int idclient;
+	    bool sync;
 		boost::atomic<bool> running;
 		boost::atomic<bool> first_write;
 		boost::thread* reader_stats;
@@ -23,7 +25,8 @@ class driverbot : stats
 		DataStore ds_cart_f;	DataLast dl_cart_f;
 		DataStore ds_mot_amp;
 		DataStore ds_comp_t;
-
+		// constructor
+		driverbot(bool sync);
 	    bool GetLastValue(State& , std::string type );
 	    void Start();
 	    void Stop();

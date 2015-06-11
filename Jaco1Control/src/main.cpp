@@ -13,7 +13,7 @@ int main()
 	std::vector<std::string> meas_val(_meas_val,End(_meas_val));
 	int controltype = 7;
 	bool limitation = 1;
-	kinova_controller * ct = new kinova_controller(namefile,meas_val,Pid,controltype,limitation,st->APIhandle); // very rough patch because i can have only one handle
+	kinova_controller * ct = new kinova_controller(namefile,meas_val,Pid,controltype,limitation,st->APIhandle); // very rough patch because i can have only one API handle
 
 	// checking module
 	// define bounding box
