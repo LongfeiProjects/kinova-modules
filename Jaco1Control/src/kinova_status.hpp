@@ -16,6 +16,7 @@
 #include "visualization.hpp"
 
 
+
 //#define SLEEP_INTERVAL 10000    // ms    // with this value i control the sleep interval beetween
 //#define TORQUE_LIMIT 20         // Nm
 //#define EXT_FORCE_LIM  10       // Nm

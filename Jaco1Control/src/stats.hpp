@@ -9,11 +9,12 @@
 #define STATS_HPP_
 
 #include "common.hpp"
-
+#include "model.hpp"
 
 class stats
 {
    public:
+	  boost::shared_ptr<model>  bot;
       // pure virtual function
       virtual bool GetLastValue(State& , std::string type ) = 0;
       virtual void Start() = 0;

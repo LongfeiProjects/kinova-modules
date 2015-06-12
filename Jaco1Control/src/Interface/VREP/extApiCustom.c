@@ -25,19 +25,19 @@
 // -------------------------------------------------------------------
 //
 // This file was automatically created for V-REP release V3.1.3 on Sept. 30th 2014
-#include "extApiCustomConst.h"
+#include <extApiCustomConst.h>
+#include "extApiCustom.h"
 
 
 /* Your custom remote API functions. Following are examples: */
-
-EXTAPI_DLLEXPORT simxInt simxCustomGetObjectCount(simxInt clientID,simxInt* objectCount,simxInt operationMode)
+ simxInt simxCustomGetObjectCount(simxInt clientID,simxInt* objectCount,simxInt operationMode)
 {
 	simxUChar* dataPointer;
 	simxInt returnValue; /* every "regular" remote API function returns a same error code */
 
 	/* First catch a possible error: */
-	if (_communicationThreadRunning[clientID]==0)
-		return(simx_return_initialize_error_flag);
+	//if (_communicationThreadRunning[clientID]==0)
+	//	return(simx_return_initialize_error_flag);
 
 	/* Then take care of the "remove" operation mode: */
 	if (operationMode==simx_opmode_remove)
@@ -60,8 +60,8 @@ EXTAPI_DLLEXPORT simxInt simxCustomGetObjectType(simxInt clientID,simxInt object
 	simxInt returnValue;
 
 	/* First catch a possible error: */
-	if (_communicationThreadRunning[clientID]==0)
-		return(simx_return_initialize_error_flag);
+	//if (_communicationThreadRunning[clientID]==0)
+	//	return(simx_return_initialize_error_flag);
 
 	/* Then take care of the "remove" operation mode: */
 	if (operationMode==simx_opmode_remove)
@@ -83,8 +83,8 @@ EXTAPI_DLLEXPORT simxInt simxCustomSetObjectName(simxInt clientID,simxInt object
 	simxInt returnValue;
 
 	/* First catch a possible error: */
-	if (_communicationThreadRunning[clientID]==0)
-		return(simx_return_initialize_error_flag);
+	//if (_communicationThreadRunning[clientID]==0)
+	//	return(simx_return_initialize_error_flag);
 
 	/* Then take care of the "remove" operation mode: */
 	if (operationMode==simx_opmode_remove)
@@ -104,8 +104,8 @@ EXTAPI_DLLEXPORT simxInt simxCustomGetTime(simxInt clientID,simxFloat* time,simx
 	simxUChar* dataPointer;
 
 	/* First catch a possible error: */
-	if (_communicationThreadRunning[clientID]==0)
-		return(simx_return_initialize_error_flag);
+	//if (_communicationThreadRunning[clientID]==0)
+	//	return(simx_return_initialize_error_flag);
 
 	/* Then take care of the "remove" operation mode: */
 	if (operationMode==simx_opmode_remove)
@@ -129,8 +129,8 @@ EXTAPI_DLLEXPORT simxInt simxCustomGetDelta(simxInt clientID,simxFloat* delta,si
 	simxUChar* dataPointer;
 
 	/* First catch a possible error: */
-	if (_communicationThreadRunning[clientID]==0)
-		return(simx_return_initialize_error_flag);
+	//if (_communicationThreadRunning[clientID]==0)
+	//	return(simx_return_initialize_error_flag);
 
 	/* Then take care of the "remove" operation mode: */
 	if (operationMode==simx_opmode_remove)
@@ -155,8 +155,8 @@ EXTAPI_DLLEXPORT simxInt simxCustomGetUIButtonLabel(simxInt clientID,simxInt uiH
 	simxInt returnValue;
 
 	/* First catch a possible error: */
-	if (_communicationThreadRunning[clientID]==0)
-		return(simx_return_initialize_error_flag);
+	//if (_communicationThreadRunning[clientID]==0)
+	//	return(simx_return_initialize_error_flag);
 
 	/* Then take care of the "remove" operation mode: */
 	if (operationMode==simx_opmode_remove)
@@ -179,8 +179,8 @@ EXTAPI_DLLEXPORT simxInt simxCustomGetScriptHandle(simxInt clientID,const simxCh
 	simxInt returnValue;
 
 	/* First catch a possible error: */
-	if (_communicationThreadRunning[clientID]==0)
-		return(simx_return_initialize_error_flag);
+	//if (_communicationThreadRunning[clientID]==0)
+	//	return(simx_return_initialize_error_flag);
 
 	/* Then take care of the "remove" operation mode: */
 	if (operationMode==simx_opmode_remove)

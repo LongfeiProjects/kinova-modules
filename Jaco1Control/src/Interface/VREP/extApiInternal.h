@@ -36,6 +36,7 @@
 
 #define _REPLY_WAIT_TIMEOUT_IN_MS 5000
 #define _MIN_SPLIT_AMOUNT_IN_BYTES 100
+#define MAX_EXT_API_CONNECTIONS 255
 
 /* Out buffer for messages */
 simxUChar* _messageToSend[MAX_EXT_API_CONNECTIONS];

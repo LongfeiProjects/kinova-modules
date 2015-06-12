@@ -10,7 +10,7 @@
 #define CONTROLLER_HPP_
 
 #include "common.hpp"
-
+#include "model.hpp"
 class controller
 {
 public:
@@ -21,7 +21,7 @@ public:
     int index;  // current value
     std::vector<State> last_current_values; // variable to storage values for control purpose;
     std::vector<std::string> measured_value; // vector of string that describe the value that want to measure and in which order we want them
-
+    boost::shared_ptr<model>  bot;
 	public:
     	virtual int Move2Home() = 0;
     	virtual bool InitController(std::vector<State> initial_state) = 0;
@@ -29,8 +29,6 @@ public:
 		virtual void SendSingleCommand(State cmd) = 0;
 		virtual State PID(std::vector<State> ff,std::vector<State> current_state) = 0;
 		virtual ~controller(){};
-		virtual void jacob0(double J0[][6], const double* input1)=0;
-		arma::mat J0(State & q,std::string type);
 
 		inline int ReadFile(std::string namefile,std::vector< State > & value)
 		{

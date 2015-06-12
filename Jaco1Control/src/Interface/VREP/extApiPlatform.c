@@ -28,7 +28,7 @@
 
 #include "extApiPlatform.h"
 #include <stdio.h>
-
+#define MAX_EXT_API_CONNECTIONS 255
 #ifdef _WIN32
 	#include <Windows.h>
 	#include <process.h>

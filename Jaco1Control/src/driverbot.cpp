@@ -5,68 +5,129 @@
  *      Author: vale
  */
 #include "driverbot.hpp"
-#include "../Interface/VREP/extApi.h"
-#include "../Interface/VREP/VrepDefinition.h"
+#include "Interface/VREP/extApi.h"
+#include "Interface/VREP/extApiCustom.h"
 
-driverbot::driverbot(bool _sync)
+
+driverbot::driverbot(bool _sync,std::string joint_base_name,model * bot)
 {
-	char * connectionAddress= "127.0.0.1";
+	std::string connectionAddress= "127.0.0.1";
 	simxInt connectionPort = 19996;
 	simxInt timeOutInMs = 2000;
 	simxInt commThreadCycleInMs = 5;
 	//  if different from zero, then the function blocks until connected (or timed out).
-	simxUChar waitUntilConnected = "a";
+	simxUChar waitUntilConnected = 'a';
 	// if different from zero, then the communication thread will not attempt a second connection if a connection was lost.
-	simxUChar doNotReconnectOnceDisconnected = "a";
+	simxUChar doNotReconnectOnceDisconnected = 'a';
 	//open connection
- 	idclient = simxStart(connectionAddress,connectionPort,waitUntilConnected,doNotReconnectOnceDisconnected,timeOutInMs,commThreadCycleInMs);
+ 	idclient = simxStart(connectionAddress.c_str(),connectionPort,waitUntilConnected,doNotReconnectOnceDisconnected,timeOutInMs,commThreadCycleInMs);
  	sync = _sync;
  	if(sync)
  	{
- 		simxUChar en="enable";
+ 		simxUChar en='enable';
  		simxSynchronous(this->idclient,en);
  	}
-
+ 	// read joint handle
+ 	bool more_joint = true;
+ 	simxInt* handle;
+ 	NJoints =0;
+ 	while(more_joint)
+ 	{
+ 		std::string current_joint_name(joint_base_name);
+ 		std::string s = SSTR(NJoints);
+ 		s = current_joint_name + s;
+ 		int res = simxGetObjectHandle(this->idclient,s.c_str(),handle,simx_opmode_oneshot);
+ 		if(res != 0)
+ 			more_joint = false;
+ 		NJoints++;
+ 	}
  	reader_stats = NULL;
  	garbage_collection = NULL;
 
 }
 
+driverbot::~driverbot(){}
+
+bool driverbot::GetLastValue(State& , std::string type )
+{}
+
 void driverbot::Start()
 {
-	this->reader_stats = new boost::thread(boost::bind(&kinova_status::Reading,this));
-	this->garbage_collection = new boost::thread(boost::bind(&kinova_status::Cleaning,this));
+	this->reader_stats = new boost::thread(boost::bind(&driverbot::Reading,this));
+	this->garbage_collection = new boost::thread(boost::bind(&driverbot::Cleaning,this));
 	simxStartSimulation(this->idclient,simx_opmode_oneshot);
 }
 
-
+void driverbot::Stop()
+{}
 void driverbot::Reading()
 {
 	while(this->running.load(boost::memory_order_acquire))
 	{
 		this->ReadTimeStamp();
-		this->ReadJoints();
-		this->ReadCartesian();
+		State pos=this->ReadJoints();
+		this->ReadCartesian(pos);
 		if(!first_write.load(boost::memory_order_acquire))
 		{
 			first_write.store(true,boost::memory_order_release);
 		}
 	}
-
 }
-
+void driverbot::Cleaning()
+{}
 
 void driverbot::ReadTimeStamp()
 {
+	State t_cur(1);
+	simxFloat* _time;
+	simxCustomGetTime(this->idclient,_time,simx_opmode_oneshot);
+	t_cur[0] = *(_time);
+	this->ds_t.push_back(t_cur);
+	this->dl_t.store( &(ds_t.back()),boost::memory_order_release);
+}
+State driverbot::ReadJoints()
+{
+	State app_pos(this->NJoints),app_vel(this->NJoints),app_tau(this->NJoints);
+	simxFloat* p;
+	simxInt parameterID = 2012; // this parameter is necessary to read the joint velocity
+	for(int i=0;i<NJoints;i++)
+	{
+		simxGetJointPosition(idclient,joint_handle[i],p,simx_opmode_oneshot);
+		app_pos[i] = (*p);
+	}
+	for(int i=0;i<NJoints;i++)
+	{
+		simxGetObjectFloatParameter(idclient,joint_handle[i],parameterID,p,simx_opmode_oneshot);
+		app_vel[i] = (*p);
+	}
+	for(int i=0;i<NJoints;i++)
+	{
+		simxGetJointForce(idclient,joint_handle[i],p,simx_opmode_oneshot);
+		app_tau[i] = (*p);
+	}
+
+	this->ds_ang_pos.push_back(app_pos);
+	this->dl_ang_pos.store( &(ds_ang_pos.back()),boost::memory_order_release);
+
+
+	this->ds_ang_vel.push_back(app_vel);
+	this->dl_ang_vel.store(&(ds_ang_vel.back()),boost::memory_order_release);
+
+
+	this->ds_ang_tau.push_back(app_tau);
+	this->dl_ang_tau.store( &(ds_ang_tau.back()),boost::memory_order_release);
+
+	return app_pos;
 
 }
-void driverbot::ReadJoints()
+void driverbot::ReadCartesian(State q)
 {
+	State p;
+	arma::mat R;
+	bot->DK(q,p,R);
 
-}
-void driverbot::ReadCartesian()
-{
-
+	this->ds_cart.push_back(p);
+	this->dl_cart.store( &(ds_cart.back()),boost::memory_order_release);
 
 }
 

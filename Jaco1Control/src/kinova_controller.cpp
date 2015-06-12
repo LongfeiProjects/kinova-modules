@@ -6,6 +6,8 @@
  */
 
 #include "kinova_controller.hpp"
+#include "robot/Jaco.hpp"
+
 
 //private function //
 
@@ -36,6 +38,7 @@ kinova_controller::kinova_controller()
 }
 kinova_controller::kinova_controller(std::string namefile,std::vector<std::string> list_meas_value,
 										  std::vector<double> Pid,int _controltype,bool _limitation,void * _APIhandle)
+
 {
 	//APIhandle = dlopen("Kinova.API.USBCommandLayerUbuntu.so",RTLD_NOW|RTLD_GLOBAL);
 	APIhandle = _APIhandle;
@@ -55,11 +58,13 @@ kinova_controller::kinova_controller(std::string namefile,std::vector<std::strin
 		this->I = Pid[1];
 		this->D = Pid[2];
 		index = -1; // for accessing inizialization procedure
-		this->time_interval = 0.01; // second
+		this->time_interval = 0.01; // second TO CHANGE
 		this->measured_value = list_meas_value;
 		controltype = _controltype;
 		limitation = _limitation;
 		this->ReadFile(namefile,this->ff);
+		Jaco *modl =new Jaco();
+		//this->bot(new Jaco());
 	}
 }
 kinova_controller::~kinova_controller()
@@ -125,7 +130,7 @@ State kinova_controller::PID(std::vector<State> ff,std::vector<State> current_st
 	//DEBUG
 	std::cout<<"2.1"<<std::endl;
 	//----
-	arma::mat J = this->J0(current_state[0],"trasl");
+	arma::mat J = bot->J0(current_state[0],"trasl");
 	arma::mat I=arma::eye(J.n_rows,J.n_rows);
 	arma::mat J_brack = arma::inv(J*J.t() + I*lambda);
 	arma::mat J_damp = J.t()*(J_brack);
@@ -190,5 +195,3 @@ bool  kinova_controller::ExecController(std::vector<State> current_state)
 	return true;
 }
 
-
-#include "Jaco.model"

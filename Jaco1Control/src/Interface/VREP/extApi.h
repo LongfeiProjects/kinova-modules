@@ -29,9 +29,11 @@
 #ifndef _EXTAPI__
 #define _EXTAPI__
 
+#define NON_MATLAB_PARSING
+
 #ifdef NON_MATLAB_PARSING /* when compiling, make sure NON_MATLAB_PARSING is always defined! */
 	#include "extApiPlatform.h"
-	#include "v_repConst.h"
+	#include <v_repConst.h>
 #else 
 	typedef char simxChar;
 	typedef unsigned char simxUChar;
@@ -117,10 +119,6 @@ simxInt _receiveSimplePacket_socket(simxInt clientID,simxUChar** packet,simxShor
 
 #endif /* NON_MATLAB_PARSING */
 
-
-/* The remote API functions */
-#include "extApiCustom.h"
-/* custom function*/
 //EXTAPI_DLLEXPORT simxInt simxCustomGetTime(simxInt clientID,simxFloat* time,simxInt operationMode); /* related to command ID: simx_customcmd_set_object_name */
 //EXTAPI_DLLEXPORT simxInt simxCustomGetDelta(simxInt clientID,simxFloat* delta,simxInt operationMode);
 

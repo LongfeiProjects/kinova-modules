@@ -29,8 +29,7 @@
 #ifndef _EXTAPICUSTOM__
 #define _EXTAPICUSTOM__
 
-/*#include "extApiPlatform.h" */
-
+#include "extApiPlatform.h"
 #ifdef _WIN32
 	#define EXTAPI_DLLEXPORT extern __declspec(dllexport)
 #endif

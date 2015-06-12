@@ -1,5 +1,5 @@
 #include "kinova_status.hpp"
-
+#include "robot/dummybot.hpp"
 
 
 kinova_status::kinova_status()
@@ -11,7 +11,7 @@ kinova_status::kinova_status()
 , mot_amp(0)
 , comp_t(0)
 {
-	// move this guy outside the constructor
+	// move this guys outside the constructor
 	int NBLOCKS = 3;
 	int NJOINTS = 6;
 	int chunk_dim = 500;
@@ -28,13 +28,15 @@ kinova_status::kinova_status()
 	const char *s_b[]= {"joints","torques","currents"};
 	std::vector<std::string> title(s_b,End(s_b));
 	vis = visualization(NBLOCKS,NJOINTS,chunk_dim,x_min,x_max,low_thresh,high_thresh,y_min,y_max,label,title);
-	//----
-
+	// robot
+	dummybot *test = new dummybot();
+	//this->bot(test);
+	//thread related
 	Max_DS_allowed = 10000;
 	reader_stats = NULL;
 	log_stats = NULL;
 	garbage_collection = NULL;
-
+	// kinova api
 	APIhandle = dlopen("Kinova.API.USBCommandLayerUbuntu.so",RTLD_NOW|RTLD_GLOBAL);
 	MyInitAPI = (int (*)()) dlsym(APIhandle,"InitAPI");
 	MyCloseAPI = (int (*)()) dlsym(APIhandle,"CloseAPI");

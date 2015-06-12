@@ -32,6 +32,9 @@ typedef boost::lockfree::queue<State_ptr>              DataFlow;
 typedef std::list<State>                               DataStore;
 typedef boost::atomic<State_ptr>                       DataLast;
 
+#define SSTR( x ) dynamic_cast< std::ostringstream & >( \
+        ( std::ostringstream() << std::dec << x ) ).str();
+
 // template function
 template<typename T, size_t N>
  T * End(T (&ra)[N]) {
