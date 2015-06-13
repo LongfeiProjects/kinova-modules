@@ -32,8 +32,8 @@
 #define NON_MATLAB_PARSING
 
 #ifdef NON_MATLAB_PARSING /* when compiling, make sure NON_MATLAB_PARSING is always defined! */
-	#include "extApiPlatform.h"
-	#include <v_repConst.h>
+	#include "extApiPlatform.hpp"
+	#include "include/v_repConst.h"
 #else 
 	typedef char simxChar;
 	typedef unsigned char simxUChar;
@@ -50,7 +50,7 @@
 	#define EXTAPI_DLLEXPORT extern __declspec(dllexport)
 #endif
 #if defined (__linux) || defined (__APPLE__)
-	#define EXTAPI_DLLEXPORT extern
+#define EXTAPI_DLLEXPORT extern
 #endif
 
 /* Use following to test endianness detection on little endian machines (endianness of the client is handled on the server side)

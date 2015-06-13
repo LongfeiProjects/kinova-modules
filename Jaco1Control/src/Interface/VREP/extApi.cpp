@@ -26,8 +26,8 @@
 //
 // This file was automatically created for V-REP release V3.1.3 on Sept. 30th 2014
 
-#include "extApi.h"
-#include "extApiInternal.h"
+#include "extApi.hpp"
+#include "extApiInternal.hpp"
 #include <stdio.h>
 
 #ifdef _Included_extApiJava
@@ -2027,16 +2027,6 @@ simxInt _removeCommandReply_string(simxInt clientID,simxInt cmdRaw,const simxUCh
 Following are the remote API helper functions
 **********************************************
 */
-
-
-// *************************************************************************
-// Here we have the custom remote API functions (i.e. designed by the user)
-// Not very elegant and considered bad practice to do this kind of inclusion,
-// but here we go anyway:
-#include "extApiCustom.c"
-// *************************************************************************
-
-
 EXTAPI_DLLEXPORT simxInt simxGetConnectionId(simxInt clientID)
 {
 	if (_communicationThreadRunning[clientID]==0)

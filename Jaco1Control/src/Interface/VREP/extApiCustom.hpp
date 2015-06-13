@@ -29,12 +29,13 @@
 #ifndef _EXTAPICUSTOM__
 #define _EXTAPICUSTOM__
 
-#include "extApiPlatform.h"
+
+#include "extApiPlatform.hpp"
 #ifdef _WIN32
 	#define EXTAPI_DLLEXPORT extern __declspec(dllexport)
 #endif
 #if defined (__linux) || defined (__APPLE__)
-	#define EXTAPI_DLLEXPORT extern
+#define EXTAPI_DLLEXPORT extern
 #endif
 
 /* Your custom remote API functions. Following are examples: */

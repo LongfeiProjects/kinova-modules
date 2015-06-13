@@ -26,7 +26,7 @@
 //
 // This file was automatically created for V-REP release V3.1.3 on Sept. 30th 2014
 
-#include "extApiPlatform.h"
+#include "extApiPlatform.hpp"
 #include <stdio.h>
 #define MAX_EXT_API_CONNECTIONS 255
 #ifdef _WIN32

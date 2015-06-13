@@ -5,8 +5,8 @@
  *      Author: vale
  */
 #include "driverbot.hpp"
-#include "Interface/VREP/extApi.h"
-#include "Interface/VREP/extApiCustom.h"
+#include "Interface/VREP/extApi.hpp"
+#include "Interface/VREP/extApiCustom.hpp"
 
 
 driverbot::driverbot(bool _sync,std::string joint_base_name,model * bot)
@@ -29,7 +29,7 @@ driverbot::driverbot(bool _sync,std::string joint_base_name,model * bot)
  	}
  	// read joint handle
  	bool more_joint = true;
- 	simxInt* handle;
+ 	simxInt* handle = NULL;
  	NJoints =0;
  	while(more_joint)
  	{
@@ -79,7 +79,7 @@ void driverbot::Cleaning()
 void driverbot::ReadTimeStamp()
 {
 	State t_cur(1);
-	simxFloat* _time;
+	simxFloat* _time = NULL;
 	simxCustomGetTime(this->idclient,_time,simx_opmode_oneshot);
 	t_cur[0] = *(_time);
 	this->ds_t.push_back(t_cur);

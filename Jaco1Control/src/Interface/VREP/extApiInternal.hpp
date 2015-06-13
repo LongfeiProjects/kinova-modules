@@ -29,7 +29,7 @@
 #ifndef __EXTAPIINTERNAL_
 #define __EXTAPIINTERNAL_
 
-#include "extApiPlatform.h"
+#include "extApiPlatform.hpp"
 
 #define SIMX_INIT_BUFF_SIZE 500
 #define SIMX_MIN_BUFF_INCR 500
@@ -39,45 +39,45 @@
 #define MAX_EXT_API_CONNECTIONS 255
 
 /* Out buffer for messages */
-simxUChar* _messageToSend[MAX_EXT_API_CONNECTIONS];
-simxInt _messageToSend_bufferSize[MAX_EXT_API_CONNECTIONS];
-simxInt _messageToSend_dataSize[MAX_EXT_API_CONNECTIONS];
+extern simxUChar* _messageToSend[];
+extern simxInt _messageToSend_bufferSize[];
+extern simxInt _messageToSend_dataSize[];
 
 /* Temp buffer for split commands to send */
-simxUChar* _splitCommandsToSend[MAX_EXT_API_CONNECTIONS];
-simxInt _splitCommandsToSend_bufferSize[MAX_EXT_API_CONNECTIONS];
-simxInt _splitCommandsToSend_dataSize[MAX_EXT_API_CONNECTIONS];
+extern simxUChar* _splitCommandsToSend[];
+extern simxInt _splitCommandsToSend_bufferSize[];
+extern simxInt _splitCommandsToSend_dataSize[];
 
 /* In buffer for messages */
-simxUChar* _messageReceived[MAX_EXT_API_CONNECTIONS];
-simxInt _messageReceived_bufferSize[MAX_EXT_API_CONNECTIONS];
-simxInt _messageReceived_dataSize[MAX_EXT_API_CONNECTIONS];
+extern simxUChar* _messageReceived[];
+extern simxInt _messageReceived_bufferSize[];
+extern simxInt _messageReceived_dataSize[];
 
 /* Temp buffer for split commands received */
-simxUChar* _splitCommandsReceived[MAX_EXT_API_CONNECTIONS];
-simxInt _splitCommandsReceived_bufferSize[MAX_EXT_API_CONNECTIONS];
-simxInt _splitCommandsReceived_dataSize[MAX_EXT_API_CONNECTIONS];
+extern simxUChar* _splitCommandsReceived[];
+extern simxInt _splitCommandsReceived_bufferSize[];
+extern simxInt _splitCommandsReceived_dataSize[];
 
 /* Temp buffer for last fetched command */
-simxUChar* _commandReceived[MAX_EXT_API_CONNECTIONS];
-simxInt _commandReceived_bufferSize[MAX_EXT_API_CONNECTIONS];
-simxInt _commandReceived_simulationTime[MAX_EXT_API_CONNECTIONS];
+extern simxUChar* _commandReceived[];
+extern simxInt _commandReceived_bufferSize[];
+extern simxInt _commandReceived_simulationTime[];
 
 /* Other variables */
-simxInt _nextConnectionID[MAX_EXT_API_CONNECTIONS];
-simxInt _replyWaitTimeoutInMs[MAX_EXT_API_CONNECTIONS];
+extern simxInt * _nextConnectionID; // change definition from simxInt  _nextConnectionID[] to simxInt * _nextConnectionID
+extern simxInt _replyWaitTimeoutInMs[];
 
-simxInt _connectionPort[MAX_EXT_API_CONNECTIONS];
-simxChar* _connectionIP[MAX_EXT_API_CONNECTIONS];
+extern simxInt _connectionPort[];
+extern simxChar* _connectionIP[];
 
-simxInt _minCommunicationDelay[MAX_EXT_API_CONNECTIONS];
-simxUChar _communicationThreadRunning[MAX_EXT_API_CONNECTIONS];
-simxInt _nextMessageIDToSend[MAX_EXT_API_CONNECTIONS];
-simxInt _waitBeforeSendingAgainWhenMessageIDArrived[MAX_EXT_API_CONNECTIONS];
-simxInt _lastReceivedMessageID[MAX_EXT_API_CONNECTIONS];
-simxInt _connectionID[MAX_EXT_API_CONNECTIONS];
-const simxChar* _tempConnectionAddress[MAX_EXT_API_CONNECTIONS];
-simxInt _tempConnectionPort[MAX_EXT_API_CONNECTIONS];
-simxUChar _tempDoNotReconnectOnceDisconnected[MAX_EXT_API_CONNECTIONS];
+extern simxInt _minCommunicationDelay[];
+extern simxUChar _communicationThreadRunning[];
+extern simxInt _nextMessageIDToSend[];
+extern simxInt _waitBeforeSendingAgainWhenMessageIDArrived[];
+extern simxInt _lastReceivedMessageID[];
+extern simxInt _connectionID[];
+extern const simxChar* _tempConnectionAddress[MAX_EXT_API_CONNECTIONS];
+extern simxInt _tempConnectionPort[];
+extern simxUChar _tempDoNotReconnectOnceDisconnected[];
 
 #endif /* __EXTAPIINTERNAL_ */

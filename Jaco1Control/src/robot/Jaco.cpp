@@ -8,7 +8,7 @@
 
 
 
-void T0_n(double T[][4],const double* input1)
+void Jaco::T0_n(double T[][4],const double* input1)
 {
   double q1 = input1[0];
   double q2 = input1[1];
@@ -135,8 +135,7 @@ void Jaco::jacob0(double J0[][6], const double* input1){
   J0[5][5] = -cos(3.141592653589793*(1.1E1/3.6E1))*(cos(3.141592653589793*(1.1E1/3.6E1))*cos(q2)*cos(q3)+cos(3.141592653589793*(1.1E1/3.6E1))*sin(q2)*sin(q3)-sin(3.141592653589793*(1.1E1/3.6E1))*cos(q2)*sin(q3)*sin(q4)+sin(3.141592653589793*(1.1E1/3.6E1))*cos(q3)*sin(q2)*sin(q4))-sin(3.141592653589793*(1.1E1/3.6E1))*cos(q5)*(sin(3.141592653589793*(1.1E1/3.6E1))*cos(q2)*cos(q3)+sin(3.141592653589793*(1.1E1/3.6E1))*sin(q2)*sin(q3)+cos(3.141592653589793*(1.1E1/3.6E1))*cos(q2)*sin(q3)*sin(q4)-cos(3.141592653589793*(1.1E1/3.6E1))*cos(q3)*sin(q2)*sin(q4))+sin(q2-q3)*sin(3.141592653589793*(1.1E1/3.6E1))*cos(q4)*sin(q5);
 }
 
-Jaco::~Jaco()
-{}
+
 
 
 
