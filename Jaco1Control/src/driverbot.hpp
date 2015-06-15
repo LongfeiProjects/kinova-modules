@@ -11,12 +11,13 @@
 #include "stats.hpp"
 
 class driverbot : stats
-{
+{	private:
+		int Max_DS_allowed;
 	public:
-	    int idclient;
-	    int NJoints;
-	    std::vector<int> joint_handle;
-	    bool sync;
+		int idclient;
+		int NJoints;
+		std::vector<int> joint_handle;
+		bool sync;
 		boost::atomic<bool> running;
 		boost::atomic<bool> first_write;
 		boost::thread* reader_stats;
@@ -29,10 +30,10 @@ class driverbot : stats
 		// constructor
 		driverbot(bool sync,std::string joint_base_name,model * bot);
 		~driverbot();
-	    bool GetLastValue(State& , std::string type );
-	    void Start();
-	    void Stop();
-	    void Reading();
+		bool GetLastValue(State& , std::string type );
+		void Start();
+		void Stop();
+		void Reading();
 		void Cleaning();
 
 		void ReadTimeStamp();

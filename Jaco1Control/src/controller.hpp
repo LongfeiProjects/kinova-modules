@@ -13,16 +13,18 @@
 #include "model.hpp"
 class controller
 {
-public:
-    double P;
-    double I;
-    double D;
-    double time_interval; // controller frequency
-    int index;  // current value
-    std::vector<State> last_current_values; // variable to storage values for control purpose;
-    std::vector<std::string> measured_value; // vector of string that describe the value that want to measure and in which order we want them
-    boost::shared_ptr<model>  bot;
+	private:
+
 	public:
+		double P;
+		double I;
+		double D;
+		double time_interval; // controller frequency
+		int index;  // current value
+		std::vector<State> last_current_values; // variable to storage values for control purpose;
+		std::vector<std::string> measured_value; // vector of string that describe the value that want to measure and in which order we want them
+		model * bot;
+
     	virtual int Move2Home() = 0;
     	virtual bool InitController(std::vector<State> initial_state) = 0;
 		virtual bool ExecController(std::vector<State> current_state) = 0;

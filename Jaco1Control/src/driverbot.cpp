@@ -9,7 +9,9 @@
 #include "Interface/VREP/extApiCustom.hpp"
 
 
-driverbot::driverbot(bool _sync,std::string joint_base_name,model * bot)
+driverbot::driverbot(bool _sync,std::string joint_base_name,model * _bot)
+: running(true)
+, first_write(false)
 {
 	std::string connectionAddress= "127.0.0.1";
 	simxInt connectionPort = 19996;
@@ -24,7 +26,7 @@ driverbot::driverbot(bool _sync,std::string joint_base_name,model * bot)
  	sync = _sync;
  	if(sync)
  	{
- 		simxUChar en='enable';
+ 		simxUChar en='enable'; // to check
  		simxSynchronous(this->idclient,en);
  	}
  	// read joint handle
@@ -41,15 +43,36 @@ driverbot::driverbot(bool _sync,std::string joint_base_name,model * bot)
  			more_joint = false;
  		NJoints++;
  	}
+ 	bot = _bot;
  	reader_stats = NULL;
  	garbage_collection = NULL;
+ 	Max_DS_allowed = 10000;
 
 }
 
 driverbot::~driverbot(){}
 
-bool driverbot::GetLastValue(State& , std::string type )
-{}
+bool driverbot::GetLastValue(State& res, std::string type)
+{
+	if(first_write.load(boost::memory_order_acquire))
+	{
+		if(type.compare("j_pos") == 0)
+		{
+			res = *(this->dl_ang_pos.load(boost::memory_order_acquire));
+		}
+		else if(type.compare("j_vel") == 0)
+		{
+			res = *(this->dl_ang_vel.load(boost::memory_order_acquire));
+		}
+		else if(type.compare("j_tau") == 0)
+		{
+		   res = *(this->dl_ang_tau.load(boost::memory_order_acquire));
+		}
+		return true;
+	}
+	return false;
+
+}
 
 void driverbot::Start()
 {
@@ -59,7 +82,15 @@ void driverbot::Start()
 }
 
 void driverbot::Stop()
-{}
+{
+	this->running.store(false,boost::memory_order_release);
+	this->reader_stats->join();
+	this->garbage_collection->join();
+	// close simulator
+	simxFinish(this->idclient);
+	std::cout<<"close all thread"<<std::endl;
+
+}
 void driverbot::Reading()
 {
 	while(this->running.load(boost::memory_order_acquire))
@@ -74,7 +105,20 @@ void driverbot::Reading()
 	}
 }
 void driverbot::Cleaning()
-{}
+{
+	while(this->running.load(boost::memory_order_acquire))
+	{
+		if(this->ds_ang_pos.size() > (unsigned int)(this->Max_DS_allowed) )
+		{
+			this->ds_ang_pos.pop_front();
+			this->ds_ang_vel.pop_front();
+			this->ds_ang_tau.pop_front();
+			this->ds_cart.pop_front();
+			this->ds_t.pop_front();
+		}
+	}
+	std::cout<<"im out of Cleaning thread"<<std::endl;
+}
 
 void driverbot::ReadTimeStamp()
 {
@@ -88,7 +132,7 @@ void driverbot::ReadTimeStamp()
 State driverbot::ReadJoints()
 {
 	State app_pos(this->NJoints),app_vel(this->NJoints),app_tau(this->NJoints);
-	simxFloat* p;
+	simxFloat* p = NULL;
 	simxInt parameterID = 2012; // this parameter is necessary to read the joint velocity
 	for(int i=0;i<NJoints;i++)
 	{

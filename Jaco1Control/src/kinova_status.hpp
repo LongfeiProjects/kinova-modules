@@ -68,7 +68,7 @@ class kinova_status : public stats
 		DataStore ds_robot_t;
 		DataStore ds_cart_pos;              		 DataLast dl_cart_pos;
 
-		kinova_status();
+		kinova_status(model * p);
 		~kinova_status();
 
 		void Start();

@@ -14,7 +14,7 @@
 class stats
 {
    public:
-	  boost::shared_ptr<model>  bot;
+	  model* bot;
       // pure virtual function
       virtual bool GetLastValue(State& , std::string type ) = 0;
       virtual void Start() = 0;

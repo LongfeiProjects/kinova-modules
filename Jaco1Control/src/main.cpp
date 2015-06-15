@@ -1,9 +1,12 @@
 #include "robot.hpp"
-
+#include "robotmodel.hpp"
 int main()
 {
+
+
 	// status reader
-	kinova_status * st= new kinova_status();
+	dummybot* mdl = new dummybot();
+	kinova_status * st= new kinova_status(mdl);
 
 	// controller
 	const double Pid_coef[] = {30,10,0}; // deg
@@ -13,7 +16,8 @@ int main()
 	std::vector<std::string> meas_val(_meas_val,End(_meas_val));
 	int controltype = 7;
 	bool limitation = 1;
-	kinova_controller * ct = new kinova_controller(namefile,meas_val,Pid,controltype,limitation,st->APIhandle); // very rough patch because i can have only one API handle
+	Jaco* md = new Jaco();
+	kinova_controller * ct = new kinova_controller(namefile,meas_val,Pid,controltype,limitation,md,st->APIhandle); // very rough patch because i can have only one API handle
 
 	// checking module
 	// define bounding box

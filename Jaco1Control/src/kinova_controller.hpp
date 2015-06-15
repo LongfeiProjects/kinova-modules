@@ -24,10 +24,10 @@ public:
 	std::vector<State> ff;
 	int controltype;
 	bool limitation;
-
+	//boost::shared_ptr<model>  bot;
 	kinova_controller();
 	kinova_controller(std::string namefile,std::vector<std::string> list_meas_value,
-						std::vector<double> Pid,int _controltype,bool _limitation,void * APIhandle);
+						std::vector<double> Pid,int _controltype,bool _limitation,model* md,void * APIhandle);
 	~kinova_controller();
 
 	POSITION_TYPE InitPositionType(int value);

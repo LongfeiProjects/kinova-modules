@@ -37,10 +37,8 @@ kinova_controller::kinova_controller()
 	}*/
 }
 kinova_controller::kinova_controller(std::string namefile,std::vector<std::string> list_meas_value,
-										  std::vector<double> Pid,int _controltype,bool _limitation,void * _APIhandle)
-
+										  std::vector<double> Pid,int _controltype,bool _limitation,model* mdl,void * _APIhandle)
 {
-	//APIhandle = dlopen("Kinova.API.USBCommandLayerUbuntu.so",RTLD_NOW|RTLD_GLOBAL);
 	APIhandle = _APIhandle;
 	if(APIhandle != NULL)
 	{
@@ -62,9 +60,11 @@ kinova_controller::kinova_controller(std::string namefile,std::vector<std::strin
 		this->measured_value = list_meas_value;
 		controltype = _controltype;
 		limitation = _limitation;
+		bot=mdl;
+
 		this->ReadFile(namefile,this->ff);
-		Jaco *modl =new Jaco();
-		//this->bot(new Jaco());
+		//Jaco *modl =new Jaco();
+		//this->bot(modl);
 	}
 }
 kinova_controller::~kinova_controller()
@@ -143,7 +143,7 @@ State kinova_controller::PID(std::vector<State> ff,std::vector<State> current_st
 	// euler integration of the joint error position
 	last_current_values[2] = last_current_values[2] +( (last_current_values[0]-current_state[0])*this->time_interval);
 	// computation of PI
-	result = P*(qd_des - current_state[1]) + I*last_current_values[1] + qd_des;
+	result = P*(qd_des - current_state[1]) + this->I*last_current_values[1] + qd_des;
 	//DEBUG
 	std::cout<<"2.3"<<std::endl;
 	//----

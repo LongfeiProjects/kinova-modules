@@ -2,7 +2,7 @@
 #include "robot/dummybot.hpp"
 
 
-kinova_status::kinova_status()
+kinova_status::kinova_status(model * mdl)
 : running(true)
 , first_write(false)
 , ang_pos(0)
@@ -26,12 +26,10 @@ kinova_status::kinova_status()
 	const char *s_a[] = {"deg","Nm","A"};
 	std::vector<std::string> label(s_a,End(s_a));
 	const char *s_b[]= {"joints","torques","currents"};
-	std::vector<std::string> title(s_b,End(s_b));
+	std::vector<std::string> title(s_b,End(s_b)); //end---
 	vis = visualization(NBLOCKS,NJOINTS,chunk_dim,x_min,x_max,low_thresh,high_thresh,y_min,y_max,label,title);
-	// robot
-	dummybot *test = new dummybot();
-	//this->bot(test);
 	//thread related
+	bot = mdl;
 	Max_DS_allowed = 10000;
 	reader_stats = NULL;
 	log_stats = NULL;
