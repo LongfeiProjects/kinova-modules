@@ -6,9 +6,6 @@
  */
 
 #include "kinova_controller.hpp"
-#include "robot/Jaco.hpp"
-
-
 //private function //
 
 POSITION_TYPE kinova_controller::InitPositionType(int value)

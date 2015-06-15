@@ -8,11 +8,12 @@
 #ifndef ROBOT_HPP_
 #define ROBOT_HPP_
 
-#include "kinova_status.hpp"
-#include "kinova_controller.hpp"
+
 #include "safetycheck.hpp"
 #include <SFML/Window.hpp>
 #include <SFML/Graphics.hpp>
+#include "Idevice.hpp"
+#include "robotmodel.hpp"
 
 class robot
 {

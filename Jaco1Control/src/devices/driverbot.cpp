@@ -5,8 +5,8 @@
  *      Author: vale
  */
 #include "driverbot.hpp"
-#include "Interface/VREP/extApi.hpp"
-#include "Interface/VREP/extApiCustom.hpp"
+#include "../Interface/VREP/extApi.hpp"
+#include "../Interface/VREP/extApiCustom.hpp"
 
 
 driverbot::driverbot(bool _sync,std::string joint_base_name,model * _bot)

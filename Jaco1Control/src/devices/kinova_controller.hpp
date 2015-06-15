@@ -8,7 +8,7 @@
 #ifndef KINOVACONTROLLER_HPP_
 #define KINOVACONTROLLER_HPP_
 
-#include "controller.hpp"
+#include "../controller.hpp"
 #include <dlfcn.h>
 #include <KinovaTypes.h>
 #include <Kinova.API.UsbCommandLayerUbuntu.h>
@@ -24,7 +24,6 @@ public:
 	std::vector<State> ff;
 	int controltype;
 	bool limitation;
-	//boost::shared_ptr<model>  bot;
 	kinova_controller();
 	kinova_controller(std::string namefile,std::vector<std::string> list_meas_value,
 						std::vector<double> Pid,int _controltype,bool _limitation,model* md,void * APIhandle);
@@ -37,7 +36,6 @@ public:
 	State PID(std::vector<State> ff,std::vector<State> current_state);
 	bool InitController(std::vector<State> initial_state);
 	bool ExecController(std::vector<State> current_state);
-	void jacob0(double J0[][6], const double* input1);
 
 };
 

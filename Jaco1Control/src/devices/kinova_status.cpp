@@ -1,6 +1,4 @@
 #include "kinova_status.hpp"
-#include "robot/dummybot.hpp"
-
 
 kinova_status::kinova_status(model * mdl)
 : running(true)

@@ -8,7 +8,7 @@
 #ifndef DRIVERBOT_HPP_
 #define DRIVERBOT_HPP_
 
-#include "stats.hpp"
+#include "../stats.hpp"
 
 class driverbot : stats
 {	private:

@@ -8,12 +8,12 @@
 #ifndef KINOVA_STATUS_HPP_
 #define KINOVA_STATUS_HPP_
 
-#include "stats.hpp"
+#include "../stats.hpp"
 
 #include <dlfcn.h>
 #include <KinovaTypes.h>
 #include <Kinova.API.UsbCommandLayerUbuntu.h>
-#include "visualization.hpp"
+#include "../visualization.hpp"
 
 
 
