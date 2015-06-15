@@ -49,7 +49,7 @@ class robot
 					for(unsigned int i = 0;i<contr->measured_value.size();i++)
 					{
 						State res;
-						read_data = st->GetLastValue(res,contr->measured_value[i]);
+						read_data = st->GetLastValueMutex(res,contr->measured_value[i]);
 						//DEBUG
 						//std::cout<<"read_data= "<<read_data<<std::endl;
 						//---
@@ -70,14 +70,14 @@ class robot
 							//DEBUG
 							std::cout<<"after move2home"<<std::endl;
 							//---
-							//contr->InitController(cur_val);
+							contr->InitController(cur_val);
 						}
 						else
 						{
 							//DEBUG
 							std::cout<<"im in exec controller"<<std::endl;
 							//---
-							//contr->ExecController(cur_val);
+							contr->ExecControllerMutex(cur_val);
 						}
 					}
 

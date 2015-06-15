@@ -10,7 +10,7 @@
 
 #include "../stats.hpp"
 
-class driverbot : stats
+class driverbot : public stats
 {	private:
 		int Max_DS_allowed;
 	public:

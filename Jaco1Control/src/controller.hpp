@@ -24,6 +24,7 @@ class controller
 		std::vector<State> last_current_values; // variable to storage values for control purpose;
 		std::vector<std::string> measured_value; // vector of string that describe the value that want to measure and in which order we want them
 		model * bot;
+		// ADD MUTEX
 
     	virtual int Move2Home() = 0;
     	virtual bool InitController(std::vector<State> initial_state) = 0;
@@ -31,6 +32,12 @@ class controller
 		virtual void SendSingleCommand(State cmd) = 0;
 		virtual State PID(std::vector<State> ff,std::vector<State> current_state) = 0;
 		virtual ~controller(){};
+
+		inline bool ExecControllerMutex(std::vector<State> current_state)
+		{	// INSERT MUTEX
+			return ExecController(current_state);
+			// CLOSE MUTEX
+		};
 
 		inline int ReadFile(std::string namefile,std::vector< State > & value)
 		{

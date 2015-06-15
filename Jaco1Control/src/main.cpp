@@ -48,10 +48,10 @@ int main()
 	Jaco* mdl = new Jaco();
 	bool sync = false;
 	std::string joint_base_name = "link";
-	driverbot vrep (sync,joint_base_name,mdl);
+	driverbot * vrep = new driverbot(sync,joint_base_name,mdl);
 
 	// controller
-	/*const double Pid_coef[] = {30,10,0}; // deg
+	const double Pid_coef[] = {30,10,0}; // deg
 	std::vector<double> Pid(Pid_coef,End(Pid_coef));
 	std::string namefile = "ff.txt";
 	const char * _meas_val[] ={"j_vel"};
@@ -59,11 +59,11 @@ int main()
 	int controltype = 7;
 	bool limitation = 1;
 	Jaco* md = new Jaco();
-	kinova_controller * ct = new kinova_controller(namefile,meas_val,Pid,controltype,limitation,md,st->APIhandle); // very rough patch because i can have only one API handle
+	driverbot_contr * ct = new driverbot_contr(); // very rough patch because i can have only one API handle
 
-	safetycheck checker();
-	robot bot(st,ct,checker);
-	bot.Exec();*/
+	safetycheck checker;
+	robot bot(vrep,ct,checker);
+	bot.Exec();
 
 
 	return 1;
