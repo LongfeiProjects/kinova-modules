@@ -21,6 +21,7 @@ class controller
 		double D;
 		double time_interval; // controller frequency
 		int index;  // current value
+		std::vector<State> ff;
 		std::vector<State> last_current_values; // variable to storage values for control purpose;
 		std::vector<std::string> measured_value; // vector of string that describe the value that want to measure and in which order we want them
 		model * bot;

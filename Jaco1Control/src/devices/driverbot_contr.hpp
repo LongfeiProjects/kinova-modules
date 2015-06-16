@@ -15,7 +15,6 @@ class   driverbot_contr : public controller
 
 
 public:
-	std::vector<State> ff;
 	int controltype;
 	int clientID;
 	std::vector<int> joint_handle;
@@ -26,8 +25,8 @@ public:
 
 	int Move2Home();
 	void SendSingleCommand(State cmd);
-	bool InitController(std::vector<State> initial_state){};
-	bool ExecController(std::vector<State> current_state){};
+	bool InitController(std::vector<State> initial_state);
+	bool ExecController(std::vector<State> current_state);
 
 };
 

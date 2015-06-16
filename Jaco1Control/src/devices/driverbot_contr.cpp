@@ -69,3 +69,46 @@ void driverbot_contr::SendSingleCommand(State cmd)
 
 }
 
+
+bool driverbot_contr::InitController(std::vector<State> initial_state)
+{
+	//DEBUG
+	//std::cout<<"0.1"<<std::endl;
+	//----
+	 State zero(6,0);
+	//DEBUG
+	//std::cout<<"0.2"<<std::endl;
+	//----
+	 last_current_values.push_back(initial_state[0]);
+	 last_current_values.push_back(zero);
+	 last_current_values.push_back(zero);
+	 //DEBUG
+	//std::cout<<"0.3"<<std::endl;
+	//----
+	 return true;
+
+}
+bool driverbot_contr::ExecController(std::vector<State> current_state)
+{
+	//DEBUG
+	//std::cout<<"1"<<std::endl;
+	//----
+	// build the vector of vector of value that represent the reference to the control module
+	std::vector<State> feedforward;
+	feedforward.push_back(ff[index]);
+	//DEBUG
+	//std::cout<<"2"<<std::endl;
+	//----
+	State result = this->PID(feedforward,current_state);
+	//DEBUG
+	//std::cout<<"3"<<std::endl;
+	//----
+	//DEBUG
+	//for(unsigned int i =0;i<result.size();i++)
+	//	std::cout<<result[i]<<" ";
+	//std::cout<<std::endl;
+	//---
+	this->SendSingleCommand(result);
+	return true;
+
+}

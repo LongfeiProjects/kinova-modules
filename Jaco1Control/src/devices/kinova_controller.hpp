@@ -21,7 +21,6 @@ class kinova_controller : public controller
 	int (*MyMoveHome)();
 
 public:
-	std::vector<State> ff;
 	int controltype;
 	bool limitation;
 	kinova_controller();

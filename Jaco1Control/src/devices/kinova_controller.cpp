@@ -121,7 +121,6 @@ bool kinova_controller::InitController(std::vector<State> initial_state)
 	std::cout<<"0.3"<<std::endl;
 	//----
 	 // this is really important! because in this way i can exit from initialization and start the execution of controller
-	 index = 0;
 	 return true;
 }
 bool  kinova_controller::ExecController(std::vector<State> current_state)
@@ -144,10 +143,8 @@ bool  kinova_controller::ExecController(std::vector<State> current_state)
 		std::cout<<result[i]<<" ";
 	std::cout<<std::endl;
 	//---
-	//this->SendSingleCommand(result);
-    // using this if statement i will keep the last value when i will reach the end of this->ff vector
-	if(index<(int)feedforward.size())
-		index = index + 1;
+	this->SendSingleCommand(result);
+
 	return true;
 }
 

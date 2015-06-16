@@ -42,6 +42,7 @@ class robot
 			try
 			{
 				this->StartAllThread();
+				contr->index = -1; // in this way i define the inizialization of the controller
 				while(!this->stop.load(boost::memory_order_acquire) )
 				{
 					std::vector<State> cur_val;
@@ -71,6 +72,7 @@ class robot
 							std::cout<<"after move2home"<<std::endl;
 							//---
 							contr->InitController(cur_val);
+							contr->index = 0;
 						}
 						else
 						{
@@ -78,6 +80,9 @@ class robot
 							std::cout<<"im in exec controller"<<std::endl;
 							//---
 							contr->ExecControllerMutex(cur_val);
+							 // using this if statement i will keep the last value when i will reach the end of this->ff vector
+							 if(contr->index<(int)contr->ff.size())
+								 contr->index++;
 						}
 					}
 
