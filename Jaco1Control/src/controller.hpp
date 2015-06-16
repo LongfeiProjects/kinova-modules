@@ -30,8 +30,9 @@ class controller
     	virtual bool InitController(std::vector<State> initial_state) = 0;
 		virtual bool ExecController(std::vector<State> current_state) = 0;
 		virtual void SendSingleCommand(State cmd) = 0;
-		virtual State PID(std::vector<State> ff,std::vector<State> current_state) = 0;
 		virtual ~controller(){};
+
+		State PID(std::vector<State> ff,std::vector<State> current_state);
 
 		inline bool ExecControllerMutex(std::vector<State> current_state)
 		{	// INSERT MUTEX

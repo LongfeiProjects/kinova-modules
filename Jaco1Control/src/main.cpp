@@ -51,7 +51,7 @@ int main()
 	driverbot * vrep = new driverbot(sync,joint_base_name,mdl);
 
 	// controller
-	const double Pid_coef[] = {30,10,0}; // deg
+	/*const double Pid_coef[] = {30,10,0}; // deg
 	std::vector<double> Pid(Pid_coef,End(Pid_coef));
 	std::string namefile = "ff.txt";
 	const char * _meas_val[] ={"j_vel"};
@@ -63,7 +63,7 @@ int main()
 
 	safetycheck checker;
 	robot bot(vrep,ct,checker);
-	bot.Exec();
+	bot.Exec();*/
 
 
 	return 1;
