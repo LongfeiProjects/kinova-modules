@@ -36,9 +36,9 @@ class driverbot : public stats
 		void Reading();
 		void Cleaning();
 
-		void ReadTimeStamp();
-		State ReadJoints();
-		void ReadCartesian(State q);
+		void ReadTimeStamp(int operationMode);
+		State ReadJoints(int operationMode);
+		void ReadCartesian(State q,int operationMode);
 
 };
 

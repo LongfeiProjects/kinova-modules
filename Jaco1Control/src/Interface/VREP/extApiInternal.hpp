@@ -64,7 +64,7 @@ extern simxInt _commandReceived_bufferSize[];
 extern simxInt _commandReceived_simulationTime[];
 
 /* Other variables */
-extern simxInt * _nextConnectionID; // change definition from simxInt  _nextConnectionID[] to simxInt * _nextConnectionID
+extern simxInt  _nextConnectionID[]; // change definition from simxInt  _nextConnectionID[] to simxInt * _nextConnectionID
 extern simxInt _replyWaitTimeoutInMs[];
 
 extern simxInt _connectionPort[];

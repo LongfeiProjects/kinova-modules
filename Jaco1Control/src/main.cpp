@@ -47,7 +47,7 @@ int main()
 	// status reader
 	Jaco* mdl = new Jaco();
 	bool sync = false;
-	std::string joint_base_name = "link";
+	std::string joint_base_name = "Jaco_joint";
 	driverbot * vrep = new driverbot(sync,joint_base_name,mdl);
 
 	// controller

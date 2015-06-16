@@ -31,7 +31,7 @@ simxInt _commandReceived_bufferSize[MAX_EXT_API_CONNECTIONS];
 simxInt _commandReceived_simulationTime[MAX_EXT_API_CONNECTIONS];
 
 /* Other variables */
-simxInt * _nextConnectionID; // next connection in the original version was empty without the declaration of the size
+simxInt _nextConnectionID[MAX_EXT_API_CONNECTIONS]; // next connection in the original version was empty without the declaration of the size
 simxInt _replyWaitTimeoutInMs[MAX_EXT_API_CONNECTIONS];
 
 simxInt _connectionPort[MAX_EXT_API_CONNECTIONS];
