@@ -12,12 +12,10 @@
 driverbot_contr::driverbot_contr(std::string namefile,std::vector<std::string> list_meas_value,std::vector<double> Pid,
 			    					 int _controltype,model* md,simxInt _clientID,std::vector<int> _joint_handle)
 {
-
-
 	this->P = Pid[0];
 	this->I = Pid[1];
 	this->D = Pid[2];
-	this->time_interval = 0.01; // i give a value that i have to update with the real one
+	this->time_interval = 0.01; // i give a value that im going to update with the real one
 	this->measured_value = list_meas_value;
 	controltype = _controltype;
 	bot=md;
@@ -46,6 +44,9 @@ void driverbot_contr::SendSingleCommand(State cmd)
 	}
 	else if(controltype == 1) // velocity
 	{
+		//DEBUGù
+		std::cout<<"velocity control"<<std::endl;
+		//---
 		for(unsigned int i =0;i<cmd.size();i++)
 					simxSetJointTargetVelocity(this->clientID,this->joint_handle[i],cmd[i],simx_opmode_oneshot);
 	}
@@ -77,6 +78,13 @@ bool driverbot_contr::InitController(std::vector<State> initial_state)
 	 last_current_values.push_back(initial_state[0]);
 	 last_current_values.push_back(zero);
 	 last_current_values.push_back(zero);
+
+
+	 //DEBUG
+	 std::cout<< "starting joint position"<<std::endl;
+	 	for(unsigned int ik =0;ik<last_current_values[0].size();ik++)
+	 			std::cout<<last_current_values[0][ik]<<" ";
+	 //
 
 	 simxFloat delta[1];
 	 simxCustomGetDelta(clientID,delta,simx_opmode_oneshot_wait);

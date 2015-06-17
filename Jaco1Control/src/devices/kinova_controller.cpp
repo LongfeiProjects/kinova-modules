@@ -124,22 +124,22 @@ bool kinova_controller::InitController(std::vector<State> initial_state)
 bool  kinova_controller::ExecController(std::vector<State> current_state)
 {
 	//DEBUG
-	std::cout<<"1"<<std::endl;
+	//std::cout<<"1"<<std::endl;
 	//----
 	// build the vector of vector of value that represent the reference to the control module
 	std::vector<State> feedforward;
     feedforward.push_back(ff[index]);
     //DEBUG
-	std::cout<<"2"<<std::endl;
+	//std::cout<<"2"<<std::endl;
 	//----
 	State result = this->PID(feedforward,current_state);
 	//DEBUG
-	std::cout<<"3"<<std::endl;
+	//std::cout<<"3"<<std::endl;
 	//----
 	//DEBUG
-	for(unsigned int i =0;i<result.size();i++)
-		std::cout<<result[i]<<" ";
-	std::cout<<std::endl;
+	//for(unsigned int i =0;i<result.size();i++)
+	//	std::cout<<result[i]<<" ";
+	//std::cout<<std::endl;
 	//---
 	this->SendSingleCommand(result);
 

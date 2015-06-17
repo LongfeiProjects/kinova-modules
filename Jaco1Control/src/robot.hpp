@@ -78,7 +78,7 @@ class robot
 						else
 						{
 							//DEBUG
-							std::cout<<"im in exec controller"<<std::endl;
+							//std::cout<<"im in exec controller"<<std::endl;
 							//---
 							contr->ExecControllerMutex(cur_val);
 							 // using this if statement i will keep the last value when i will reach the end of this->ff vector
@@ -86,6 +86,8 @@ class robot
 								 contr->index++;
 							 //DEBUG
 							 std::cout<<"index = "<< contr->index<<std::endl;
+							 //---
+							 boost::this_thread::sleep(boost::posix_time::milliseconds(11));
 						}
 					}
 
@@ -104,9 +106,6 @@ class robot
 				std::cout<< "something gone wrong"<<std::endl;
 				this->stop.store(true,boost::memory_order_release);
 				this->StopAllThread();
-				//DEBUG
-				std::cout<<" after stopping thread"<<std::endl;
-				//---
 				return;
 			}
 		};

@@ -83,6 +83,7 @@ driverbot::~driverbot(){}
 std::vector<State> driverbot::FirstRead()
 {
 	State res;
+	boost::this_thread::sleep(boost::posix_time::milliseconds(5)); // this sleep is necessary because at the begining i read a lot of nasty value
 	driverbot::GetLastValue(res, "j_pos");
 	std::vector<State> result;
 	result.push_back(res);
@@ -206,9 +207,9 @@ State driverbot::ReadJoints(int operationMode)
 
 
 	//DEBUG
-	for(unsigned int ii =0;ii<app_pos.size();ii++)
-		std::cout<<app_pos[ii]<<" ";
-	std::cout<<std::endl;
+	//for(unsigned int ii =0;ii<app_pos.size();ii++)
+	//	std::cout<<app_pos[ii]<<" ";
+	//std::cout<<std::endl;
 	//---
 
 	this->ds_ang_pos.push_back(app_pos);

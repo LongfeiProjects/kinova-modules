@@ -18,17 +18,17 @@ arma::mat model::J0(State & q,std::string type)
 	if(std::strcmp(type.c_str(),"trasl") ==0)
 	{
 		//DEBUG
-		std::cout<<"prima di costruire J trasl"<<std::endl;
-		std::cout<<"Jacob.n_rows = "<<Jacob.n_rows<<std::endl;
-		std::cout<<"Jacob.n_cols = "<<Jacob.n_cols<<std::endl;
-		std::cout<<"njoint-1 = "<<njoint-1<<std::endl;
+		//std::cout<<"prima di costruire J trasl"<<std::endl;
+		//std::cout<<"Jacob.n_rows = "<<Jacob.n_rows<<std::endl;
+		//std::cout<<"Jacob.n_cols = "<<Jacob.n_cols<<std::endl;
+		//std::cout<<"njoint-1 = "<<njoint-1<<std::endl;
 		//---
 
 		arma::mat Jtrasl = Jacob.submat(0,0,2,njoint-1);
 
 		//DEBUG
-		std::cout<<"Jtrasl.n_rows = "<<Jtrasl.n_rows<<std::endl;
-		std::cout<<"Jtrasl.n_cols = "<<Jtrasl.n_cols<<std::endl;
+		//std::cout<<"Jtrasl.n_rows = "<<Jtrasl.n_rows<<std::endl;
+		//std::cout<<"Jtrasl.n_cols = "<<Jtrasl.n_cols<<std::endl;
 		//---
 
 		return Jtrasl;
