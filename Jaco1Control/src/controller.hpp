@@ -27,6 +27,10 @@ class controller
 		model * bot;
 		// ADD MUTEX
 
+		// the empty constructor inhibit the use of the constructor that never initialize in
+		// this way because of this loc measured_value.size() for(unsigned int i = 0;i<contr->measured_value.size();i++)
+		// contr->measured_value.size() is empty
+
     	virtual int Move2Home() = 0;
     	virtual bool InitController(std::vector<State> initial_state) = 0;
 		virtual bool ExecController(std::vector<State> current_state) = 0;
@@ -44,17 +48,17 @@ class controller
 		inline int ReadFile(std::string namefile,std::vector< State > & value)
 		{
 			std::ifstream infile;
-			int Njoints;
+			int task_space_dim;
 
 			try
 			{
 			  infile.open(namefile.c_str(),std::ifstream::in);
 
 			  std::string line;
-			  // in the first line is defined the number of joints of the robot
+			  // in the first line is defined the taskspacedimension
 			  std::getline(infile, line);
 			  std::stringstream ss1(line);
-			  if ( !(ss1 >> Njoints) )
+			  if ( !(ss1 >> task_space_dim) )
 			  {
 				  std::cout<<"problem reading number of joint"<< std::endl;
 			  }
@@ -62,7 +66,7 @@ class controller
 			  while (std::getline(infile, line))
 			  {
 					std::stringstream ss(line);
-					State app(Njoints);
+					State app(task_space_dim);
 					int index = 0;
 					while( !ss.eof() )
 					{
@@ -88,7 +92,7 @@ class controller
 			  std::cerr << "Exception opening/reading/closing file\n";
 			}
 
-			return Njoints;
+			return task_space_dim;
 		}
 
 };

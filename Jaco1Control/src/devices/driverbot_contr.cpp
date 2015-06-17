@@ -17,17 +17,12 @@ driverbot_contr::driverbot_contr(std::string namefile,std::vector<std::string> l
 	this->P = Pid[0];
 	this->I = Pid[1];
 	this->D = Pid[2];
-	index = -1; // for accessing inizialization procedure
-	this->time_interval = 0.01; // second TO CHANGE
+	this->time_interval = 0.01; // i give a value that i have to update with the real one
 	this->measured_value = list_meas_value;
 	controltype = _controltype;
 	bot=md;
 	clientID = _clientID;
 	joint_handle = _joint_handle;
-
-	simxFloat delta[1];
-	simxCustomGetDelta(clientID,delta,simx_opmode_oneshot_wait);
-	this->time_interval = delta[0];
 
 	this->ReadFile(namefile,this->ff);
 }
@@ -73,19 +68,24 @@ void driverbot_contr::SendSingleCommand(State cmd)
 bool driverbot_contr::InitController(std::vector<State> initial_state)
 {
 	//DEBUG
-	//std::cout<<"0.1"<<std::endl;
+	std::cout<<"0.1"<<std::endl;
 	//----
-	 State zero(6,0);
+	 State zero = arma::zeros<arma::vec>(6);
 	//DEBUG
-	//std::cout<<"0.2"<<std::endl;
+	std::cout<<"0.2"<<std::endl;
 	//----
 	 last_current_values.push_back(initial_state[0]);
 	 last_current_values.push_back(zero);
 	 last_current_values.push_back(zero);
+
+	 simxFloat delta[1];
+	 simxCustomGetDelta(clientID,delta,simx_opmode_oneshot_wait);
+	 this->time_interval = delta[0];
 	 //DEBUG
-	//std::cout<<"0.3"<<std::endl;
+	std::cout<< "time_interval" <<time_interval<<std::endl;
+	std::cout<<"0.3"<<std::endl;
 	//----
-	 return true;
+	 //return true;
 
 }
 bool driverbot_contr::ExecController(std::vector<State> current_state)

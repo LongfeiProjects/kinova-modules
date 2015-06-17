@@ -82,6 +82,7 @@ class kinova_status : public stats
 		void ReadCartesian(GeneralInformations & info);
 		void ReadCurrents(GeneralInformations & info);
 		int Read4Vis(std::vector<State_ptr > & lastval);
+		std::vector<State> FirstRead(){};
 		bool GetLastValue(State& , std::string type );
 
 };

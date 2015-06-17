@@ -50,7 +50,6 @@ kinova_controller::kinova_controller(std::string namefile,std::vector<std::strin
 		controltype = _controltype;
 		limitation = _limitation;
 		bot=mdl;
-
 		this->ReadFile(namefile,this->ff);
 
 	}
@@ -59,8 +58,7 @@ kinova_controller::~kinova_controller()
 {}
 int kinova_controller::Move2Home()
 {
-	int result;
-	result = (*MyMoveHome)();
+	int result = (*MyMoveHome)();
 	usleep(3000);
 	return result;
 }
@@ -121,7 +119,7 @@ bool kinova_controller::InitController(std::vector<State> initial_state)
 	std::cout<<"0.3"<<std::endl;
 	//----
 	 // this is really important! because in this way i can exit from initialization and start the execution of controller
-	 return true;
+	 //return true;
 }
 bool  kinova_controller::ExecController(std::vector<State> current_state)
 {

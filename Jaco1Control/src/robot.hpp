@@ -68,10 +68,11 @@ class robot
 							std::cout<<"before move2home"<<std::endl;
 							//---
 							contr->Move2Home();
+							std::vector<State> start = st->FirstRead();
 							//DEBUG
 							std::cout<<"after move2home"<<std::endl;
 							//---
-							contr->InitController(cur_val);
+							contr->InitController(start);
 							contr->index = 0;
 						}
 						else
@@ -81,8 +82,10 @@ class robot
 							//---
 							contr->ExecControllerMutex(cur_val);
 							 // using this if statement i will keep the last value when i will reach the end of this->ff vector
-							 if(contr->index<(int)contr->ff.size())
+							 if(contr->index<(int)contr->ff.size()-1)
 								 contr->index++;
+							 //DEBUG
+							 std::cout<<"index = "<< contr->index<<std::endl;
 						}
 					}
 

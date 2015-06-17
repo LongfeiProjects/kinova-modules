@@ -62,7 +62,9 @@ driverbot::driverbot(bool _sync,std::string joint_base_name,model * _bot)
  			more_joint = false;
  		NJoints++;
  	}
+ 	NJoints = NJoints - 1;
  	//DEBUG
+ 	std::cout<<joint_handle.size()<<std::endl;
  	for(unsigned int ij =0;ij<joint_handle.size();ij++)
  	{
  		std::cout<< joint_handle[ij]<< " ";
@@ -77,6 +79,15 @@ driverbot::driverbot(bool _sync,std::string joint_base_name,model * _bot)
 }
 
 driverbot::~driverbot(){}
+
+std::vector<State> driverbot::FirstRead()
+{
+	State res;
+	driverbot::GetLastValue(res, "j_pos");
+	std::vector<State> result;
+	result.push_back(res);
+	return result;
+}
 
 bool driverbot::GetLastValue(State& res, std::string type)
 {
@@ -97,7 +108,6 @@ bool driverbot::GetLastValue(State& res, std::string type)
 		return true;
 	}
 	return false;
-
 }
 
 void driverbot::Start()
@@ -196,9 +206,9 @@ State driverbot::ReadJoints(int operationMode)
 
 
 	//DEBUG
-	//for(unsigned int ii =0;ii<app_pos.size();ii++)
-	//	std::cout<<app_pos[ii]<<" ";
-	//std::cout<<std::endl;
+	for(unsigned int ii =0;ii<app_pos.size();ii++)
+		std::cout<<app_pos[ii]<<" ";
+	std::cout<<std::endl;
 	//---
 
 	this->ds_ang_pos.push_back(app_pos);
