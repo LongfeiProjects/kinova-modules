@@ -118,7 +118,7 @@ bool driverbot::GetLastValue(State& res, std::string type)
 
 void driverbot::Start()
 {
-	this->reader_stats = new boost::thread(boost::bind(&driverbot::ReadingMutex,this));
+	this->reader_stats = new boost::thread(boost::bind(&driverbot::Reading,this));
 	this->garbage_collection = new boost::thread(boost::bind(&driverbot::Cleaning,this));
 	simxStartSimulation(this->idclient,simx_opmode_oneshot);
 }

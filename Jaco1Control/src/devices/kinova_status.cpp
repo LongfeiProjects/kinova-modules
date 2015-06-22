@@ -72,7 +72,7 @@ kinova_status::~kinova_status()
 
 void kinova_status::Start()
 {
-	this->reader_stats = new boost::thread(boost::bind(&kinova_status::ReadingMutex,this));
+	this->reader_stats = new boost::thread(boost::bind(&kinova_status::Reading,this));
 	this->log_stats = new boost::thread(boost::bind(&kinova_status::Logging,this));
 	this->garbage_collection = new boost::thread(boost::bind(&kinova_status::Cleaning,this));
 }

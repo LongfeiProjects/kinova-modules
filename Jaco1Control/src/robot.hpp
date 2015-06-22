@@ -50,7 +50,7 @@ class robot
 					for(unsigned int i = 0;i<contr->measured_value.size();i++)
 					{
 						State res;
-						read_data = st->GetLastValueMutex(res,contr->measured_value[i]);
+						read_data = st->GetLastValue(res,contr->measured_value[i]);
 						//DEBUG
 						//std::cout<<"read_data= "<<read_data<<std::endl;
 						//---
@@ -80,7 +80,7 @@ class robot
 							//DEBUG
 							//std::cout<<"im in exec controller"<<std::endl;
 							//---
-							contr->ExecControllerMutex(cur_val);
+							contr->ExecController(cur_val);
 							 // using this if statement i will keep the last value when i will reach the end of this->ff vector
 							 if(contr->index<(int)contr->ff.size()-1)
 								 contr->index++;
