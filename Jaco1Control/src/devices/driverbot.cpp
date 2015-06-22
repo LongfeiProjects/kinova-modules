@@ -80,36 +80,39 @@ driverbot::driverbot(bool _sync,std::string joint_base_name,model * _bot)
 
 driverbot::~driverbot(){}
 
-std::vector<State> driverbot::FirstRead()
+std::vector<State> driverbot::FirstRead(std::vector<std::string> type)
 {
-	State res;
-
+	std::vector<State> res;
 	boost::this_thread::sleep(boost::posix_time::milliseconds(10)); // this sleep is necessary because at the begining i read a lot of nasty value
-	driverbot::GetLastValue(res, "j_pos");
-	std::vector<State> result;
-	result.push_back(res);
-	return result;
+	driverbot::GetLastValue(res,type);
+
+	return res;
 }
 
-bool driverbot::GetLastValue(State& res, std::string type)
+bool driverbot::GetLastValue(std::vector<State>& res, std::vector<std::string> type)
 {
 	if(first_write.load(boost::memory_order_acquire))
 	{
-		if(type.compare("j_pos") == 0)
+		for(unsigned int i =0;i<type.size();i++)
 		{
-			res = *(this->dl_ang_pos.load(boost::memory_order_acquire));
-		}
-		else if(type.compare("j_vel") == 0)
-		{
-			res = *(this->dl_ang_vel.load(boost::memory_order_acquire));
-		}
-		else if(type.compare("j_tau") == 0)
-		{
-		   res = *(this->dl_ang_tau.load(boost::memory_order_acquire));
-		}
-		else if(type.compare("cart_pos") == 0)
-		{
-			res = *(this->dl_cart.load(boost::memory_order_acquire));
+			State app;
+			if(type[i].compare("j_pos") == 0)
+			{
+				app = *(this->dl_ang_pos.load(boost::memory_order_acquire));
+			}
+			else if(type[i].compare("j_vel") == 0)
+			{
+				app = *(this->dl_ang_vel.load(boost::memory_order_acquire));
+			}
+			else if(type[i].compare("j_tau") == 0)
+			{
+			   app = *(this->dl_ang_tau.load(boost::memory_order_acquire));
+			}
+			else if(type[i].compare("cart_pos") == 0)
+			{
+				app = *(this->dl_cart.load(boost::memory_order_acquire));
+			}
+			res.push_back(app);
 		}
 		return true;
 	}

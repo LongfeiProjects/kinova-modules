@@ -30,8 +30,8 @@ class driverbot : public stats
 		// constructor
 		driverbot(bool sync,std::string joint_base_name,model * bot);
 		~driverbot();
-		std::vector<State> FirstRead();
-		bool GetLastValue(State& , std::string type );
+		std::vector<State> FirstRead(std::vector<std::string>);
+		bool GetLastValue(std::vector<State>& , std::vector<std::string> type );
 		void Start();
 		void Stop();
 		void Reading();

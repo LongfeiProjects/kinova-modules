@@ -22,16 +22,9 @@ void robot::Cheking()
 		{
 			std::vector<State> cur_val;
 			bool read_data = false;
-			for(unsigned int i = 0;i<check.checklist.size();i++)
-			{
-				State res;
-				read_data = st->GetLastValue(res,check.checklist[i]);
-				// if the thread that publish data start to write data i will start to check them
-				if(read_data)
-				{
-					cur_val.push_back(res);
-				}
-			}
+
+			read_data = st->GetLastValue(cur_val,check.checklist);
+			// if the thread that publish data start to write data i will start to check them
 
 			if(read_data)
 			{

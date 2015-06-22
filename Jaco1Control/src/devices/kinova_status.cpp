@@ -275,33 +275,37 @@ int kinova_status::Read4Vis(std::vector<State_ptr> & lastval)
 	return 1;
 }
 
-bool kinova_status::GetLastValue(State& res, std::string type)
+bool kinova_status::GetLastValue(std::vector<State>& res, std::vector<std::string> type)
 {
 	if(first_write.load(boost::memory_order_acquire))
 	{
-		if(type.compare("j_pos") == 0)
-		{	//DEBUG
-			//std::cout<<"reading last joints"<<std::endl;
-			//---
-			res = *(this->dl_ang_pos.load(boost::memory_order_acquire));
-		}
-		else if(type.compare("j_vel") == 0)
+		for(unsigned int i =0;i<type.size();i++)
 		{
-			res = *(this->dl_ang_vel.load(boost::memory_order_acquire));
+			State app;
+			if(type[i].compare("j_pos") == 0)
+			{	//DEBUG
+				//std::cout<<"reading last joints"<<std::endl;
+				//---
+				app = *(this->dl_ang_pos.load(boost::memory_order_acquire));
+			}
+			else if(type[i].compare("j_vel") == 0)
+			{
+				app = *(this->dl_ang_vel.load(boost::memory_order_acquire));
+			}
+			else if(type[i].compare("j_tau") == 0)
+			{
+				app = *(this->dl_ang_tau.load(boost::memory_order_acquire));
+			}
+			else if(type[i].compare("cart_f") == 0)
+			{
+				app = *(this->dl_cart_f.load(boost::memory_order_acquire));
+			}
+			else if(type[i].compare("cart_pos") == 0)
+			{
+				app = *(this->dl_cart_pos.load(boost::memory_order_acquire));
+			}
+			res.push_back(app);
 		}
-		else if(type.compare("j_tau") == 0)
-		{
-		   res = *(this->dl_ang_tau.load(boost::memory_order_acquire));
-		}
-		else if(type.compare("cart_f") == 0)
-		{
-			res = *(this->dl_cart_f.load(boost::memory_order_acquire));
-		}
-		else if(type.compare("cart_pos") == 0)
-		{
-			res = *(this->dl_cart_pos.load(boost::memory_order_acquire));
-		}
-
 
 		return true;
 	}

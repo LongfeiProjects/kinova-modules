@@ -47,18 +47,11 @@ class robot
 				{
 					std::vector<State> cur_val;
 					bool read_data = false;
-					for(unsigned int i = 0;i<contr->measured_value.size();i++)
-					{
-						State res;
-						read_data = st->GetLastValue(res,contr->measured_value[i]);
-						//DEBUG
-						//std::cout<<"read_data= "<<read_data<<std::endl;
-						//---
-						if(read_data)
-						{
-							cur_val.push_back(res);
-						}
-					}
+					read_data = st->GetLastValue(cur_val,contr->measured_value);
+					//DEBUG
+					//std::cout<<"read_data= "<<read_data<<std::endl;
+					//---
+
 					// control block
 					if(read_data)
 					{
@@ -68,7 +61,7 @@ class robot
 							std::cout<<"before move2home"<<std::endl;
 							//---
 							contr->Move2Home();
-							std::vector<State> start = st->FirstRead();
+							std::vector<State> start = st->FirstRead(contr->measured_value);
 							//DEBUG
 							std::cout<<"after move2home"<<std::endl;
 							//---

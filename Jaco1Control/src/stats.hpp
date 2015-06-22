@@ -16,8 +16,8 @@ class stats
    public:
 	  model* bot;
       // pure virtual function
-	  virtual std::vector<State> FirstRead() = 0;
-      virtual bool GetLastValue(State& , std::string type ) = 0;
+	  virtual std::vector<State> FirstRead(std::vector<std::string> ) = 0;
+      virtual bool GetLastValue(std::vector<State>& , std::vector<std::string> type ) = 0;
       virtual void Start() = 0;
       virtual void Stop() = 0;
       virtual void Reading() = 0;
