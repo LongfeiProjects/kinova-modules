@@ -47,9 +47,13 @@ class robot
 				{
 					std::vector<State> cur_val;
 					bool read_data = false;
+					//DEBUG
+					std::cout<<"before first GetLastValue "<<std::endl;
+					std::cout<<"contr->measured_value.size() "<<contr->measured_value.size()<<std::endl;
+					//----
 					read_data = st->GetLastValue(cur_val,contr->measured_value);
 					//DEBUG
-					//std::cout<<"read_data= "<<read_data<<std::endl;
+					std::cout<<"read_data after first read= "<<read_data<<std::endl;
 					//---
 
 					// control block
@@ -66,19 +70,31 @@ class robot
 							std::cout<<"after move2home"<<std::endl;
 							//---
 							contr->InitController(start);
+							// inizialization of current value after after move2home
+							cur_val = start;
+							//DEBUG
+							std::cout<< "starting joint position"<<std::endl;
+							for(unsigned int ik =0;ik<start[0].size();ik++)
+									std::cout<<start[0][ik]<<" ";
+							std::cout<<std::endl;
+							std::cout<< "starting cartesian position"<<std::endl;
+							for(unsigned int ik =0;ik<start[1].size();ik++)
+									std::cout<<start[1][ik]<<" ";
+							std::cout<<std::endl;
+							//---
 							contr->index = 0;
 						}
-						else
+						else if(contr->index == 0)
 						{
 							//DEBUG
 							//std::cout<<"im in exec controller"<<std::endl;
 							//---
 							contr->ExecController(cur_val);
 							 // using this if statement i will keep the last value when i will reach the end of this->ff vector
-							 if(contr->index<(int)contr->ff.size()-1)
+							 if(contr->index<(int)contr->ff[0].size()-1)
 								 contr->index++;
 							 //DEBUG
-							 std::cout<<"index = "<< contr->index<<std::endl;
+							 //std::cout<<"index = "<< contr->index<<std::endl;
 							 //---
 						}
 					}

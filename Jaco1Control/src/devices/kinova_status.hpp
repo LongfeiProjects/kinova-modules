@@ -83,7 +83,7 @@ class kinova_status : public stats
 		void ReadCurrents(GeneralInformations & info);
 		int Read4Vis(std::vector<State_ptr > & lastval);
 		std::vector<State> FirstRead(std::vector<std::string>){};
-		bool GetLastValue(std::vector<State>& , std::vector<std::string> type );
+		bool GetLastValue(std::vector<State>& , std::vector<std::string>  & type );
 
 };
 

@@ -275,7 +275,7 @@ int kinova_status::Read4Vis(std::vector<State_ptr> & lastval)
 	return 1;
 }
 
-bool kinova_status::GetLastValue(std::vector<State>& res, std::vector<std::string> type)
+bool kinova_status::GetLastValue(std::vector<State>& res, std::vector<std::string>  & type)
 {
 	if(first_write.load(boost::memory_order_acquire))
 	{

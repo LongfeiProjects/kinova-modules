@@ -5,13 +5,15 @@ void robot::StartAllThread()
 	    // start the thread in the object robot_status object
 		st->Start();
 		// start the thread in the robot object
-		this->safety_check = new boost::thread(boost::bind(&robot::Cheking,this));
+		if(check.launch_tread)
+			this->safety_check = new boost::thread(boost::bind(&robot::Cheking,this));
 }
 
 void robot::StopAllThread()
 {
 	st->Stop();
-	safety_check->join();
+	if(check.launch_tread)
+		safety_check->join();
 }
 
 void robot::Cheking()

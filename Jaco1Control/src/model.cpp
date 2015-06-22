@@ -52,8 +52,7 @@ void model::DK(State & q,State & position,arma::mat & R)
 	this->T0_n(T,_q);
 	arma::mat rototrasl((double *)(&T[0][0]),4,4);
 	R = rototrasl.submat(0,0,2,2);
-	position = rototrasl.col(3);
-
+	position = rototrasl.submat(0,3,2,3);
 }
 
 

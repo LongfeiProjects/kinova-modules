@@ -75,13 +75,20 @@ class safetycheck
 	std::map< std::string,range> rs;
 
 public:
+	bool launch_tread;
 	std::vector<std::string> checklist;
 
-	safetycheck(){};
+	safetycheck(){
+		launch_tread = false;
+		// i need this to avoid problem when i execute safety check when the object is empty
+		std::string empty = " ";
+		for(int i=0;i<3;i++)
+			checklist.push_back(empty);
+	};
 	safetycheck(std::vector<std::vector<double> > l_down_left_corner,std::vector<std::vector<double> > l_dims,
 				std::vector<std::vector<double> > l_min,std::vector<std::vector<double> > l_max, std::vector<std::string> names)
 	{
-
+		launch_tread = true;
 		// istanziate the map with the ranges
 		for(unsigned int i =0;i<names.size();i++)
 		{

@@ -18,6 +18,7 @@ class driverbot : public stats
 		int NJoints;
 		std::vector<int> joint_handle;
 		bool sync;
+		std::vector<std::string> list_value_to_read;
 		boost::atomic<bool> running;
 		boost::atomic<bool> first_write;
 		boost::thread* reader_stats;
@@ -31,7 +32,7 @@ class driverbot : public stats
 		driverbot(bool sync,std::string joint_base_name,model * bot);
 		~driverbot();
 		std::vector<State> FirstRead(std::vector<std::string>);
-		bool GetLastValue(std::vector<State>& , std::vector<std::string> type );
+		bool GetLastValue(std::vector<State>& , std::vector<std::string> & type );
 		void Start();
 		void Stop();
 		void Reading();

@@ -47,17 +47,17 @@ int main()
 	// status reader
 	Lwr* mdl = new Lwr();
 	bool sync = false;
-	std::string joint_base_name = "Jaco_joint";
+	std::string joint_base_name = "LBR4p_joint";
 	driverbot * vrep = new driverbot(sync,joint_base_name,mdl);
 
 	// controller
-	const double Pid_coef[] = {10,0,0}; // deg
+	const double Pid_coef[] = {10,0,0};
 	std::vector<double> Pid(Pid_coef,End(Pid_coef));
-	const char * _namefiles[] = {"cart_pos.txt","cart_vel.txt"};
-	std::vector<std::string> namefile (_namefiles,End(_namefiles));
 	const char * _meas_val[] ={"j_pos","cart_pos"};
 	std::vector<std::string> meas_val(_meas_val,End(_meas_val));
-	Jaco* md = new Jaco();
+	const char * _namefiles[] = {"cart_pos.txt","cart_vel.txt"};
+	std::vector<std::string> namefile (_namefiles,End(_namefiles));
+	Lwr* md = new Lwr();
 	int controltype = 1;
 	driverbot_contr * ct = new driverbot_contr(namefile,meas_val,Pid,controltype,md,vrep->idclient,vrep->joint_handle); // very rough patch because i can have only one API handle
 	safetycheck checker;

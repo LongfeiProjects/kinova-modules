@@ -40,6 +40,7 @@ driverbot::driverbot(bool _sync,std::string joint_base_name,model * _bot)
  		std::cout<< "syncres = " << syncres <<std::endl;
  		//---
  	}
+
  	// read joint handle
  	bool more_joint = true;
  	simxInt handle[1];
@@ -83,22 +84,35 @@ driverbot::~driverbot(){}
 std::vector<State> driverbot::FirstRead(std::vector<std::string> type)
 {
 	std::vector<State> res;
-	boost::this_thread::sleep(boost::posix_time::milliseconds(10)); // this sleep is necessary because at the begining i read a lot of nasty value
-	driverbot::GetLastValue(res,type);
-
+    boost::this_thread::sleep(boost::posix_time::milliseconds(10)); // this sleep is necessary because at the begining i read a lot of nasty value
+	bool result = driverbot::GetLastValue(res,type);
+    // DEBUG
+	std::cout<<" FirstRead result  "<<result<<std::endl;
+	//---
 	return res;
 }
 
-bool driverbot::GetLastValue(std::vector<State>& res, std::vector<std::string> type)
+bool driverbot::GetLastValue(std::vector<State>& res, std::vector<std::string> & type)
 {
 	if(first_write.load(boost::memory_order_acquire))
 	{
+		//DEBUG
+		State * ptr = NULL;
+		std::cout<<"type.size() "<<type.size()<<std::endl;
+		//---
 		for(unsigned int i =0;i<type.size();i++)
 		{
 			State app;
+			//DEBUG
+			std::cout<<"type[i]"<<type[i]<<std::endl;
+			//----
 			if(type[i].compare("j_pos") == 0)
 			{
 				app = *(this->dl_ang_pos.load(boost::memory_order_acquire));
+				//DEBUG
+				ptr =this->dl_ang_pos.load(boost::memory_order_acquire);
+				std::cout<< "address try inside"<<this->dl_ang_pos.load(boost::memory_order_acquire)<<std::endl;
+				//
 			}
 			else if(type[i].compare("j_vel") == 0)
 			{
@@ -114,6 +128,16 @@ bool driverbot::GetLastValue(std::vector<State>& res, std::vector<std::string> t
 			}
 			res.push_back(app);
 		}
+		//DEBUG
+		std::cout<< "get last value joint position"<<std::endl;
+		std::cout<< "address try "<<this->dl_ang_pos.load(boost::memory_order_acquire)<<std::endl;
+		std::cout<<"address last value "<<ptr<<std::endl;
+		std::cout<<"&(ds_ang_pos.back()) "<<&(ds_ang_pos.back())<<std::endl;
+		std::cout<< "res[0].size() "<<res[0].size()<<std::endl;
+		for(unsigned int ik =0;ik<res[0].size();ik++)
+				std::cout<<res[0][ik]<<" ";
+		std::cout<<std::endl;
+		//----
 		return true;
 	}
 	return false;
@@ -154,6 +178,8 @@ void driverbot::Reading()
 			this->ReadCartesian(pos,simx_opmode_oneshot_wait);
 			first_write.store(true,boost::memory_order_release);
 		}
+
+		boost::this_thread::sleep(boost::posix_time::milliseconds(5));
 	}
 }
 void driverbot::Cleaning()
@@ -162,13 +188,16 @@ void driverbot::Cleaning()
 	{
 		if(this->ds_ang_pos.size() > (unsigned int)(this->Max_DS_allowed) )
 		{
+			std::cout<<"im in cleaning"<<std::endl;
 			this->ds_ang_pos.pop_front();
 			this->ds_ang_vel.pop_front();
 			this->ds_ang_tau.pop_front();
 			this->ds_cart.pop_front();
 			this->ds_t.pop_front();
 		}
+		boost::this_thread::sleep(boost::posix_time::milliseconds(5));
 	}
+
 	std::cout<<"im out of Cleaning thread"<<std::endl;
 }
 
@@ -215,14 +244,21 @@ State driverbot::ReadJoints(int operationMode)
 
 
 	//DEBUG
-	//for(unsigned int ii =0;ii<app_pos.size();ii++)
-	//	std::cout<<app_pos[ii]<<" ";
-	//std::cout<<std::endl;
+	std::cout<<"read joints position"<<std::endl;
+	for(unsigned int ii =0;ii<app_pos.size();ii++)
+		std::cout<<app_pos[ii]<<" ";
+	std::cout<<std::endl;
 	//---
 
 	this->ds_ang_pos.push_back(app_pos);
+	//DEBUG
+	std::cout<<"address "<<&(ds_ang_pos.back())<<std::endl;
+	//----
 	this->dl_ang_pos.store( &(ds_ang_pos.back()),boost::memory_order_release);
-
+    //DEBUG
+	std::cout<<"address after writing 1 "<< this->dl_ang_pos.load(boost::memory_order_acquire)<<std::endl;
+	std::cout<<"address after writing 2 "<< this->dl_ang_pos.load(boost::memory_order_acquire)<<std::endl;
+    //---
 
 	this->ds_ang_vel.push_back(app_vel);
 	this->dl_ang_vel.store(&(ds_ang_vel.back()),boost::memory_order_release);
