@@ -25,7 +25,7 @@ POSITION_TYPE kinova_controller::InitPositionType(int value)
 // public function//
 kinova_controller::kinova_controller()
 {}
-kinova_controller::kinova_controller(std::string namefile,std::vector<std::string> list_meas_value,
+kinova_controller::kinova_controller(std::vector<std::string> namefile,std::vector<std::string> list_meas_value,
 										  std::vector<double> Pid,int _controltype,bool _limitation,model* mdl,void * _APIhandle)
 {
 	APIhandle = _APIhandle;
@@ -50,7 +50,12 @@ kinova_controller::kinova_controller(std::string namefile,std::vector<std::strin
 		controltype = _controltype;
 		limitation = _limitation;
 		bot=mdl;
-		this->ReadFile(namefile,this->ff);
+		for(unsigned int i =0;i<namefile.size();i++)
+		{
+			std::vector<State> app;
+			this->ReadFile(namefile[i],app);
+			ff.push_back(app);
+		}
 
 	}
 }
@@ -112,9 +117,8 @@ bool kinova_controller::InitController(std::vector<State> initial_state)
 	//DEBUG
 	std::cout<<"0.2"<<std::endl;
 	//----
-	 last_current_values.push_back(initial_state[0]);
-	 last_current_values.push_back(zero);
-	 last_current_values.push_back(zero);
+     this->InitCartesianKinematicController(initial_state);
+
 	 //DEBUG
 	std::cout<<"0.3"<<std::endl;
 	//----
@@ -128,11 +132,10 @@ bool  kinova_controller::ExecController(std::vector<State> current_state)
 	//----
 	// build the vector of vector of value that represent the reference to the control module
 	std::vector<State> feedforward;
-    feedforward.push_back(ff[index]);
     //DEBUG
 	//std::cout<<"2"<<std::endl;
 	//----
-	State result = this->PID(feedforward,current_state);
+	State result = this->CartesianKinematicController(current_state);
 	//DEBUG
 	//std::cout<<"3"<<std::endl;
 	//----

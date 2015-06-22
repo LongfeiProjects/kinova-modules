@@ -87,7 +87,6 @@ class robot
 							 //DEBUG
 							 std::cout<<"index = "<< contr->index<<std::endl;
 							 //---
-							 boost::this_thread::sleep(boost::posix_time::milliseconds(11));
 						}
 					}
 

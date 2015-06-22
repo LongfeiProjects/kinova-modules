@@ -86,7 +86,6 @@ T* GetData(arma::Row<T>* vec)
 	T * p = vec->memptr();
 }
 
-
-
+// api mutex (to use when  the api implementation is not threaded)
 
 #endif /* COMMON_HPP_ */

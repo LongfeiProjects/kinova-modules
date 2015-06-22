@@ -83,7 +83,8 @@ driverbot::~driverbot(){}
 std::vector<State> driverbot::FirstRead()
 {
 	State res;
-	boost::this_thread::sleep(boost::posix_time::milliseconds(5)); // this sleep is necessary because at the begining i read a lot of nasty value
+
+	boost::this_thread::sleep(boost::posix_time::milliseconds(10)); // this sleep is necessary because at the begining i read a lot of nasty value
 	driverbot::GetLastValue(res, "j_pos");
 	std::vector<State> result;
 	result.push_back(res);
@@ -105,6 +106,10 @@ bool driverbot::GetLastValue(State& res, std::string type)
 		else if(type.compare("j_tau") == 0)
 		{
 		   res = *(this->dl_ang_tau.load(boost::memory_order_acquire));
+		}
+		else if(type.compare("cart_pos") == 0)
+		{
+			res = *(this->dl_cart.load(boost::memory_order_acquire));
 		}
 		return true;
 	}

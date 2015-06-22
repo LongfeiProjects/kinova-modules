@@ -10,6 +10,7 @@
 
 #include "robot/dummybot.hpp"
 #include "robot/Jaco.hpp"
+#include "robot/Lwr.hpp"
 
 
 

@@ -9,7 +9,7 @@
 #include "../Interface/VREP/extApiCustom.hpp"
 
 
-driverbot_contr::driverbot_contr(std::string namefile,std::vector<std::string> list_meas_value,std::vector<double> Pid,
+driverbot_contr::driverbot_contr(std::vector<std::string> namefile,std::vector<std::string> list_meas_value,std::vector<double> Pid,
 			    					 int _controltype,model* md,simxInt _clientID,std::vector<int> _joint_handle)
 {
 	this->P = Pid[0];
@@ -22,7 +22,12 @@ driverbot_contr::driverbot_contr(std::string namefile,std::vector<std::string> l
 	clientID = _clientID;
 	joint_handle = _joint_handle;
 
-	this->ReadFile(namefile,this->ff);
+    for(unsigned int i = 0;i<namefile.size();i++)
+    {
+    	std::vector<State> app;
+    	this->ReadFile(namefile[i],app);
+        ff.push_back(app);
+    }
 }
 
 
@@ -32,6 +37,7 @@ int driverbot_contr::Move2Home()
 	//std::vector<simxFloat>targetPosition;
 	//for(unsigned int i= 0;i<joint_handle.size();i++)
 	//	simxSetJointTargetPosition(clientID,joint_handle[i],targetPosition[i],simx_opmode_oneshot);
+	return 1;
 }
 
 
@@ -44,8 +50,8 @@ void driverbot_contr::SendSingleCommand(State cmd)
 	}
 	else if(controltype == 1) // velocity
 	{
-		//DEBUGù
-		std::cout<<"velocity control"<<std::endl;
+		//DEBUG
+		//std::cout<<"velocity control"<<std::endl;
 		//---
 		for(unsigned int i =0;i<cmd.size();i++)
 					simxSetJointTargetVelocity(this->clientID,this->joint_handle[i],cmd[i],simx_opmode_oneshot);
@@ -75,15 +81,11 @@ bool driverbot_contr::InitController(std::vector<State> initial_state)
 	//DEBUG
 	std::cout<<"0.2"<<std::endl;
 	//----
-	 last_current_values.push_back(initial_state[0]);
-	 last_current_values.push_back(zero);
-	 last_current_values.push_back(zero);
-
-
+	this->InitCartesianKinematicController(initial_state);
 	 //DEBUG
-	 std::cout<< "starting joint position"<<std::endl;
-	 	for(unsigned int ik =0;ik<last_current_values[0].size();ik++)
-	 			std::cout<<last_current_values[0][ik]<<" ";
+	 //std::cout<< "starting joint position"<<std::endl;
+	 //	for(unsigned int ik =0;ik<desired_values[0].size();ik++)
+	 //			std::cout<<desired_values[0][ik]<<" ";
 	 //
 
 	 simxFloat delta[1];
@@ -93,7 +95,7 @@ bool driverbot_contr::InitController(std::vector<State> initial_state)
 	std::cout<< "time_interval" <<time_interval<<std::endl;
 	std::cout<<"0.3"<<std::endl;
 	//----
-	 //return true;
+	 return true;
 
 }
 bool driverbot_contr::ExecController(std::vector<State> current_state)
@@ -102,12 +104,12 @@ bool driverbot_contr::ExecController(std::vector<State> current_state)
 	//std::cout<<"1"<<std::endl;
 	//----
 	// build the vector of vector of value that represent the reference to the control module
-	std::vector<State> feedforward;
-	feedforward.push_back(ff[index]);
+	//std::vector<State> feedforward;
+	//feedforward.push_back(ff[index]);
 	//DEBUG
 	//std::cout<<"2"<<std::endl;
 	//----
-	State result = this->PID(feedforward,current_state);
+	State result = this->CartesianKinematicController(current_state);
 	//DEBUG
 	//std::cout<<"3"<<std::endl;
 	//----
@@ -117,6 +119,8 @@ bool driverbot_contr::ExecController(std::vector<State> current_state)
 	//std::cout<<std::endl;
 	//---
 	this->SendSingleCommand(result);
+	boost::this_thread::sleep(boost::posix_time::milliseconds(10));
+
 	return true;
 
 }

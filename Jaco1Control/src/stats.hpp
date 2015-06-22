@@ -15,23 +15,12 @@ class stats
 {
    public:
 	  model* bot;
-	  // ADD  GLOBAL MUTEX
       // pure virtual function
 	  virtual std::vector<State> FirstRead() = 0;
       virtual bool GetLastValue(State& , std::string type ) = 0;
       virtual void Start() = 0;
       virtual void Stop() = 0;
       virtual void Reading() = 0;
-      inline void ReadingMutex()
-      {// INSERT MUTEX
-    	  Reading();
-    	// CLOSE MUTEX
-      };
-      inline bool GetLastValueMutex(State& st, std::string type)
-      {// INSERT MUTEX
-    	  return GetLastValue(st,type);
-    	  // CLOSE MUTEX
-      };
       virtual ~stats(){};
 };
 

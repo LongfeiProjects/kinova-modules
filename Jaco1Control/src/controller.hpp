@@ -21,11 +21,11 @@ class controller
 		double D;
 		double time_interval; // controller frequency
 		int index;  // current value
-		std::vector<State> ff;
-		std::vector<State> last_current_values; // variable to storage values for control purpose;
+		std::vector<std::vector<State> > ff;
+		std::vector<State> desired_values; // variable to storage desired value plus other things;
 		std::vector<std::string> measured_value; // vector of string that describe the value that want to measure and in which order we want them
 		model * bot;
-		// ADD MUTEX
+
 
 		// the empty constructor inhibit the use of the constructor that never initialize in
 		// this way because of this loc measured_value.size() for(unsigned int i = 0;i<contr->measured_value.size();i++)
@@ -37,13 +37,9 @@ class controller
 		virtual void SendSingleCommand(State cmd) = 0;
 		virtual ~controller(){};
 
-		State PID(std::vector<State> ff,std::vector<State> current_state);
+		void  InitCartesianKinematicController(std::vector<State> initial_state);
+		State CartesianKinematicController(std::vector<State> current_state);
 
-		inline bool ExecControllerMutex(std::vector<State> current_state)
-		{	// INSERT MUTEX
-			return ExecController(current_state);
-			// CLOSE MUTEX
-		};
 
 		inline int ReadFile(std::string namefile,std::vector< State > & value)
 		{
