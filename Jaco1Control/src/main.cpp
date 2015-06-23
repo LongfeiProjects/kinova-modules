@@ -13,7 +13,7 @@ int main()
 	std::vector<double> Pid(Pid_coef,End(Pid_coef));
 	const char * _namefiles[] = {"cart_pos.txt","cart_vel.txt"};
 	std::vector<std::string> namefile (_namefiles,End(_namefiles));
-	const char * _meas_val[] ={"j_vel"};
+	const char * _meas_val[] ={"j_pos","cart_pos"};
 	std::vector<std::string> meas_val(_meas_val,End(_meas_val));
 	int controltype = 7;
 	bool limitation = 1;

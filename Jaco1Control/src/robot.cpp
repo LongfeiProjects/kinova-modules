@@ -4,6 +4,7 @@ void robot::StartAllThread()
 {
 	    // start the thread in the object robot_status object
 		st->Start();
+		this->emergency_stop = new boost::thread(boost::bind(&robot::EmergencyStop,this));
 		// start the thread in the robot object
 		if(check.launch_tread)
 			this->safety_check = new boost::thread(boost::bind(&robot::Cheking,this));
@@ -12,6 +13,7 @@ void robot::StartAllThread()
 void robot::StopAllThread()
 {
 	st->Stop();
+	emergency_stop->join();
 	if(check.launch_tread)
 		safety_check->join();
 }
@@ -36,17 +38,10 @@ void robot::Cheking()
 				if(check)
 				{
 					this->stop.store(true,boost::memory_order_release);
-					this->StopAllThread();
+					//this->StopAllThread();
 				}
 
 			}
-			// add control through interface
-			/*if (sf::Keyboard::isKeyPressed(sf::Keyboard::S))
-			{
-				std::cout<< "close the checking thread"<<std::endl;
-				return;
-			}*/
-
 		}
 		std::cout<< "im out the the Cheking thread"<<std::endl;
 	}
@@ -54,4 +49,19 @@ void robot::Cheking()
 	{
 		std::cout<< "error in the checking thread"<<std::endl;
 	}
+}
+
+void robot::EmergencyStop()
+{
+	while( !this->stop.load(boost::memory_order_acquire) )
+	{
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::C))
+		{
+			std::cout<< "---------------------------------------------------------"<<std::endl;
+			this->stop.store(true,boost::memory_order_release);
+			//this->StopAllThread();
+		}
+	}
+
+
 }

@@ -65,7 +65,6 @@ int kinova_controller::Move2Home()
 {
 	boost::recursive_mutex::scoped_lock scoped_lock(api_mutex);
 	int result = (*MyMoveHome)();
-	usleep(3000);
 	return result;
 }
 TrajectoryPoint  kinova_controller::ConvertControl(State & value)
@@ -114,7 +113,6 @@ bool kinova_controller::InitController(std::vector<State> initial_state)
 	 //DEBUG
 	std::cout<<"0.1"<<std::endl;
 	//----
-	 State zero(6,0);
 	//DEBUG
 	std::cout<<"0.2"<<std::endl;
 	//----

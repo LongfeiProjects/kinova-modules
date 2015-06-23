@@ -22,6 +22,7 @@ class robot
 		boost::shared_ptr<controller>  contr;
 		safetycheck check;
 		boost::thread* safety_check;
+		boost::thread* emergency_stop;
 
 		boost::atomic<bool> stop;
 
@@ -35,6 +36,7 @@ class robot
 		{
 			this->check = _check;
 			this->safety_check = NULL;
+			this->emergency_stop = NULL;
 		};
 
 		inline void Exec()
@@ -48,12 +50,12 @@ class robot
 					std::vector<State> cur_val;
 					bool read_data = false;
 					//DEBUG
-					//std::cout<<"before first GetLastValue "<<std::endl;
+					std::cout<<"before GetLastValue "<<std::endl;
 					//std::cout<<"contr->measured_value.size() "<<contr->measured_value.size()<<std::endl;
 					//----
 					read_data = st->GetLastValue(cur_val,contr->measured_value);
 					//DEBUG
-					//std::cout<<"read_data after first read= "<<read_data<<std::endl;
+					std::cout<<"read_data after GetLastValue= "<<read_data<<std::endl;
 					//---
 
 					// control block
@@ -98,15 +100,8 @@ class robot
 							 //---
 						}
 					}
-
-					if (sf::Keyboard::isKeyPressed(sf::Keyboard::C))
-					{
-						std::cout<< "---------------------------------------------------------"<<std::endl;
-						this->stop.store(true,boost::memory_order_release);
-						this->StopAllThread();
-					}
-
 				}
+				this->StopAllThread();
 				std::cout<< "im out the main cycle"<<std::endl;
 			}
 			catch(const std::exception &e)
@@ -121,6 +116,7 @@ class robot
 		void StartAllThread();
 		void StopAllThread();
 		void Cheking();
+		void EmergencyStop();
 };
 
 

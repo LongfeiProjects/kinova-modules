@@ -114,7 +114,7 @@ void kinova_status::Reading()
 			std::cout<<"first write"<<std::endl;
 			first_write.store(true,boost::memory_order_release);
 		}
-		//boost::this_thread::sleep(boost::posix_time::milliseconds(5));
+		boost::this_thread::sleep(boost::posix_time::milliseconds(2));
 	}
 	std::cout<<"im out of Reading thread"<<std::endl;
 }
