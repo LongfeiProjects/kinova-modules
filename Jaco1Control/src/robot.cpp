@@ -30,8 +30,15 @@ void robot::Cheking()
 
 			if(read_data)
 			{
-				this->check.VerifyViolation(cur_val);
+				bool check=false;
+				check = this->check.VerifyViolation(cur_val);
 				// add control to stop robot if i violate something
+				if(check)
+				{
+					this->stop.store(true,boost::memory_order_release);
+					this->StopAllThread();
+				}
+
 			}
 			// add control through interface
 			/*if (sf::Keyboard::isKeyPressed(sf::Keyboard::S))

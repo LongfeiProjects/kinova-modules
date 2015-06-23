@@ -42,18 +42,18 @@ class robot
 			try
 			{
 				this->StartAllThread();
-				contr->index = -1; // in this way i define the inizialization of the controller
+				contr->index = -1; // in this way i define the inizialization of the controller contr->index = -1
 				while(!this->stop.load(boost::memory_order_acquire) )
 				{
 					std::vector<State> cur_val;
 					bool read_data = false;
 					//DEBUG
-					std::cout<<"before first GetLastValue "<<std::endl;
-					std::cout<<"contr->measured_value.size() "<<contr->measured_value.size()<<std::endl;
+					//std::cout<<"before first GetLastValue "<<std::endl;
+					//std::cout<<"contr->measured_value.size() "<<contr->measured_value.size()<<std::endl;
 					//----
 					read_data = st->GetLastValue(cur_val,contr->measured_value);
 					//DEBUG
-					std::cout<<"read_data after first read= "<<read_data<<std::endl;
+					//std::cout<<"read_data after first read= "<<read_data<<std::endl;
 					//---
 
 					// control block
@@ -82,9 +82,9 @@ class robot
 									std::cout<<start[1][ik]<<" ";
 							std::cout<<std::endl;
 							//---
-							contr->index = 0;
+							contr->index = -1;  //DEBUG i inibhit control  instead contr->index = 0
 						}
-						else if(contr->index == 0)
+						else if(contr->index >= 0)
 						{
 							//DEBUG
 							//std::cout<<"im in exec controller"<<std::endl;
@@ -94,7 +94,7 @@ class robot
 							 if(contr->index<(int)contr->ff[0].size()-1)
 								 contr->index++;
 							 //DEBUG
-							 //std::cout<<"index = "<< contr->index<<std::endl;
+							 std::cout<<"index = "<< contr->index<<std::endl;
 							 //---
 						}
 					}

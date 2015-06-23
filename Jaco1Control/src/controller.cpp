@@ -60,11 +60,19 @@ State controller::CartesianKinematicController(std::vector<State> current_state)
 
 	 result = J_damp*(this->P*(desired_values[0] - current_state[1]) + desired_values[1]);
 
+	 //DEBUG
+	 State position_error = desired_values[0] - current_state[1];
+	 std::cout<< "position_error"<<std::endl;
+			for(unsigned int ik =0;ik<position_error.size();ik++)
+					std::cout<<position_error[ik]<<" ";
+			std::cout<<std::endl;
+	 //---
+
 	//DEBUG
 	//std::cout<< "desired joint velocity"<<std::endl;
-	/*for(unsigned int ik =0;ik<qd_des.size();ik++)
-			std::cout<<qd_des[ik]<<" ";
-	std::cout<<std::endl;*/
+	//for(unsigned int ik =0;ik<qd_des.size();ik++)
+	//		std::cout<<qd_des[ik]<<" ";
+	//std::cout<<std::endl;
 	//---
 
 	/*State position_error= last_current_values[0] - current_state[0];

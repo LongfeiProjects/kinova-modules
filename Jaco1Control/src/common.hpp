@@ -23,6 +23,7 @@
 #include <boost/date_time.hpp>
 #include <boost/shared_ptr.hpp>
 #include  <boost/make_shared.hpp>
+#include <boost/thread/recursive_mutex.hpp>
 #include <armadillo>
 
 
@@ -87,5 +88,5 @@ T* GetData(arma::Row<T>* vec)
 }
 
 // api mutex (to use when  the api implementation is not threaded)
-
+extern boost::recursive_mutex api_mutex;
 #endif /* COMMON_HPP_ */

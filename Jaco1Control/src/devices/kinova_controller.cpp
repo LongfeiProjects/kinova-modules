@@ -63,6 +63,7 @@ kinova_controller::~kinova_controller()
 {}
 int kinova_controller::Move2Home()
 {
+	boost::recursive_mutex::scoped_lock scoped_lock(api_mutex);
 	int result = (*MyMoveHome)();
 	usleep(3000);
 	return result;
@@ -103,10 +104,10 @@ TrajectoryPoint  kinova_controller::ConvertControl(State & value)
 }
 void kinova_controller::SendSingleCommand(State cmd)
 {
+     boost::recursive_mutex::scoped_lock scoped_lock(api_mutex);
 	 TrajectoryPoint p;
 	 p = this->ConvertControl(cmd);
 	 (*MySendAdvanceTrajectory)(p);
-	 //usleep(3000); // TO VERIFY
 }
 bool kinova_controller::InitController(std::vector<State> initial_state)
 {
@@ -123,7 +124,7 @@ bool kinova_controller::InitController(std::vector<State> initial_state)
 	std::cout<<"0.3"<<std::endl;
 	//----
 	 // this is really important! because in this way i can exit from initialization and start the execution of controller
-	 //return true;
+	 return true;
 }
 bool  kinova_controller::ExecController(std::vector<State> current_state)
 {
@@ -145,7 +146,7 @@ bool  kinova_controller::ExecController(std::vector<State> current_state)
 	//std::cout<<std::endl;
 	//---
 	this->SendSingleCommand(result);
-
+	boost::this_thread::sleep(boost::posix_time::milliseconds(10));
 	return true;
 }
 

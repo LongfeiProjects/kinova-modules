@@ -79,6 +79,9 @@ void kinova_status::Start()
 
 void kinova_status::Stop()
 {
+
+	// maybe add the command to empty the stack of command
+	// and to put the velocity at zero
 	this->running.store(false,boost::memory_order_release);
 	this->reader_stats->join();
 	this->log_stats->join();
@@ -97,17 +100,21 @@ void kinova_status::Reading()
 	{
 		GeneralInformations cur;
 		AngularPosition     av;
-		(*MyGetGeneralInformations)(cur);
-		(*MyGetAngularVelocity)(av);
+		{
+			boost::recursive_mutex::scoped_lock scoped_lock(api_mutex);
+			(*MyGetGeneralInformations)(cur);
+			(*MyGetAngularVelocity)(av);
+		}
 		this->ReadTimeStamp(cur);
 		this->ReadJoints(cur,av);
 		this->ReadCartesian(cur);
 		this->ReadCurrents(cur);
 		if(!first_write.load(boost::memory_order_acquire))
 		{
+			std::cout<<"first write"<<std::endl;
 			first_write.store(true,boost::memory_order_release);
 		}
-		boost::this_thread::sleep(boost::posix_time::milliseconds(10000));
+		//boost::this_thread::sleep(boost::posix_time::milliseconds(5));
 	}
 	std::cout<<"im out of Reading thread"<<std::endl;
 }
@@ -176,9 +183,9 @@ void kinova_status::ReadJoints(GeneralInformations & info,AngularPosition & av)
 	app[5]=info.Position.Actuators.Actuator6;
 
 	//DEBUG
-	for(int i=0;i<6;i++)
-		std::cout<<app[i]<<" ";
-	std::cout<<std::endl;
+	//for(int i=0;i<6;i++)
+	//	std::cout<<app[i]<<" ";
+	//std::cout<<std::endl;
 	//---
 
 	this->ds_ang_pos.push_back(app);
@@ -274,6 +281,18 @@ int kinova_status::Read4Vis(std::vector<State_ptr> & lastval)
 
 	return 1;
 }
+std::vector<State> kinova_status::FirstRead(std::vector<std::string> type)
+{
+	std::vector<State> res;
+	boost::this_thread::sleep(boost::posix_time::milliseconds(10)); // this sleep is necessary because at the begining i read a lot of nasty value
+	bool result = GetLastValue(res,type);
+	// DEBUG
+	//std::cout<<" FirstRead result  "<<result<<std::endl;
+	//---
+	return res;
+
+}
+
 
 bool kinova_status::GetLastValue(std::vector<State>& res, std::vector<std::string>  & type)
 {
