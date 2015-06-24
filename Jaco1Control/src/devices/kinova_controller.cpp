@@ -33,9 +33,10 @@ kinova_controller::kinova_controller(std::vector<std::string> namefile,std::vect
 	{
 		MySetCartesianControl = (int (*)()) dlsym(APIhandle,"SetCartesianControl");
 		MySendAdvanceTrajectory = (int (*)(TrajectoryPoint)) dlsym(APIhandle,"SendAdvanceTrajectory");
+		MySendBasicTrajectory = (int (*)(TrajectoryPoint)) dlsym(APIhandle,"SendBasicTrajectory");
 		MyMoveHome = (int (*)()) dlsym(APIhandle,"MoveHome");
 	}
-	if((MySendAdvanceTrajectory == NULL) || (MySetCartesianControl == NULL) || (MyMoveHome == NULL))
+	if((MySendAdvanceTrajectory == NULL) || (MySetCartesianControl == NULL) || (MyMoveHome == NULL) || (MySendBasicTrajectory = NULL))
 	{
 		perror( "Unable to initialize the command layer.");
 	}
@@ -44,7 +45,7 @@ kinova_controller::kinova_controller(std::vector<std::string> namefile,std::vect
 		this->P = Pid[0];
 		this->I = Pid[1];
 		this->D = Pid[2];
-		index = -1; // for accessing inizialization procedure
+		index = -2; // for accessing inizialization procedure
 		this->time_interval = 0.01; // second TO CHANGE
 		this->measured_value = list_meas_value;
 		controltype = _controltype;
@@ -63,7 +64,7 @@ kinova_controller::~kinova_controller()
 {}
 int kinova_controller::Move2Home()
 {
-	boost::recursive_mutex::scoped_lock scoped_lock(api_mutex);
+	//boost::recursive_mutex::scoped_lock scoped_lock(api_mutex);
 	int result = (*MyMoveHome)();
 	return result;
 }
@@ -71,39 +72,58 @@ TrajectoryPoint  kinova_controller::ConvertControl(State & value)
 {
 	TrajectoryPoint pointToSend;
 	pointToSend.InitStruct();
-	pointToSend.Position.Type = InitPositionType(controltype);
+	pointToSend.Position.Type = ANGULAR_VELOCITY;
+	pointToSend.Position.HandMode = HAND_NOMOVEMENT;
 	pointToSend.LimitationsActive = limitation;
 
 	//DEFINE LIMITATIONS HERE
-	pointToSend.Limitations.speedParameter1 = 0.5f;//We limit the translation velocity to 8 cm per second.
-	pointToSend.Limitations.speedParameter2 = 0.5f; //We limit the orientation velocity to 0.6 RAD per second
-
-
+	//pointToSend.Limitations.speedParameter1 = 100.f;//We limit the translation velocity to 8 cm per second.
+	//pointToSend.Limitations.speedParameter2 = 100.f; //We limit the orientation velocity to 0.6 RAD per second
+	// conversion from rad/s to deg/s
+	//value = value*(DEG);
+	//DEBUG
+	//std::cout<< "control"<<std::endl;
+	//for(unsigned int ik =0;ik<value.size();ik++)
+	//		std::cout<<value[ik]<<" ";
+	//std::cout<<std::endl;
+	//---
+	//DEBUG
+	for(unsigned int ik =0;ik<value.size();ik++)
+	{
+		if(ik == 5)
+		value[ik] = 5;
+		else
+			value[ik] = 0.0;
+	}
+	//---
 
 	if(controltype==ANGULAR_POSITION || controltype==ANGULAR_VELOCITY)
 	{
-		pointToSend.Position.Actuators.Actuator1 = value[0];
-		pointToSend.Position.Actuators.Actuator2 = value[1];
-		pointToSend.Position.Actuators.Actuator3 = value[2];
-		pointToSend.Position.Actuators.Actuator4 = value[3];
-		pointToSend.Position.Actuators.Actuator5 = value[4];
-		pointToSend.Position.Actuators.Actuator6 = value[5];
+		//DEBUG
+		//std::cout<< "position velocity control"<<std::endl;
+		//
+		pointToSend.Position.Actuators.Actuator1 = (float)value[0];
+		pointToSend.Position.Actuators.Actuator2 = (float)value[1];
+		pointToSend.Position.Actuators.Actuator3 = (float)value[2];
+		pointToSend.Position.Actuators.Actuator4 = (float)value[3];
+		pointToSend.Position.Actuators.Actuator5 = (float)value[4];
+		pointToSend.Position.Actuators.Actuator6 = (float)value[5];
 	}
 	else
 	{
-		pointToSend.Position.CartesianPosition.X = value[0];
-		pointToSend.Position.CartesianPosition.Y = value[1];
-		pointToSend.Position.CartesianPosition.Z = value[2];
+		pointToSend.Position.CartesianPosition.X = (float)value[0];
+		pointToSend.Position.CartesianPosition.Y = (float)value[1];
+		pointToSend.Position.CartesianPosition.Z = (float)value[2];
 		//We set the orientation part of the position (unit is RAD)
-		pointToSend.Position.CartesianPosition.ThetaX = value[3];
-		pointToSend.Position.CartesianPosition.ThetaY = value[4];
-		pointToSend.Position.CartesianPosition.ThetaZ = value[5];
+		pointToSend.Position.CartesianPosition.ThetaX = (float)value[3];
+		pointToSend.Position.CartesianPosition.ThetaY = (float)value[4];
+		pointToSend.Position.CartesianPosition.ThetaZ = (float)value[5];
 	}
 	return pointToSend;
 }
 void kinova_controller::SendSingleCommand(State cmd)
 {
-     boost::recursive_mutex::scoped_lock scoped_lock(api_mutex);
+     //boost::recursive_mutex::scoped_lock scoped_lock(api_mutex);
 	 TrajectoryPoint p;
 	 p = this->ConvertControl(cmd);
 	 (*MySendAdvanceTrajectory)(p);
@@ -124,27 +144,36 @@ bool kinova_controller::InitController(std::vector<State> initial_state)
 	 // this is really important! because in this way i can exit from initialization and start the execution of controller
 	 return true;
 }
-bool  kinova_controller::ExecController(std::vector<State> current_state)
+bool kinova_controller::ExecController(std::vector<State> current_state)
 {
-	//DEBUG
-	//std::cout<<"1"<<std::endl;
-	//----
-	// build the vector of vector of value that represent the reference to the control module
-	std::vector<State> feedforward;
-    //DEBUG
-	//std::cout<<"2"<<std::endl;
-	//----
-	State result = this->CartesianKinematicController(current_state);
-	//DEBUG
-	//std::cout<<"3"<<std::endl;
-	//----
-	//DEBUG
-	//for(unsigned int i =0;i<result.size();i++)
-	//	std::cout<<result[i]<<" ";
-	//std::cout<<std::endl;
-	//---
-	this->SendSingleCommand(result);
-	boost::this_thread::sleep(boost::posix_time::milliseconds(10));
-	return true;
+	if(_second.load(boost::memory_order_acquire))
+	{
+		clock_t begin_global = clock();
+		//DEBUG
+		//std::cout<<"executing controller"<<std::endl;
+		//---
+		// inhibit the repetition fo this action
+		_second.store(false,boost::memory_order_release);
+
+		clock_t begin = clock();
+		State result = this->CartesianKinematicController(current_state);
+		clock_t end = clock();
+		double elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
+		std::cout<< "time spent CartesianKinematicController =" << elapsed_secs<<std::endl;
+		begin = clock();
+		this->SendSingleCommand(result);
+		end = clock();
+		elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
+		std::cout<< "time spent SendSingleCommand =" << elapsed_secs<<std::endl;
+		// this sleep control the frequency of the serialized threads (read and send)
+		//boost::this_thread::sleep(boost::posix_time::milliseconds(10));
+		// after ten millisecond i update my
+		_first.store(true,boost::memory_order_release);
+		clock_t global_end = clock();
+		double global_elapsed_secs = double(global_end - begin_global) / CLOCKS_PER_SEC;
+		std::cout<< "time spent Controlling =" << global_elapsed_secs<<std::endl;
+		return true;
+	}
+	return false;
 }
 

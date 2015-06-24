@@ -40,7 +40,10 @@ kinova_status::kinova_status(model * mdl)
 	MyStopControlAPI =  (int (*)()) dlsym(APIhandle,"StopControlAPI");
 	MyGetGeneralInformations = (int (*)(GeneralInformations &)) dlsym(APIhandle,"GetGeneralInformations");
 	MyGetGlobalTrajectoryInfo = (int (*)(TrajectoryFIFO &)) dlsym(APIhandle,"GetGlobalTrajectoryInfo");
+	MyGetAngularPosition = (int (*)(AngularPosition &)) dlsym(APIhandle,"GetAngularPosition");
 	MyGetAngularVelocity = (int (*)(AngularPosition &)) dlsym(APIhandle,"GetAngularVelocity");
+	MyGetAngularForce    = (int (*)(AngularPosition &)) dlsym(APIhandle,"GetAngularForce");
+	MyGetCartesianPosition = (int (*)(CartesianPosition &))dlsym(APIhandle,"GetCartesianPosition");
 	//We test if that all the functions were loaded corectly.
 	if((MyInitAPI == NULL) || (MyCloseAPI == NULL) || (MyStartControlAPI == NULL) )
 	{
@@ -73,7 +76,7 @@ kinova_status::~kinova_status()
 void kinova_status::Start()
 {
 	this->reader_stats = new boost::thread(boost::bind(&kinova_status::Reading,this));
-	this->log_stats = new boost::thread(boost::bind(&kinova_status::Logging,this));
+	//this->log_stats = new boost::thread(boost::bind(&kinova_status::Logging,this));
 	this->garbage_collection = new boost::thread(boost::bind(&kinova_status::Cleaning,this));
 }
 
@@ -84,7 +87,7 @@ void kinova_status::Stop()
 	// and to put the velocity at zero
 	this->running.store(false,boost::memory_order_release);
 	this->reader_stats->join();
-	this->log_stats->join();
+	//this->log_stats->join();
 	this->garbage_collection->join();
 	// close api kinova
 	(*MyStopControlAPI)();
@@ -98,23 +101,66 @@ void kinova_status::Reading()
 	this->tStart = clock();
 	while(this->running.load(boost::memory_order_acquire))
 	{
-		GeneralInformations cur;
-		AngularPosition     av;
+		if(_first.load(boost::memory_order_acquire))
 		{
-			boost::recursive_mutex::scoped_lock scoped_lock(api_mutex);
-			(*MyGetGeneralInformations)(cur);
-			(*MyGetAngularVelocity)(av);
+			clock_t begin_global = clock();
+			//DEBUG
+		    //std::cout<<"reading new value"<<std::endl;
+			//---
+			_first.store(false,boost::memory_order_release);
+			GeneralInformations cur;
+			CartesianPosition   cart_pos;
+			AngularPosition     position,velocity,force;
+			clock_t begin = clock();
+			//(*MyGetGeneralInformations)(cur);
+			clock_t end = clock();
+			double elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
+			//std::cout<< "time spent MyGetGeneralInformations =" << elapsed_secs<<std::endl;
+
+			begin = clock();
+			(*MyGetAngularPosition)(position);
+			end = clock();
+			elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
+			//std::cout<< "time spent MyGetAngularPosition =" << elapsed_secs<<std::endl;
+
+			begin = clock();
+			//(*MyGetAngularVelocity)(velocity);
+		    end = clock();
+			elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
+			//std::cout<< "time spent MyGetAngularVelocity =" << elapsed_secs<<std::endl;
+
+			begin = clock();
+			//(*MyGetAngularForce)(force);
+			end = clock();
+			elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
+			//std::cout<< "time spent MyGetAngularForce =" << elapsed_secs<<std::endl;
+
+
+			begin = clock();
+			//MyGetCartesianPosition(cart_pos);
+			end = clock();
+			elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
+			//std::cout<< "time spent MyGetCartesianPosition =" << elapsed_secs<<std::endl;
+
+			std::cout<< "measured cartesian pos"<<std::endl;
+			std::cout<<cart_pos.Coordinates.ThetaX<<" ";
+			std::cout<<cart_pos.Coordinates.ThetaY<<" ";
+			std::cout<<cart_pos.Coordinates.ThetaZ<<std::endl;
+
+			this->ReadTimeStamp();
+			this->ReadJoints(position,velocity,force);
+			this->ReadCartesian(position);
+			//this->ReadCurrents(cur);
+			if(!first_write.load(boost::memory_order_acquire))
+			{
+				std::cout<<"first write"<<std::endl;
+				first_write.store(true,boost::memory_order_release);
+			}
+			_second.store(true,boost::memory_order_release);
+			clock_t global_end = clock();
+			double global_elapsed_secs = double(global_end - begin_global) / CLOCKS_PER_SEC;
+			std::cout<< "time spent Reading =" << global_elapsed_secs<<std::endl;
 		}
-		this->ReadTimeStamp(cur);
-		this->ReadJoints(cur,av);
-		this->ReadCartesian(cur);
-		this->ReadCurrents(cur);
-		if(!first_write.load(boost::memory_order_acquire))
-		{
-			std::cout<<"first write"<<std::endl;
-			first_write.store(true,boost::memory_order_release);
-		}
-		boost::this_thread::sleep(boost::posix_time::milliseconds(2));
 	}
 	std::cout<<"im out of Reading thread"<<std::endl;
 }
@@ -158,29 +204,30 @@ void kinova_status::Cleaning()
 
 // FROM THIS POINT FUNCTIONS are KINOVA API DEPENDANT //
 
-void kinova_status::ReadTimeStamp(GeneralInformations & info)
+void kinova_status::ReadTimeStamp()
 {
     State t_rob(1),t_cur(1);
 
     t_cur[0] = (double)((clock() - tStart)/CLOCKS_PER_SEC);
-    t_rob[0] = info.TimeFromStartup;
+    //t_rob[0] = info.TimeFromStartup;
 
 	this->ds_comp_t.push_back(t_cur);
 	// i can write for the vis less often then the other op
 	this->comp_t.push( &(ds_comp_t.back()) );
-	this->ds_robot_t.push_back(t_rob);
+	//this->ds_robot_t.push_back(t_rob);
 
 }
 
-void kinova_status::ReadJoints(GeneralInformations & info,AngularPosition & av)
+void kinova_status::ReadJoints(AngularPosition & position,AngularPosition & velocity,AngularPosition & force)
 {
+	// joint position
 	State app(6);
-	app[0]=info.Position.Actuators.Actuator1;
-	app[1]=info.Position.Actuators.Actuator2;
-	app[2]=info.Position.Actuators.Actuator3;
-	app[3]=info.Position.Actuators.Actuator4;
-	app[4]=info.Position.Actuators.Actuator5;
-	app[5]=info.Position.Actuators.Actuator6;
+	app[0]=position.Actuators.Actuator1;
+	app[1]=position.Actuators.Actuator2;
+	app[2]=position.Actuators.Actuator3;
+	app[3]=position.Actuators.Actuator4;
+	app[4]=position.Actuators.Actuator5;
+	app[5]=position.Actuators.Actuator6;
 
 	//DEBUG
 	//for(int i=0;i<6;i++)
@@ -193,22 +240,31 @@ void kinova_status::ReadJoints(GeneralInformations & info,AngularPosition & av)
 	// i can write for the vis less often then the other op
 	this->ang_pos.push( &(ds_ang_pos.back()) );
 
-	app[0]=av.Actuators.Actuator1;
-	app[1]=av.Actuators.Actuator2;
-	app[2]=av.Actuators.Actuator3;
-	app[3]=av.Actuators.Actuator4;
-	app[4]=av.Actuators.Actuator5;
-	app[5]=av.Actuators.Actuator6;
+	// joint velocity
+	/*app[0]=velocity.Actuators.Actuator1;
+	app[1]=velocity.Actuators.Actuator2;
+	app[2]=velocity.Actuators.Actuator3;
+	app[3]=velocity.Actuators.Actuator4;
+	app[4]=velocity.Actuators.Actuator5;
+	app[5]=velocity.Actuators.Actuator6;
+
+	//DEBUG
+	std::cout<<"velocity"<<std::endl;
+	for(int i=0;i<6;i++)
+		std::cout<<app[i]<<" ";
+	std::cout<<std::endl;
+	//---
 
 	this->ds_ang_vel.push_back(app);
-	this->dl_ang_vel.store(&(ds_ang_vel.back()),boost::memory_order_release);
+	this->dl_ang_vel.store(&(ds_ang_vel.back()),boost::memory_order_release);*/
 
-	app[0]=info.Force.Actuators.Actuator1;
-	app[1]=info.Force.Actuators.Actuator2;
-	app[2]=info.Force.Actuators.Actuator3;
-	app[3]=info.Force.Actuators.Actuator4;
-	app[4]=info.Force.Actuators.Actuator5;
-	app[5]=info.Force.Actuators.Actuator6;
+	// joint torques
+	app[0]=force.Actuators.Actuator1;
+	app[1]=force.Actuators.Actuator2;
+	app[2]=force.Actuators.Actuator3;
+	app[3]=force.Actuators.Actuator4;
+	app[4]=force.Actuators.Actuator5;
+	app[5]=force.Actuators.Actuator6;
 
 	this->ds_ang_tau.push_back(app);
 	this->dl_ang_tau.store( &(ds_ang_tau.back()),boost::memory_order_release);
@@ -217,28 +273,51 @@ void kinova_status::ReadJoints(GeneralInformations & info,AngularPosition & av)
 
 }
 
-void kinova_status::ReadCartesian(GeneralInformations & info)
+// TO DO: SPLIT CARTESIAN POSITION FROM ORIENTATION INTO DIFFERENT VARIABLE
+void kinova_status::ReadCartesian(AngularPosition & position)
 {
-	State app(6);
+	// cartesian position
+	State q(6);
+	State cart_pos;
+	arma::mat R;
+	q[0]=position.Actuators.Actuator1;
+	q[1]=position.Actuators.Actuator2;
+	q[2]=position.Actuators.Actuator3;
+	q[3]=position.Actuators.Actuator4;
+	q[4]=position.Actuators.Actuator5;
+	q[5]=position.Actuators.Actuator6;
 
-	app[0]=info.Position.CartesianPosition.X;
-	app[1]=info.Position.CartesianPosition.Y;
-	app[2]=info.Position.CartesianPosition.Z;
-	app[3]=info.Position.CartesianPosition.ThetaX;
-	app[4]=info.Position.CartesianPosition.ThetaY;
-	app[5]=info.Position.CartesianPosition.ThetaZ;
-	this->ds_cart_pos.push_back(app);
+	// convert angle from deg to rad
+	q=q*DEG;
+
+	clock_t begin = clock();
+	bot->DK(q,cart_pos,R);
+	clock_t end = clock();
+	double elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
+	//std::cout<< "time spent DK =" << elapsed_secs<<std::endl;
+	std::cout<<"computed cart position"<<std::endl;
+    for (int i = 0;i<cart_pos.size();i++)
+    {
+    	std::cout<<cart_pos[i]<< " ";
+    }
+    std::cout<<std::endl;
+
+	//app[3]=info.Position.CartesianPosition.ThetaX;
+	//app[4]=info.Position.CartesianPosition.ThetaY;
+	//app[5]=info.Position.CartesianPosition.ThetaZ;
+	this->ds_cart_pos.push_back(cart_pos);
 	this->dl_cart_pos.store( &(ds_cart_pos.back()),boost::memory_order_release);
 
-
-	app[0]=info.Force.CartesianPosition.X;
-	app[1]=info.Force.CartesianPosition.Y;
-	app[2]=info.Force.CartesianPosition.Z;
-	app[3]=info.Force.CartesianPosition.ThetaX;
-	app[4]=info.Force.CartesianPosition.ThetaY;
-	app[5]=info.Force.CartesianPosition.ThetaZ;
+	// cartesian forces
+	/*State force(6);
+	force[0]=info.Force.CartesianPosition.X;
+	force[1]=info.Force.CartesianPosition.Y;
+	force[2]=info.Force.CartesianPosition.Z;
+	force[3]=info.Force.CartesianPosition.ThetaX;
+	force[4]=info.Force.CartesianPosition.ThetaY;
+	force[5]=info.Force.CartesianPosition.ThetaZ;
 	this->ds_cart_f.push_back(app);
-	this->dl_cart_f.store( &(ds_cart_f.back()),boost::memory_order_release);
+	this->dl_cart_f.store( &(ds_cart_f.back()),boost::memory_order_release);*/
 }
 
 void kinova_status::ReadCurrents(GeneralInformations & info)
@@ -285,7 +364,7 @@ std::vector<State> kinova_status::FirstRead(std::vector<std::string> type)
 {
 	std::vector<State> res;
 	boost::this_thread::sleep(boost::posix_time::milliseconds(10)); // this sleep is necessary because at the begining i read a lot of nasty value
-	bool result = GetLastValue(res,type);
+	GetLastValue(res,type);
 	// DEBUG
 	//std::cout<<" FirstRead result  "<<result<<std::endl;
 	//---

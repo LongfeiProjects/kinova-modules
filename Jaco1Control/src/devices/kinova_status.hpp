@@ -32,7 +32,6 @@ class kinova_status : public stats
 		//int (*MyGetAngularVelocity)(AngularPosition &);
 		/*int (*MyGetForcesInfo)(ForcesInfo &Response);
 		// cartesian space
-		int (*MyGetCartesianPosition)(CartesianPosition &);
 		int (*MyGetCartesianForce)(CartesianPosition &);
 		// others
 		int (*MyGetAngularCommand)(AngularPosition &);
@@ -45,8 +44,11 @@ class kinova_status : public stats
 		int (*MyCloseAPI)();
 		int (*MyStartControlAPI)();
 		int (*MyStopControlAPI)();
-		int (*MyGetGeneralInformations)(GeneralInformations &);
+		int (*MyGetAngularPosition)(AngularPosition &);
 		int (*MyGetAngularVelocity)(AngularPosition &);
+		int (*MyGetAngularForce)(AngularPosition &);
+		int (*MyGetCartesianPosition)(CartesianPosition &);
+		int (*MyGetGeneralInformations)(GeneralInformations &);
 		int (*MyGetGlobalTrajectoryInfo)(TrajectoryFIFO &);
 		visualization vis;
 		int Max_DS_allowed;
@@ -77,9 +79,9 @@ class kinova_status : public stats
 		void Logging();
 		void Cleaning();
 
-		void ReadTimeStamp(GeneralInformations & info);
-		void ReadJoints(GeneralInformations & info, AngularPosition & ap);
-		void ReadCartesian(GeneralInformations & info);
+		void ReadTimeStamp();
+		void ReadJoints(AngularPosition & position,AngularPosition & velocity,AngularPosition & force);
+		void ReadCartesian(AngularPosition & position);
 		void ReadCurrents(GeneralInformations & info);
 		int Read4Vis(std::vector<State_ptr > & lastval);
 		std::vector<State> FirstRead(std::vector<std::string>);

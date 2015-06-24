@@ -17,6 +17,7 @@ class kinova_controller : public controller
 {
 	void * APIhandle;
 	int (*MySetCartesianControl)();
+	int (*MySendBasicTrajectory)(TrajectoryPoint command);
 	int (*MySendAdvanceTrajectory)(TrajectoryPoint command);
 	int (*MyMoveHome)();
 

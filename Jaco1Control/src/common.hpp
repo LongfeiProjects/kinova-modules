@@ -17,6 +17,7 @@
 #include <fstream>
 #include <sstream>
 #include <time.h>
+#include <ctime>
 #include <boost/thread.hpp>
 #include <boost/lockfree/queue.hpp>
 #include <boost/atomic.hpp>
@@ -24,6 +25,7 @@
 #include <boost/shared_ptr.hpp>
 #include  <boost/make_shared.hpp>
 #include <boost/thread/recursive_mutex.hpp>
+#include <boost/thread/lockable_concepts.hpp>
 #include <armadillo>
 
 
@@ -89,4 +91,10 @@ T* GetData(arma::Row<T>* vec)
 
 // api mutex (to use when  the api implementation is not threaded)
 extern boost::recursive_mutex api_mutex;
+extern boost::atomic<bool>  _first;
+extern boost::atomic<bool>  _second;
+
+// CONSTANT
+
+extern double DEG;
 #endif /* COMMON_HPP_ */

@@ -50,12 +50,19 @@ class robot
 					std::vector<State> cur_val;
 					bool read_data = false;
 					//DEBUG
-					std::cout<<"before GetLastValue "<<std::endl;
+					//std::cout<<"before GetLastValue "<<std::endl;
 					//std::cout<<"contr->measured_value.size() "<<contr->measured_value.size()<<std::endl;
 					//----
 					read_data = st->GetLastValue(cur_val,contr->measured_value);
 					//DEBUG
-					std::cout<<"read_data after GetLastValue= "<<read_data<<std::endl;
+					/*if(read_data)
+					{
+						std::cout<< "cur_val"<<std::endl;
+						for(unsigned int ik =0;ik<cur_val[0].size();ik++)
+								std::cout<<cur_val[0][ik]<<" ";
+						std::cout<<std::endl;
+					}*/
+					//std::cout<<"read_data after GetLastValue= "<<read_data<<std::endl;
 					//---
 
 					// control block
@@ -66,7 +73,7 @@ class robot
 							//DEBUG
 							std::cout<<"before move2home"<<std::endl;
 							//---
-							contr->Move2Home();
+							//contr->Move2Home();
 							std::vector<State> start = st->FirstRead(contr->measured_value);
 							//DEBUG
 							std::cout<<"after move2home"<<std::endl;
@@ -84,20 +91,22 @@ class robot
 									std::cout<<start[1][ik]<<" ";
 							std::cout<<std::endl;
 							//---
-							contr->index = -1;  //DEBUG i inibhit control  instead contr->index = 0
+							contr->index = 0;  //DEBUG i inibhit control  instead contr->index = 0
 						}
 						else if(contr->index >= 0)
 						{
 							//DEBUG
 							//std::cout<<"im in exec controller"<<std::endl;
 							//---
-							contr->ExecController(cur_val);
+							bool executed_control = contr->ExecController(cur_val);
 							 // using this if statement i will keep the last value when i will reach the end of this->ff vector
-							 if(contr->index<(int)contr->ff[0].size()-1)
+							 if(contr->index<(int)contr->ff[0].size()-1 && executed_control)
+							 {
 								 contr->index++;
-							 //DEBUG
-							 std::cout<<"index = "<< contr->index<<std::endl;
-							 //---
+								 //DEBUG
+								 std::cout<<"index = "<< contr->index<<std::endl;
+								 //---
+							 }
 						}
 					}
 				}
