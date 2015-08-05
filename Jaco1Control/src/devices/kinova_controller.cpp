@@ -32,11 +32,11 @@ kinova_controller::kinova_controller(std::vector<std::string> namefile,std::vect
 	if(APIhandle != NULL)
 	{
 		MySetCartesianControl = (int (*)()) dlsym(APIhandle,"SetCartesianControl");
-		MySendAdvanceTrajectory = (int (*)(TrajectoryPoint)) dlsym(APIhandle,"SendAdvanceTrajectory");
 		MySendBasicTrajectory = (int (*)(TrajectoryPoint)) dlsym(APIhandle,"SendBasicTrajectory");
+		MySendAdvanceTrajectory = (int (*)(TrajectoryPoint)) dlsym(APIhandle,"SendAdvanceTrajectory");
 		MyMoveHome = (int (*)()) dlsym(APIhandle,"MoveHome");
 	}
-	if((MySendAdvanceTrajectory == NULL) || (MySetCartesianControl == NULL) || (MyMoveHome == NULL) || (MySendBasicTrajectory = NULL))
+	if((MySendAdvanceTrajectory == NULL) || (MySetCartesianControl == NULL) || (MyMoveHome == NULL) || (MySendBasicTrajectory == NULL))
 	{
 		perror( "Unable to initialize the command layer.");
 	}
@@ -74,28 +74,13 @@ TrajectoryPoint  kinova_controller::ConvertControl(State & value)
 	pointToSend.InitStruct();
 	pointToSend.Position.Type = ANGULAR_VELOCITY;
 	pointToSend.Position.HandMode = HAND_NOMOVEMENT;
-	pointToSend.LimitationsActive = limitation;
+	//pointToSend.LimitationsActive = limitation;
 
 	//DEFINE LIMITATIONS HERE
 	//pointToSend.Limitations.speedParameter1 = 100.f;//We limit the translation velocity to 8 cm per second.
 	//pointToSend.Limitations.speedParameter2 = 100.f; //We limit the orientation velocity to 0.6 RAD per second
 	// conversion from rad/s to deg/s
-	//value = value*(DEG);
-	//DEBUG
-	//std::cout<< "control"<<std::endl;
-	//for(unsigned int ik =0;ik<value.size();ik++)
-	//		std::cout<<value[ik]<<" ";
-	//std::cout<<std::endl;
-	//---
-	//DEBUG
-	for(unsigned int ik =0;ik<value.size();ik++)
-	{
-		if(ik == 5)
-		value[ik] = 5;
-		else
-			value[ik] = 0.0;
-	}
-	//---
+	value = value*(1/DEG);
 
 	if(controltype==ANGULAR_POSITION || controltype==ANGULAR_VELOCITY)
 	{
@@ -125,8 +110,15 @@ void kinova_controller::SendSingleCommand(State cmd)
 {
      //boost::recursive_mutex::scoped_lock scoped_lock(api_mutex);
 	 TrajectoryPoint p;
+
+	 boost::chrono::high_resolution_clock::time_point begin = boost::chrono::high_resolution_clock::now();
 	 p = this->ConvertControl(cmd);
-	 (*MySendAdvanceTrajectory)(p);
+	 std::cout << "time spent ConvertControl: " << boost::chrono::duration_cast<boost::chrono::milliseconds>(boost::chrono::high_resolution_clock::now() - begin).count() << " ms\n";
+
+	 begin = boost::chrono::high_resolution_clock::now();
+	(*MySendBasicTrajectory)(p);
+	std::cout << "time spent MySendAdvanceTrajectory: " << boost::chrono::duration_cast<boost::chrono::milliseconds>(boost::chrono::high_resolution_clock::now() - begin).count() << " ms\n";
+
 }
 bool kinova_controller::InitController(std::vector<State> initial_state)
 {
@@ -148,30 +140,28 @@ bool kinova_controller::ExecController(std::vector<State> current_state)
 {
 	if(_second.load(boost::memory_order_acquire))
 	{
-		clock_t begin_global = clock();
+
 		//DEBUG
 		//std::cout<<"executing controller"<<std::endl;
 		//---
 		// inhibit the repetition fo this action
+		boost::chrono::high_resolution_clock::time_point global_begin = boost::chrono::high_resolution_clock::now();
+
 		_second.store(false,boost::memory_order_release);
 
-		clock_t begin = clock();
+		boost::chrono::high_resolution_clock::time_point begin = boost::chrono::high_resolution_clock::now();;
 		State result = this->CartesianKinematicController(current_state);
-		clock_t end = clock();
-		double elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
-		std::cout<< "time spent CartesianKinematicController =" << elapsed_secs<<std::endl;
-		begin = clock();
+		std::cout << "time spent CartesianKinematicController: " << boost::chrono::duration_cast<boost::chrono::milliseconds>(boost::chrono::high_resolution_clock::now() - begin).count() << " ms\n";
+
+		begin = boost::chrono::high_resolution_clock::now();;
 		this->SendSingleCommand(result);
-		end = clock();
-		elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
-		std::cout<< "time spent SendSingleCommand =" << elapsed_secs<<std::endl;
+		std::cout << "time spent SendSingleCommand: " << boost::chrono::duration_cast<boost::chrono::milliseconds>(boost::chrono::high_resolution_clock::now() - begin).count() << " ms\n";
+
 		// this sleep control the frequency of the serialized threads (read and send)
 		//boost::this_thread::sleep(boost::posix_time::milliseconds(10));
 		// after ten millisecond i update my
 		_first.store(true,boost::memory_order_release);
-		clock_t global_end = clock();
-		double global_elapsed_secs = double(global_end - begin_global) / CLOCKS_PER_SEC;
-		std::cout<< "time spent Controlling =" << global_elapsed_secs<<std::endl;
+		std::cout << "time spent Controlling: " << boost::chrono::duration_cast<boost::chrono::milliseconds>(boost::chrono::high_resolution_clock::now() - global_begin).count() << " ms\n";
 		return true;
 	}
 	return false;

@@ -103,7 +103,7 @@ void kinova_status::Reading()
 	{
 		if(_first.load(boost::memory_order_acquire))
 		{
-			clock_t begin_global = clock();
+			boost::chrono::high_resolution_clock::time_point global_begin = boost::chrono::high_resolution_clock::now();
 			//DEBUG
 		    //std::cout<<"reading new value"<<std::endl;
 			//---
@@ -111,41 +111,13 @@ void kinova_status::Reading()
 			GeneralInformations cur;
 			CartesianPosition   cart_pos;
 			AngularPosition     position,velocity,force;
-			clock_t begin = clock();
+
 			//(*MyGetGeneralInformations)(cur);
-			clock_t end = clock();
-			double elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
-			//std::cout<< "time spent MyGetGeneralInformations =" << elapsed_secs<<std::endl;
-
-			begin = clock();
 			(*MyGetAngularPosition)(position);
-			end = clock();
-			elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
-			//std::cout<< "time spent MyGetAngularPosition =" << elapsed_secs<<std::endl;
-
-			begin = clock();
 			//(*MyGetAngularVelocity)(velocity);
-		    end = clock();
-			elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
-			//std::cout<< "time spent MyGetAngularVelocity =" << elapsed_secs<<std::endl;
-
-			begin = clock();
 			//(*MyGetAngularForce)(force);
-			end = clock();
-			elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
-			//std::cout<< "time spent MyGetAngularForce =" << elapsed_secs<<std::endl;
-
-
-			begin = clock();
 			//MyGetCartesianPosition(cart_pos);
-			end = clock();
-			elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
-			//std::cout<< "time spent MyGetCartesianPosition =" << elapsed_secs<<std::endl;
 
-			std::cout<< "measured cartesian pos"<<std::endl;
-			std::cout<<cart_pos.Coordinates.ThetaX<<" ";
-			std::cout<<cart_pos.Coordinates.ThetaY<<" ";
-			std::cout<<cart_pos.Coordinates.ThetaZ<<std::endl;
 
 			this->ReadTimeStamp();
 			this->ReadJoints(position,velocity,force);
@@ -157,9 +129,7 @@ void kinova_status::Reading()
 				first_write.store(true,boost::memory_order_release);
 			}
 			_second.store(true,boost::memory_order_release);
-			clock_t global_end = clock();
-			double global_elapsed_secs = double(global_end - begin_global) / CLOCKS_PER_SEC;
-			std::cout<< "time spent Reading =" << global_elapsed_secs<<std::endl;
+		    std::cout << "time spent Reading: " << boost::chrono::duration_cast<boost::chrono::milliseconds>(boost::chrono::high_resolution_clock::now() - global_begin).count() << " ms\n";
 		}
 	}
 	std::cout<<"im out of Reading thread"<<std::endl;
@@ -229,6 +199,10 @@ void kinova_status::ReadJoints(AngularPosition & position,AngularPosition & velo
 	app[4]=position.Actuators.Actuator5;
 	app[5]=position.Actuators.Actuator6;
 
+
+	// convert angle from deg to rad
+	app=app*DEG;
+
 	//DEBUG
 	//for(int i=0;i<6;i++)
 	//	std::cout<<app[i]<<" ";
@@ -290,21 +264,10 @@ void kinova_status::ReadCartesian(AngularPosition & position)
 	// convert angle from deg to rad
 	q=q*DEG;
 
-	clock_t begin = clock();
-	bot->DK(q,cart_pos,R);
-	clock_t end = clock();
-	double elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
-	//std::cout<< "time spent DK =" << elapsed_secs<<std::endl;
-	std::cout<<"computed cart position"<<std::endl;
-    for (int i = 0;i<cart_pos.size();i++)
-    {
-    	std::cout<<cart_pos[i]<< " ";
-    }
-    std::cout<<std::endl;
 
-	//app[3]=info.Position.CartesianPosition.ThetaX;
-	//app[4]=info.Position.CartesianPosition.ThetaY;
-	//app[5]=info.Position.CartesianPosition.ThetaZ;
+	bot->DK(q,cart_pos,R);
+
+
 	this->ds_cart_pos.push_back(cart_pos);
 	this->dl_cart_pos.store( &(ds_cart_pos.back()),boost::memory_order_release);
 

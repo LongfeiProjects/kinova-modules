@@ -22,8 +22,8 @@ int main()
 
 	// checking module
 	// define bounding box
-	const double bb_point[] = {-0.6,-0.2,-0.4};
-    const double bb_dims[]  = {1.2,0.4,0.7};
+	const double bb_point[] = {-0.6,-0.8,-0.4};
+    const double bb_dims[]  = {1.2,1.6,0.8};
     std::vector<double> bb_p(bb_point,End(bb_point)),bb_d(bb_dims,End(bb_dims));
 
 	// define all the limit

@@ -104,7 +104,7 @@ class robot
 							 {
 								 contr->index++;
 								 //DEBUG
-								 std::cout<<"index = "<< contr->index<<std::endl;
+								 //std::cout<<"index = "<< contr->index<<std::endl;
 								 //---
 							 }
 						}

@@ -53,6 +53,23 @@ void model::DK(State & q,State & position,arma::mat & R)
 	arma::mat rototrasl((double *)(&T[0][0]),4,4);
 	R = rototrasl.submat(0,0,2,2);
 	position = rototrasl.submat(0,3,2,3);
+	//DEBUG
+	/*for(unsigned int ii =0;ii<q.size();ii++)
+	{
+		std::cout<<q[ii]<<" ";
+	}
+	std::cout<<std::endl;
+
+	for(unsigned int i =0;i<rototrasl.n_rows;i++)
+	{
+		for(unsigned int j =0; j<rototrasl.n_cols;j++)
+		{
+			std::cout<< rototrasl.at(i,j) << " ";
+		}
+		std::cout<<std::endl;
+	}*/
+
+	//---
 }
 
 

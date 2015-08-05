@@ -16,36 +16,25 @@ void controller::InitCartesianKinematicController(std::vector<State> initial_sta
 }
 State controller::CartesianKinematicController(std::vector<State> current_state)
 {
-	//DEBUG
-	//std::cout<< "input position"<<std::endl;
-	//for(unsigned int ik =0;ik<desired_value[0].size();ik++)
-	//		std::cout<<desired_value[0][ik]<<" ";
-	//std::cout<<std::endl;
-	//---
+
 	desired_values[0] = ff[0][index];
 	desired_values[1] = ff[1][index];
 	State result;
 	double lambda = 0; // bring outside
-	//DEBUG
-	//std::cout<<"2.1"<<std::endl;
-	//----
+
+	boost::chrono::high_resolution_clock::time_point begin = boost::chrono::high_resolution_clock::now();
 	arma::mat J = bot->J0(current_state[0],"trasl");
-	//DEBUG
-	//std::cout<<"J.n_rows "<<J.n_rows<<std::endl;
-	//std::cout<<"J.n_cols "<<J.n_cols<<std::endl;
-	//std::cout<<"2.1.1"<<std::endl;
-	//----
+	std::cout << "time spent J0: " << boost::chrono::duration_cast<boost::chrono::milliseconds>(boost::chrono::high_resolution_clock::now() - begin).count() << " ms\n";
+
 	arma::mat I=arma::eye(J.n_rows,J.n_rows);
-	//DEBUG
-	//std::cout<<"2.1.2"<<std::endl;
-	//----
+
+	begin = boost::chrono::high_resolution_clock::now();
 	arma::mat J_brack = arma::inv(J*J.t() + I*lambda);
-	//DEBUG
-	//std::cout<<"J_brack.n_rows "<<J_brack.n_rows<<std::endl;
-	//std::cout<<"J_brack.n_cols "<<J_brack.n_cols<<std::endl;
-	//std::cout<<"2.1.3"<<std::endl;
-	//----
 	arma::mat J_damp = J.t()*(J_brack);
+	std::cout << "time spent pseudo invers: " << boost::chrono::duration_cast<boost::chrono::milliseconds>(boost::chrono::high_resolution_clock::now() - begin).count() << " ms\n";
+
+
+
 	//DEBUG
 	//std::cout<<"2.1.4"<<std::endl;
 	//std::cout<<"desired_values[0].n_elem "<<desired_values[0].n_elem<<std::endl;
@@ -58,7 +47,41 @@ State controller::CartesianKinematicController(std::vector<State> current_state)
 	//std::cout << std::endl;
 	//----
 
-	 result = J_damp*(this->P*(desired_values[0] - current_state[1]) + desired_values[1]);
+		//DEBUG
+
+		/*
+		arma::mat J_inv = arma::inv(J);
+		State a(6);
+		a.fill(0.0);
+		for(int i =0;i<3;i++)
+		{
+			a[i] = desired_values[0][i];
+		}
+		State b(6);
+		b.fill(0.0);
+		for(int i =0;i<3;i++)
+		{
+			b[i] = current_state[1][i];
+		}
+		State c(6);
+		c.fill(0.0);
+		for(int i =0;i<3;i++)
+		{
+			c[i] = desired_values[1][i];
+		}
+
+		result = J_inv*(this->P*(a - b) + c);*/
+		//----
+	begin = boost::chrono::high_resolution_clock::now();
+	result = this->P*(desired_values[0] - current_state[1]);
+	std::cout << "result 1: " << boost::chrono::duration_cast<boost::chrono::milliseconds>(boost::chrono::high_resolution_clock::now() - begin).count() << " ms\n";
+	begin = boost::chrono::high_resolution_clock::now();
+	result = result +  desired_values[1];
+	std::cout << "result 2: " << boost::chrono::duration_cast<boost::chrono::milliseconds>(boost::chrono::high_resolution_clock::now() - begin).count() << " ms\n";
+	begin = boost::chrono::high_resolution_clock::now();
+	result = J_damp*result;
+	std::cout << "result 3: " << boost::chrono::duration_cast<boost::chrono::milliseconds>(boost::chrono::high_resolution_clock::now() - begin).count() << " ms\n";
+
 
 	 //DEBUG
 	 /*State position_error = desired_values[0] - current_state[1];
