@@ -1,0 +1,1 @@
+/usr/bin/c++       CMakeFiles/subcmake.dir/main.cpp.o  -o subcmake -rdynamic 
