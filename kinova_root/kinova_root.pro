@@ -4,4 +4,4 @@ SUBDIRS += \
     kinovalib \
     KinovaAdvancedGUI
 
-unix|win32: LIBS += -lKinova.API.USBCommandLayerUbuntu
+#unix|win32: LIBS += -lKinova.API.USBCommandLayerUbuntu

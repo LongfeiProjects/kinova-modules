@@ -13,7 +13,7 @@ CONFIG += staticlib
 SOURCES += kinovalib.cpp
 
 
-HEADERS += kinovalib.h Lib_Examples/Kinova.API.CommLayerUbuntu.h Lib_Examples/Kinova.API.UsbCommandLayerUbuntu.h Lib_Examples/KinovaTypes.h
+HEADERS += kinovalib.h
 
 unix {
     target.path = /usr/lib

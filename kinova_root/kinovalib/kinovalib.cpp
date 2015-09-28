@@ -12,7 +12,6 @@ Kinovalib::Kinovalib()
 {
     this->isKinovaInit=false;
     this->initResult=-1;
-    this->activeDevice=-1;
 }
 
 int Kinovalib::kinovaInit(){
@@ -25,11 +24,12 @@ int Kinovalib::kinovaInit(){
     this->MyCloseAPI = (int (*)()) dlsym(commandLayer_handle,"CloseAPI");
     this->MyMoveHome = (int (*)()) dlsym(commandLayer_handle,"MoveHome");
     this->MyInitFingers = (int (*)()) dlsym(commandLayer_handle,"InitFingers");
-    this->MyGetDevices = (int (*)(KinovaDevice devices[MAX_KINOVA_DEVICE], int &result)) dlsym(commandLayer_handle,"GetDevices");
-    this->MySetActiveDevice = (int (*)(KinovaDevice devices)) dlsym(commandLayer_handle,"SetActiveDevice");
     this->MySendBasicTrajectory = (int (*)(TrajectoryPoint)) dlsym(commandLayer_handle,"SendBasicTrajectory");
     this->MyGetQuickStatus = (int (*)(QuickStatus &)) dlsym(commandLayer_handle,"GetQuickStatus");
     this->MyGetCartesianCommand = (int (*)(CartesianPosition &)) dlsym(commandLayer_handle,"GetCartesianCommand");
+    this->MyStartControlAPI = (int (*)()) dlsym(commandLayer_handle,"StartControlAPI");
+    this->MySetCartesianControl = (int (*)()) dlsym(commandLayer_handle,"SetCartesianControl");
+    this->MySendAdvanceTrajectory = (int (*)(TrajectoryPoint)) dlsym(commandLayer_handle,"SendAdvanceTrajectory");
 
     if((this->MyInitAPI == NULL) || (this->MyCloseAPI == NULL) ||
        (this->MyGetQuickStatus == NULL) || (this->MySendBasicTrajectory == NULL) ||
@@ -42,23 +42,24 @@ int Kinovalib::kinovaInit(){
     {
         cout << "I N I T I A L I Z A T I O N   C O M P L E T E D" << endl << endl;
 
+
         result = (*(this->MyInitAPI))();
 
         cout << "Initialization's result :" << result << endl;
-        this->isKinovaInit=true;
+        if(result == SUCCESS){
+            result = (*(this->MyStartControlAPI))();
+        }
+
+        if(result == SUCCESS){
+            this->isKinovaInit=true;
+        }
         this->initResult=result;
 
-        int devicesCount = MyGetDevices(this->list, result);
-        if(devicesCount > 0){ //We set the first device as active
-            cout << "Found a robot on the USB bus (" << list[0].SerialNumber << ")" << endl;
-            this->setActiveDevice(list[0]);
-            this->activeDevice=0;
-        }else{
-            cout << "No robot found. Is the kinova arm plugged";
-        }
     }
     return result;
 }
+
+
 
 int Kinovalib::initAPI(){
     return (*(this->MyInitAPI))();
@@ -72,16 +73,15 @@ int Kinovalib::sendBasicTrajectory(TrajectoryPoint command){
     return (*(this->MySendBasicTrajectory))(command);
 }
 
-int Kinovalib::getDevices(KinovaDevice devices[MAX_KINOVA_DEVICE], int &result){
-    return (*(this->MyGetDevices))(devices,result);
-}
-
-int Kinovalib::setActiveDevice(KinovaDevice device){
-    return (*(this->MySetActiveDevice))(device);
-}
-
 int Kinovalib::moveHome(){
-    return (*(this->MyMoveHome))();
+    initIfnotYetInitialized();
+    int res = -1;
+    if(this->isKinovaInit){
+        res= (*(this->MyMoveHome))();
+    }else{
+        cout << "Could not initialize kinova" << endl;
+    }
+    return res;
 }
 
 int Kinovalib::initFingers(){
@@ -100,15 +100,18 @@ int Kinovalib::getCartesianCommand(CartesianPosition &){
     return -1;
 }
 
-
-void Kinovalib::sampleSend(){
+void Kinovalib::initIfnotYetInitialized(){
     if(!this->isKinovaInit){
         this->kinovaInit();
     }
+}
+
+void Kinovalib::sampleSendCartesianVelocityType(){
+    initIfnotYetInitialized();
 
     CartesianPosition currentCommand;
 
-    if(this->activeDevice>-1){
+    if(this->isKinovaInit){
         cout << "Send the robot to HOME position" << endl;
         MyMoveHome();
 
@@ -185,5 +188,87 @@ void Kinovalib::sampleSend(){
 
     dlclose(commandLayer_handle);
     */
+}
 
+
+
+
+void Kinovalib::sampleSendCartesianPositionType(){
+    initIfnotYetInitialized();
+    if(this->isKinovaInit){
+
+        QuickStatus status;
+        (*MyGetQuickStatus)(status);
+
+        CartesianPosition actualPosition;
+        (*MyGetCartesianCommand)(actualPosition);
+
+
+        cout << "Send the robot to HOME position" << endl;
+        MyMoveHome();
+
+        cout << "Initializing the fingers" << endl;
+        MyInitFingers();
+
+        TrajectoryPoint pointToSend;
+        pointToSend.InitStruct();
+
+        /**NEW BLOCK, deleted the old one*/
+        pointToSend.Position.HandMode = POSITION_MODE;
+        pointToSend.Position.Type = CARTESIAN_POSITION;
+        pointToSend.LimitationsActive = 1;
+
+        //Note that the first position has a velocity limitation of 8 cm/sec
+        pointToSend.Limitations.speedParameter1 = 0.08;
+        pointToSend.Limitations.speedParameter2 = 0.7;
+
+        pointToSend.Position.CartesianPosition.X = 0.21f;
+        pointToSend.Position.CartesianPosition.Y = -0.35f;
+        pointToSend.Position.CartesianPosition.Z = 0.48f;
+        pointToSend.Position.CartesianPosition.ThetaX = 1.55f;
+        pointToSend.Position.CartesianPosition.ThetaY = 1.02f;
+        pointToSend.Position.CartesianPosition.ThetaZ = -0.03f;
+
+        //If the robotic arm is a JACO, we use those value for the fingers.
+        if(status.RobotType == 0)
+        {
+            pointToSend.Position.Fingers.Finger1 = 45.0f;
+            pointToSend.Position.Fingers.Finger2 = 45.0f;
+            pointToSend.Position.Fingers.Finger3 = 45.0f;
+        }
+        //If the robotic arm is a MICO, we use those value for the fingers.
+        else if(status.RobotType == 1)
+        {
+            pointToSend.Position.Fingers.Finger1 = 4500.0f;
+            pointToSend.Position.Fingers.Finger2 = 4500.0f;
+            pointToSend.Position.Fingers.Finger3 = 4500.0f;
+        }
+        else
+        {
+            pointToSend.Position.Fingers.Finger1 = 0.0f;
+            pointToSend.Position.Fingers.Finger2 = 0.0f;
+            pointToSend.Position.Fingers.Finger3 = 0.0f;
+        }
+
+        cout << "Sending trajectory" << endl;
+        (*MySendAdvanceTrajectory)(pointToSend);
+
+        pointToSend.LimitationsActive = 0;
+        pointToSend.Position.CartesianPosition.Z = 0.59f;
+
+        cout << "Sending trajectory" << endl;
+        (*MySendAdvanceTrajectory)(pointToSend);
+
+        cout << "*********************************" << endl << endl << endl;
+
+    }
+
+    //TODO To be done in the destructor
+    /*
+    cout << endl << "C L O S I N G   A P I" << endl;
+    result = (*MyCloseAPI)();
+
+
+    dlclose(commandLayer_handle);
+    */
 }
