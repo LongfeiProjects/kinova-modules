@@ -51,9 +51,16 @@ int Kinovalib::kinovaInit(){
         }
 
         if(result == SUCCESS){
+            cout << "Send the robot to HOME position" << endl;
+            MyMoveHome();
+
+            cout << "Initializing the fingers" << endl;
+            MyInitFingers();
+
             this->isKinovaInit=true;
         }
         this->initResult=result;
+
 
     }
     return result;
@@ -70,6 +77,10 @@ int Kinovalib::closeAPI(){
 }
 
 int Kinovalib::sendBasicTrajectory(TrajectoryPoint command){
+    return (*(this->MySendBasicTrajectory))(command);
+}
+
+int Kinovalib::sendAdvancedTrajectory(TrajectoryPoint command){
     return (*(this->MySendBasicTrajectory))(command);
 }
 
@@ -106,94 +117,23 @@ void Kinovalib::initIfnotYetInitialized(){
     }
 }
 
-void Kinovalib::sampleSendCartesianVelocityType(){
+int Kinovalib::getActualCartesianPosition(CartesianPosition &position){
+    int res =-1;
     initIfnotYetInitialized();
-
-    CartesianPosition currentCommand;
-
     if(this->isKinovaInit){
-        cout << "Send the robot to HOME position" << endl;
-        MyMoveHome();
+        QuickStatus status;
+        (*MyGetQuickStatus)(status);
 
-        cout << "Initializing the fingers" << endl;
-        MyInitFingers();
-
-        TrajectoryPoint pointToSend;
-        pointToSend.InitStruct();
-
-        //We specify that this point will be used an angular(joint by joint) velocity vector.
-        pointToSend.Position.Type = CARTESIAN_VELOCITY;
-
-        pointToSend.Position.CartesianPosition.X = 0;
-        pointToSend.Position.CartesianPosition.Y = -0.15; //Move along Y axis at 20 cm per second
-        pointToSend.Position.CartesianPosition.Z = 0;
-        pointToSend.Position.CartesianPosition.ThetaX = 0;
-        pointToSend.Position.CartesianPosition.ThetaY = 0;
-        pointToSend.Position.CartesianPosition.ThetaZ = 0;
-
-        pointToSend.Position.Fingers.Finger1 = 0;
-        pointToSend.Position.Fingers.Finger2 = 0;
-        pointToSend.Position.Fingers.Finger3 = 0;
-
-        for(int i = 0; i < 200; i++)
-        {
-            //We send the velocity vector every 5 ms as long as we want the robot to move along that vector.
-            MySendBasicTrajectory(pointToSend);
-            usleep(5000);
-        }
-
-        pointToSend.Position.CartesianPosition.Y = 0;
-        pointToSend.Position.CartesianPosition.Z = 0.1;
-
-        for(int i = 0; i < 200; i++)
-        {
-            //We send the velocity vector every 5 ms as long as we want the robot to move along that vector.
-            MySendBasicTrajectory(pointToSend);
-            usleep(5000);
-        }
-
-        cout << "Send the robot to HOME position" << endl;
-        MyMoveHome();
-
-        //We specify that this point will be an angular(joint by joint) position.
-        pointToSend.Position.Type = CARTESIAN_POSITION;
-
-        //We get the actual angular command of the robot.
-        MyGetCartesianCommand(currentCommand);
-
-        pointToSend.Position.CartesianPosition.X = currentCommand.Coordinates.X;
-        pointToSend.Position.CartesianPosition.Y = currentCommand.Coordinates.Y - 0.1f;
-        pointToSend.Position.CartesianPosition.Z = currentCommand.Coordinates.Z;
-        pointToSend.Position.CartesianPosition.ThetaX = currentCommand.Coordinates.ThetaX;
-        pointToSend.Position.CartesianPosition.ThetaY = currentCommand.Coordinates.ThetaY;
-        pointToSend.Position.CartesianPosition.ThetaZ = currentCommand.Coordinates.ThetaZ;
-
-        cout << "*********************************" << endl;
-        cout << "Sending the first point to the robot." << endl;
-        MySendBasicTrajectory(pointToSend);
-
-        pointToSend.Position.CartesianPosition.Z = currentCommand.Coordinates.Z + 0.1f;
-        cout << "Sending the second point to the robot." << endl;
-        MySendBasicTrajectory(pointToSend);
-
-        cout << "*********************************" << endl << endl << endl;
-
+        res = (*MyGetCartesianCommand)(position);
+        cout<< "GetCartesianCommand result: " << res << endl;
     }
-
-    //TODO To be done in the destructor
-    /*
-    cout << endl << "C L O S I N G   A P I" << endl;
-    result = (*MyCloseAPI)();
-
-
-    dlclose(commandLayer_handle);
-    */
+    return res;
 }
 
 
-
-
-void Kinovalib::sampleSendCartesianPositionType(){
+void Kinovalib::sendCartesianPosition(bool fingerCommand, bool armCommand, TrajectoryPoint pointToSend)
+{
+    cout << "Kinobalib sending cartesian position" << endl;
     initIfnotYetInitialized();
     if(this->isKinovaInit){
 
@@ -203,72 +143,226 @@ void Kinovalib::sampleSendCartesianPositionType(){
         CartesianPosition actualPosition;
         (*MyGetCartesianCommand)(actualPosition);
 
+        //MoveHome and InitFingers should be already called by Kinovalib::kinovaInit function
 
-        cout << "Send the robot to HOME position" << endl;
-        MyMoveHome();
+        /* -----------------HAND_MODE---------------------
+            HAND_NOMOVEMENT, < Fingers will not move.
+            POSITION_MODE,   < Fingers will move using position control.
+            VELOCITY_MODE,   < Fingers will move using velocity control.
+        */
+        if(fingerCommand){
+            //we know that in this case we are using position control instead of velocity control
+            pointToSend.Position.HandMode = POSITION_MODE;
+        }else{
+            pointToSend.Position.HandMode = HAND_NOMOVEMENT;
+        }
 
-        cout << "Initializing the fingers" << endl;
-        MyInitFingers();
-
-        TrajectoryPoint pointToSend;
-        pointToSend.InitStruct();
-
-        /**NEW BLOCK, deleted the old one*/
-        pointToSend.Position.HandMode = POSITION_MODE;
         pointToSend.Position.Type = CARTESIAN_POSITION;
-        pointToSend.LimitationsActive = 1;
 
-        //Note that the first position has a velocity limitation of 8 cm/sec
-        pointToSend.Limitations.speedParameter1 = 0.08;
-        pointToSend.Limitations.speedParameter2 = 0.7;
-
-        pointToSend.Position.CartesianPosition.X = 0.21f;
-        pointToSend.Position.CartesianPosition.Y = -0.35f;
-        pointToSend.Position.CartesianPosition.Z = 0.48f;
-        pointToSend.Position.CartesianPosition.ThetaX = 1.55f;
-        pointToSend.Position.CartesianPosition.ThetaY = 1.02f;
-        pointToSend.Position.CartesianPosition.ThetaZ = -0.03f;
-
-        //If the robotic arm is a JACO, we use those value for the fingers.
-        if(status.RobotType == 0)
-        {
-            pointToSend.Position.Fingers.Finger1 = 45.0f;
-            pointToSend.Position.Fingers.Finger2 = 45.0f;
-            pointToSend.Position.Fingers.Finger3 = 45.0f;
+        if(pointToSend.LimitationsActive){ //if we have limitations then we have to invoke advancedTrajectory
+            cout << "Sending trajectory" << endl;
+            this->sendAdvancedTrajectory(pointToSend);
+            cout << "*********************************" << endl << endl << endl;
+        }else{
+            cout << "Sending trajectory" << endl;
+            this->sendBasicTrajectory(pointToSend);
+            cout << "*********************************" << endl << endl << endl;
         }
-        //If the robotic arm is a MICO, we use those value for the fingers.
-        else if(status.RobotType == 1)
-        {
-            pointToSend.Position.Fingers.Finger1 = 4500.0f;
-            pointToSend.Position.Fingers.Finger2 = 4500.0f;
-            pointToSend.Position.Fingers.Finger3 = 4500.0f;
-        }
-        else
-        {
-            pointToSend.Position.Fingers.Finger1 = 0.0f;
-            pointToSend.Position.Fingers.Finger2 = 0.0f;
-            pointToSend.Position.Fingers.Finger3 = 0.0f;
-        }
-
-        cout << "Sending trajectory" << endl;
-        (*MySendAdvanceTrajectory)(pointToSend);
-
-        pointToSend.LimitationsActive = 0;
-        pointToSend.Position.CartesianPosition.Z = 0.59f;
-
-        cout << "Sending trajectory" << endl;
-        (*MySendAdvanceTrajectory)(pointToSend);
-
-        cout << "*********************************" << endl << endl << endl;
 
     }
 
-    //TODO To be done in the destructor
-    /*
-    cout << endl << "C L O S I N G   A P I" << endl;
-    result = (*MyCloseAPI)();
+}
+
+/*
+This is a high level function. The direction can be Right, Left, Up or Down for Arm commands. Open or Close for Hand commands
+Speed can be 0 to 100. This function will build a TrajectotyPoint and send a cartesian velocity command
+*/
+void Kinovalib::moveSingleStep(int direction, float speed){
+    initIfnotYetInitialized();
+    if(this->isKinovaInit){
+        TrajectoryPoint point;
+        point.InitStruct();
+
+        point.Position.Type = CARTESIAN_VELOCITY;
+
+       if(direction == Close || direction == Open){
+            point.Position.HandMode=VELOCITY_MODE;
+        }else{
+            point.Position.HandMode=HAND_NOMOVEMENT;
+        }
+
+        point.LimitationsActive = true;
+        point.Limitations.speedParameter1 = speed;
+        point.Limitations.speedParameter2 = 0.7;
+
+        switch (direction) {
+        case Right:
+            point.Position.CartesianPosition.X = speed;
+            point.Position.CartesianPosition.Y = 0;
+            point.Position.CartesianPosition.Z = 0;
+            point.Position.CartesianPosition.ThetaX = 0;
+            point.Position.CartesianPosition.ThetaY = 0;
+            point.Position.CartesianPosition.ThetaZ = 0;
+            break;
+        case Down:
+            point.Position.CartesianPosition.X = 0;
+            point.Position.CartesianPosition.Y = 0;
+            point.Position.CartesianPosition.Z = -speed;
+            point.Position.CartesianPosition.ThetaX = 0;
+            point.Position.CartesianPosition.ThetaY = 0;
+            point.Position.CartesianPosition.ThetaZ = 0;
+            break;
+        case Left:
+            point.Position.CartesianPosition.X = -speed;
+            point.Position.CartesianPosition.Y = 0;
+            point.Position.CartesianPosition.Z = 0;
+            point.Position.CartesianPosition.ThetaX = 0;
+            point.Position.CartesianPosition.ThetaY = 0;
+            point.Position.CartesianPosition.ThetaZ = 0;
+            break;
+        case Up:
+            point.Position.CartesianPosition.X = 0;
+            point.Position.CartesianPosition.Y = 0;
+            point.Position.CartesianPosition.Z = speed;
+            point.Position.CartesianPosition.ThetaX = 0;
+            point.Position.CartesianPosition.ThetaY = 0;
+            point.Position.CartesianPosition.ThetaZ = 0;
+            break;
+        case Push:
+            point.Position.CartesianPosition.X = 0;
+            point.Position.CartesianPosition.Y = speed;
+            point.Position.CartesianPosition.Z = 0;
+            point.Position.CartesianPosition.ThetaX = 0;
+            point.Position.CartesianPosition.ThetaY = 0;
+            point.Position.CartesianPosition.ThetaZ = 0;
+            break;
+        case Pull:
+            point.Position.CartesianPosition.X = 0;
+            point.Position.CartesianPosition.Y = -speed;
+            point.Position.CartesianPosition.Z = 0;
+            point.Position.CartesianPosition.ThetaX = 0;
+            point.Position.CartesianPosition.ThetaY = 0;
+            point.Position.CartesianPosition.ThetaZ = 0;
+            break;
+        case Open:
+            point.Position.CartesianPosition.X = 0;
+            point.Position.CartesianPosition.Y = 0;
+            point.Position.CartesianPosition.Z = 0;
+            point.Position.CartesianPosition.ThetaX = 0;
+            point.Position.CartesianPosition.ThetaY = 0;
+            point.Position.CartesianPosition.ThetaZ = 0;
+            point.Position.Fingers.Finger1 = -speed;
+            point.Position.Fingers.Finger2 = -speed;
+            point.Position.Fingers.Finger3 = -speed;
+            break;
+        case Close:
+            point.Position.CartesianPosition.X = 0;
+            point.Position.CartesianPosition.Y = 0;
+            point.Position.CartesianPosition.Z = 0;
+            point.Position.CartesianPosition.ThetaX = 0;
+            point.Position.CartesianPosition.ThetaY = 0;
+            point.Position.CartesianPosition.ThetaZ = 0;
+            point.Position.Fingers.Finger1 = speed;
+            point.Position.Fingers.Finger2 = speed;
+            point.Position.Fingers.Finger3 = speed;
+            break;
+        default:
+            cout << "Wrong direction" << endl;
+            return;
+            break;
+        }
+
+        this->sendCartesianVelocitySingleStep(point);
+    }
+}
 
 
-    dlclose(commandLayer_handle);
-    */
+/*Send just 1 velocity vector command*/
+void Kinovalib::sendCartesianVelocitySingleStep(TrajectoryPoint pointToSend)
+{
+    initIfnotYetInitialized();
+    if(this->isKinovaInit){
+        //We specify that this point will be used an angular(joint by joint) velocity vector.
+        pointToSend.Position.Type = CARTESIAN_VELOCITY;
+
+        if(pointToSend.LimitationsActive){ //if we have limitations then we have to invoke advancedTrajectory
+            this->sendAdvancedTrajectory(pointToSend);
+        }else{
+            this->sendBasicTrajectory(pointToSend);
+        }
+    }
+
+}
+
+
+void Kinovalib::sendCartesianVelocity(bool fingerCommand, bool armCommand,TrajectoryPoint pointToSend)
+{
+    initIfnotYetInitialized();
+    if(this->isKinovaInit){
+        //We specify that this point will be used an angular(joint by joint) velocity vector.
+        pointToSend.Position.Type = CARTESIAN_VELOCITY;
+
+        if(fingerCommand){
+            //we know that in this case we are using position control instead of velocity control
+            pointToSend.Position.HandMode = VELOCITY_MODE;
+        }else{
+            pointToSend.Position.HandMode = HAND_NOMOVEMENT;
+        }
+
+        if(pointToSend.LimitationsActive){ //if we have limitations then we have to invoke advancedTrajectory
+            for(int i = 0; i < 200; i++)//TODO time should came from the GUI!
+            {
+                //We send the velocity vector every 5 ms as long as we want the robot to move along that vector.
+                this->sendAdvancedTrajectory(pointToSend);
+                usleep(5000);
+            }
+        }else{
+            for(int i = 0; i < 200; i++)//TODO time should came from the GUI!
+            {
+                //We send the velocity vector every 5 ms as long as we want the robot to move along that vector.
+                this->sendBasicTrajectory(pointToSend);
+                usleep(5000);
+            }
+        }
+    }
+
+}
+
+void Kinovalib::sendAngularPosition(bool fingerCommand, bool armCommand,TrajectoryPoint pointToSend)
+{
+    //TODO
+}
+
+void Kinovalib::sendCommand(int OP_TYPE, bool armCommand, bool fingerCommand,TrajectoryPoint pointToSend){
+    switch (OP_TYPE) {
+    case CARTESIAN_POSITION:
+        sendCartesianPosition(fingerCommand, armCommand,pointToSend);
+        break;
+    case CARTESIAN_VELOCITY:
+        sendCartesianVelocity(fingerCommand,armCommand,pointToSend);
+        break;
+    case ANGULAR_POSITION:
+        sendAngularPosition(fingerCommand,armCommand,pointToSend);
+        break;
+    }
+}
+
+
+/*Returns an array of predefined hand positions.
+For example: Opened hand, closed hand, pick position.*/
+HandPosition* Kinovalib::getHandPresetPositions(int &numPresetPos){
+    HandPosition* positions = new HandPosition[2];
+    positions[0].name = "Opened hand";
+    positions[0].fingers.Finger1 = 0;
+    positions[0].fingers.Finger2 = 0;
+    positions[0].fingers.Finger3 = 0;
+
+    positions[1].name = "Closed hand";
+    positions[1].fingers.Finger1 = 45;
+    positions[1].fingers.Finger2 = 45;
+    positions[1].fingers.Finger3 = 50;
+
+    numPresetPos=2;
+    return positions;
+
 }

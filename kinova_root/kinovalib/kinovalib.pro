@@ -13,7 +13,8 @@ CONFIG += staticlib
 SOURCES += kinovalib.cpp
 
 
-HEADERS += kinovalib.h
+HEADERS += kinovalib.h \
+    kinovalibtypes.h
 
 unix {
     target.path = /usr/lib

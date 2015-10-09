@@ -1,2 +1,15 @@
-<RCC/>
-
+<RCC>
+    <qresource prefix="/imagenes">
+        <file>img/arrow_up.png</file>
+        <file>img/arrow_right.png</file>
+        <file>img/arrow_down.png</file>
+        <file>img/arrow_left.png</file>
+        <file>img/warning.png</file>
+        <file>img/ok_icon.png</file>
+        <file>img/pull_icon.png</file>
+        <file>img/push_icon.png</file>
+        <file>img/push_pull.png</file>
+        <file>img/arrow1.png</file>
+        <file>img/arrow2.png</file>
+    </qresource>
+</RCC>

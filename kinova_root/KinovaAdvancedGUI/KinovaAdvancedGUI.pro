@@ -34,3 +34,6 @@ else:win32:!win32-g++:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$OUT_PWD/
 else:unix: PRE_TARGETDEPS += $$OUT_PWD/../kinovalib/libkinovalib.a
 
 unix|win32: LIBS += -ldl
+
+RESOURCES += \
+    resources.qrc

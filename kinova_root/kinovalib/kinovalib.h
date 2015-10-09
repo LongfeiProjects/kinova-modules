@@ -2,6 +2,7 @@
 #define KINOVALIB_H
 #include <Kinova.API.UsbCommandLayerUbuntu.h>
 #include <KinovaTypes.h>
+#include "kinovalibtypes.h"
 
 class Kinovalib
 {
@@ -29,6 +30,7 @@ private:
     /*Auxiliar Functions*/
     void initIfnotYetInitialized();
 
+
 public:
     Kinovalib();
     /*Wrapper functions to avoid declaring pointers to the API functions each time*/
@@ -41,11 +43,19 @@ public:
     int getQuickStatus(QuickStatus &);
     int getCartesianCommand(CartesianPosition &);
     int startControlAPI();
-    int sendAdvanceTrajectory(TrajectoryPoint trajectory);
+    int sendAdvancedTrajectory(TrajectoryPoint trajectory);
     int setCartesianControl();
     /*----------------------------------------------------------------------------*/
     void sampleSendCartesianVelocityType();
     void sampleSendCartesianPositionType();
+    void sendCommand(int OP_TYPE, bool armCommand, bool fingerCommand,TrajectoryPoint pointToSend);
+    void sendCartesianPosition(bool fingerCommand, bool armCommand, TrajectoryPoint pointToSend);
+    void sendCartesianVelocity(bool fingerCommand, bool armCommand,TrajectoryPoint pointToSend);
+    void sendAngularPosition(bool fingerCommand, bool armCommand,TrajectoryPoint pointToSend);
+    int getActualCartesianPosition(CartesianPosition &position);
+    void moveSingleStep(int direction, float speed);
+    void sendCartesianVelocitySingleStep(TrajectoryPoint pointToSend);
+    HandPosition *getHandPresetPositions(int &numPresetPos);
 };
 
 #endif // KINOVALIB_H
