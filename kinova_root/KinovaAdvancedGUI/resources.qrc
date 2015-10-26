@@ -11,5 +11,11 @@
         <file>img/push_pull.png</file>
         <file>img/arrow1.png</file>
         <file>img/arrow2.png</file>
+        <file>img/closehand.png</file>
+        <file>img/openhand.png</file>
+        <file>img/homeIcon.png</file>
+        <file>img/record.png</file>
+        <file>img/stop.png</file>
+        <file>img/save.png</file>
     </qresource>
 </RCC>

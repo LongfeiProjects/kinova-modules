@@ -17,7 +17,9 @@ SOURCES += main.cpp\
 
 HEADERS  += mainwindow.h
 
-FORMS    += mainwindow.ui
+FORMS    += mainwindow.ui savetrajectory.ui \
+    prueba.ui \
+    mainwindownuevo.ui
 
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../kinovalib/release/ -lkinovalib
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../kinovalib/debug/ -lkinovalib

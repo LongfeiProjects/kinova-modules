@@ -22,6 +22,8 @@ public:
 
 private:
     Ui::MainWindow *ui;
+  //  QDialogButtonBox* save_Trajectory_Panel_Button;
+
     Kinovalib* klib ;
 
     /*Kinova API stuff*/
@@ -55,14 +57,16 @@ private:
 
     float    PRECISION_SPEED = 0.04;
     float    LOW_SPEED = 0.07;
-    float    MEDIUM_SPEED = 0.2;
-    float    HIGH_SPEED = 0.5;
+    float    MEDIUM_SPEED = 1.1;
+    float    HIGH_SPEED = 1.5;
 
 
+    bool isRecordedTrajecory;
 
-public slots:
-    void clickedSlot();
+    void showSaveTrajectoryPanel();
+
 private slots:
+     void clickedSlot();
     void on_homeButton_clicked();
     void on_typeComboBox_currentIndexChanged(int index);
 
@@ -107,6 +111,12 @@ private slots:
     void on_openHandButton_released();
     void on_closeHandButton_pressed();
     void on_closeHandButton_released();
+    void save_recorded_trajectory();
+    void save_arm_position();
+    void save_fingers_position();
+    void save_full_position();
+    void on_record_Button_toggled(bool checked);
+
 };
 
 #endif // MAINWINDOW_H

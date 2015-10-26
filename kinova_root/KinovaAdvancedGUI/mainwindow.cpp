@@ -5,7 +5,7 @@
 #include <QMainWindow>
 #include <QHBoxLayout>
 #include <iostream>
-
+#include "ui_savetrajectory.h"
 
 using namespace std;
 MainWindow::MainWindow(QWidget *parent) :
@@ -71,10 +71,11 @@ void MainWindow::initGUI(){
     this->armCommand=true;
     this->fingerCommand=true;
 
-    this->ui->speedInput->setText( QString::number(this->ui->speed_horizontalSlider->value()/1000.0));
+    //this->ui->speedInput->setText( QString::number(this->ui->speed_horizontalSlider->value()/1000.0));
     this->ui->continuousRadioButton->setChecked(true);
     this->ui->fixedSteps_spinBox->setDisabled(true);
     this->kinova_initialized = false;
+    this->isRecordedTrajecory=false;
 
     int numPresetPositions = 0;
     this->presetPositions = klib->getHandPresetPositions(numPresetPositions);
@@ -87,6 +88,31 @@ void MainWindow::initGUI(){
     this->ui->speedComboBox->addItem("medium", MEDIUM_SPEED);
     this->ui->speedComboBox->addItem("high", HIGH_SPEED);
     this->ui->speedComboBox->setCurrentIndex(1);
+
+
+    /************************************   Save menu *****************************************/
+    this->ui->saveToolButton->addAction(this->ui->actionSave_Arm_Current_Position);
+    this->ui->saveToolButton->addAction(this->ui->actionSave_current_fingers_position);
+    this->ui->saveToolButton->addAction(this->ui->actionSave_full_position_arm_fingers);
+    this->ui->saveToolButton->addAction(this->ui->actionSave_Recorded_Trajectory);
+
+
+    this->ui->actionSave_Recorded_Trajectory->setEnabled(this->isRecordedTrajecory);
+    this->ui->actionSave_Arm_Current_Position->setEnabled(kinova_initialized);
+    this->ui->actionSave_current_fingers_position->setEnabled(kinova_initialized);
+    this->ui->actionSave_full_position_arm_fingers->setEnabled(kinova_initialized);
+
+
+    QObject::connect(this->ui->actionSave_Arm_Current_Position, SIGNAL(triggered()),
+                                    this, SLOT(save_arm_position()));
+    QObject::connect(this->ui->actionSave_current_fingers_position, SIGNAL(triggered()),
+                                      this, SLOT(save_fingers_position()));
+    QObject::connect(this->ui->actionSave_full_position_arm_fingers, SIGNAL(triggered()),
+                                      this, SLOT(save_full_position()));
+    QObject::connect(this->ui->actionSave_Recorded_Trajectory, SIGNAL(triggered()),
+                                      this, SLOT(save_recorded_trajectory()));
+
+    /*************************************End save menu**********************************/
 }
 
 MainWindow::~MainWindow()
@@ -582,16 +608,94 @@ void MainWindow::on_speedComboBox_currentIndexChanged(const QString &arg1)
 {
     if(QString::compare(arg1,QString("low")) == 0 ){
        this->ui->speedInput->setText(QString::number(LOW_SPEED));
-         this->ui->speed_horizontalSlider->setValue(LOW_SPEED*1000.0);
+         //this->ui->speed_horizontalSlider->setValue(LOW_SPEED*1000.0);
     }else if(QString::compare(arg1,QString("precision")) == 0 ){
          this->ui->speedInput->setText(QString::number(PRECISION_SPEED));
-         this->ui->speed_horizontalSlider->setValue(PRECISION_SPEED*1000.0);
+         //this->ui->speed_horizontalSlider->setValue(PRECISION_SPEED*1000.0);
     }else if(QString::compare(arg1,QString("medium")) == 0 ){
         this->ui->speedInput->setText(QString::number(MEDIUM_SPEED));
-        this->ui->speed_horizontalSlider->setValue(MEDIUM_SPEED*1000.0);
+        //this->ui->speed_horizontalSlider->setValue(MEDIUM_SPEED*1000.0);
     }else if(QString::compare(arg1,QString("high")) == 0 ){
         this->ui->speedInput->setText(QString::number(HIGH_SPEED));
-        this->ui->speed_horizontalSlider->setValue(HIGH_SPEED*1000.0);
+        //this->ui->speed_horizontalSlider->setValue(HIGH_SPEED*1000.0);
    }
 }
 
+
+/****************************Save menu actions**********************************/
+
+
+void MainWindow::save_arm_position(){
+    //TODO
+}
+
+void MainWindow::save_fingers_position(){
+    //TODO
+}
+
+void MainWindow::save_full_position(){
+    //TODO
+}
+
+void MainWindow::save_recorded_trajectory(){
+    //TODO
+}
+
+void MainWindow::showSaveTrajectoryPanel(){
+
+    QDialog* dialog = new QDialog(0,0);
+
+//   Ui::Dialog* d =  new Ui::Dialog();
+
+    Ui_Dialog uid;
+    uid.setupUi(dialog);
+    dialog->show();
+/*this->save_Trajectory_Panel_Button = new
+
+  //  new Ui::
+    //save_Trajectory_Panel_Button
+
+
+
+
+            QMainWindow(parent),
+            ui(new Ui::MainWindow)
+        {
+            ui->setupUi(this);
+
+            QPushButton *buttonSend = ui->SendCommandButton;
+            QObject::connect(buttonSend, SIGNAL(clicked()), this, SLOT(clickedSlot()));
+
+            this->moveDownTimer = new QTimer(this);
+            this->moveLeftTimer = new QTimer(this);
+            this->moveUpTimer = new QTimer(this);
+            this->moveRightTimer = new QTimer(this);
+            this->movePushTimer = new QTimer(this);
+            this->movePullTimer = new QTimer(this);
+            this->openHandTimer = new QTimer(this);
+            this->closeHandTimer = new QTimer(this);
+            this->klib = new Kinovalib();
+            this->point.InitStruct();
+            initGUI();
+        }
+
+*/
+
+}
+
+void MainWindow::on_record_Button_toggled(bool checked)
+{
+    if(checked){
+        this->ui->label_record_stop->setText(QString("Stop"));
+        this->ui->record_Button->setIcon(QIcon(":/imagenes/img/stop.png"));
+    }else{
+        this->ui->label_record_stop->setText(QString("Record"));
+        this->ui->record_Button->setIcon(QIcon(":/imagenes/img/record.png"));
+
+        QMessageBox::StandardButton reply;
+        reply = QMessageBox::question(this,"Save","Do you want to save the recorded trajectory?", QMessageBox::Yes|QMessageBox::No);
+        if(reply == QMessageBox::Yes){
+            showSaveTrajectoryPanel();
+        }
+    }
+}
