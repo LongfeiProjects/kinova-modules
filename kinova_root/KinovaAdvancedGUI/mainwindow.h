@@ -1,12 +1,23 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
+#include "ui_mainwindow.h"
+//#include "ui_savetrajectory.h"
+#include "dialog.h"
 #include <QMainWindow>
 #include "kinovalib.h"
 #include <unistd.h>
 #include <QTimer>
 #include <QSignalMapper>
+#include "sqlmanager.h"
+#include <vector>
+#include "flowlayout.h"
+#include <QGraphicsProxyWidget>
+#include <thread>
 
+
+
+#define  MAX_COLUMNS_PLAY_PANEL  6
 namespace Ui {
 class MainWindow;
 }
@@ -25,7 +36,7 @@ private:
   //  QDialogButtonBox* save_Trajectory_Panel_Button;
 
     Kinovalib* klib ;
-
+    SqlManager* sqlManager;
     /*Kinova API stuff*/
     TrajectoryPoint point;
     int opType;
@@ -55,6 +66,8 @@ private:
     HandPosition* presetPositions;
 
 
+
+    float speed;
     float    PRECISION_SPEED = 0.04;
     float    LOW_SPEED = 0.07;
     float    MEDIUM_SPEED = 1.1;
@@ -64,6 +77,10 @@ private:
     bool isRecordedTrajecory;
 
     void showSaveTrajectoryPanel();
+
+    vector<Trajectory> recordedTrajectories;
+
+     //std::thread t1;
 
 private slots:
      void clickedSlot();
@@ -85,8 +102,6 @@ private slots:
     void on_finger1DoubleSpinBox_valueChanged(double arg1);
     void on_finger2DoubleSpinBox_valueChanged(double arg1);
     void on_finger3DoubleSpinBox_valueChanged(double arg1);
-    void on_fixedSteps_radioButton_clicked(bool checked);
-    void on_continuousRadioButton_clicked(bool checked);
     void loopSendVelocityCommad(int direction);
     void on_upButton_pressed();
     void on_upButton_released();
@@ -96,7 +111,6 @@ private slots:
     void on_downButton_released();
     void on_rightButton_pressed();
     void on_rightButton_released();
-    void on_speed_horizontalSlider_sliderMoved(int position);
     void on_pushButton_2_clicked();
     void on_finger1_slider_sliderMoved(int position);
     void on_finger2_slider_sliderMoved(int position);
@@ -116,7 +130,6 @@ private slots:
     void save_fingers_position();
     void save_full_position();
     void on_record_Button_toggled(bool checked);
-
 };
 
 #endif // MAINWINDOW_H

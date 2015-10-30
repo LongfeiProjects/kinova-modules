@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>887</width>
-    <height>768</height>
+    <height>908</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -20,7 +20,7 @@
       <x>20</x>
       <y>100</y>
       <width>861</width>
-      <height>601</height>
+      <height>741</height>
      </rect>
     </property>
     <property name="currentIndex">
@@ -34,9 +34,9 @@
       <property name="geometry">
        <rect>
         <x>10</x>
-        <y>30</y>
+        <y>0</y>
         <width>841</width>
-        <height>531</height>
+        <height>361</height>
        </rect>
       </property>
       <property name="sizePolicy">
@@ -46,7 +46,7 @@
        </sizepolicy>
       </property>
       <property name="title">
-       <string/>
+       <string>Move Panel</string>
       </property>
       <property name="checkable">
        <bool>false</bool>
@@ -54,10 +54,10 @@
       <widget class="QFrame" name="frame">
        <property name="geometry">
         <rect>
-         <x>30</x>
-         <y>20</y>
-         <width>331</width>
-         <height>151</height>
+         <x>0</x>
+         <y>30</y>
+         <width>171</width>
+         <height>61</height>
         </rect>
        </property>
        <property name="frameShape">
@@ -66,59 +66,16 @@
        <property name="frameShadow">
         <enum>QFrame::Raised</enum>
        </property>
-       <widget class="QWidget" name="verticalLayoutWidget_3">
-        <property name="geometry">
-         <rect>
-          <x>10</x>
-          <y>60</y>
-          <width>175</width>
-          <height>80</height>
-         </rect>
-        </property>
-        <layout class="QVBoxLayout" name="verticalLayout_3">
-         <item>
-          <widget class="QRadioButton" name="continuousRadioButton">
-           <property name="text">
-            <string>Continuos</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <layout class="QHBoxLayout" name="horizontalLayout_2">
-           <item>
-            <widget class="QRadioButton" name="fixedSteps_radioButton">
-             <property name="text">
-              <string>Fixed Steps</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QSpinBox" name="fixedSteps_spinBox">
-             <property name="maximum">
-              <number>999</number>
-             </property>
-             <property name="singleStep">
-              <number>10</number>
-             </property>
-             <property name="value">
-              <number>200</number>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </item>
-        </layout>
-       </widget>
        <widget class="QWidget" name="horizontalLayoutWidget">
         <property name="geometry">
          <rect>
           <x>10</x>
           <y>10</y>
-          <width>311</width>
+          <width>151</width>
           <height>41</height>
          </rect>
         </property>
-        <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,0,0,0">
+        <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,0">
          <property name="sizeConstraint">
           <enum>QLayout::SetFixedSize</enum>
          </property>
@@ -132,62 +89,15 @@
          <item>
           <widget class="QComboBox" name="speedComboBox"/>
          </item>
-         <item>
-          <widget class="QLineEdit" name="speedInput">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
-             <horstretch>20</horstretch>
-             <verstretch>2</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="minimumSize">
-            <size>
-             <width>2</width>
-             <height>2</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>44</width>
-             <height>39</height>
-            </size>
-           </property>
-           <property name="text">
-            <string>0</string>
-           </property>
-           <property name="maxLength">
-            <number>4</number>
-           </property>
-           <property name="frame">
-            <bool>true</bool>
-           </property>
-           <property name="readOnly">
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QLabel" name="label_2">
-           <property name="maximumSize">
-            <size>
-             <width>40</width>
-             <height>16777215</height>
-            </size>
-           </property>
-           <property name="text">
-            <string>m/s</string>
-           </property>
-          </widget>
-         </item>
         </layout>
        </widget>
       </widget>
       <widget class="QFrame" name="frame_2">
        <property name="geometry">
         <rect>
-         <x>30</x>
-         <y>230</y>
-         <width>751</width>
+         <x>0</x>
+         <y>100</y>
+         <width>841</width>
          <height>261</height>
         </rect>
        </property>
@@ -376,7 +286,7 @@
        <widget class="QWidget" name="gridLayoutWidget_4">
         <property name="geometry">
          <rect>
-          <x>610</x>
+          <x>690</x>
           <y>10</y>
           <width>121</width>
           <height>241</height>
@@ -445,6 +355,35 @@
          </item>
         </layout>
        </widget>
+      </widget>
+     </widget>
+     <widget class="QGroupBox" name="playBox">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>390</y>
+        <width>841</width>
+        <height>311</height>
+       </rect>
+      </property>
+      <property name="title">
+       <string>Play Panel</string>
+      </property>
+      <widget class="QFrame" name="frame_4">
+       <property name="geometry">
+        <rect>
+         <x>0</x>
+         <y>30</y>
+         <width>841</width>
+         <height>281</height>
+        </rect>
+       </property>
+       <property name="frameShape">
+        <enum>QFrame::StyledPanel</enum>
+       </property>
+       <property name="frameShadow">
+        <enum>QFrame::Raised</enum>
+       </property>
       </widget>
      </widget>
     </widget>

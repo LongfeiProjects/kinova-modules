@@ -1,11 +1,11 @@
 #include "mainwindow.h"
-#include "ui_mainwindow.h"
+
 #include <QPushButton>
 #include <QMessageBox>
 #include <QMainWindow>
 #include <QHBoxLayout>
 #include <iostream>
-#include "ui_savetrajectory.h"
+#include <future>
 
 using namespace std;
 MainWindow::MainWindow(QWidget *parent) :
@@ -26,6 +26,8 @@ MainWindow::MainWindow(QWidget *parent) :
     this->openHandTimer = new QTimer(this);
     this->closeHandTimer = new QTimer(this);
     this->klib = new Kinovalib();
+    this->sqlManager = new SqlManager();
+    this->sqlManager->init();
     this->point.InitStruct();
     initGUI();
 }
@@ -71,9 +73,6 @@ void MainWindow::initGUI(){
     this->armCommand=true;
     this->fingerCommand=true;
 
-    //this->ui->speedInput->setText( QString::number(this->ui->speed_horizontalSlider->value()/1000.0));
-    this->ui->continuousRadioButton->setChecked(true);
-    this->ui->fixedSteps_spinBox->setDisabled(true);
     this->kinova_initialized = false;
     this->isRecordedTrajecory=false;
 
@@ -88,7 +87,7 @@ void MainWindow::initGUI(){
     this->ui->speedComboBox->addItem("medium", MEDIUM_SPEED);
     this->ui->speedComboBox->addItem("high", HIGH_SPEED);
     this->ui->speedComboBox->setCurrentIndex(1);
-
+    this->speed= LOW_SPEED;
 
     /************************************   Save menu *****************************************/
     this->ui->saveToolButton->addAction(this->ui->actionSave_Arm_Current_Position);
@@ -113,6 +112,68 @@ void MainWindow::initGUI(){
                                       this, SLOT(save_recorded_trajectory()));
 
     /*************************************End save menu**********************************/
+
+    /*********************************** Recorded Trajectories panel ******************/
+    this->recordedTrajectories = this->sqlManager->getTrajectoriesInfo();
+
+    QGraphicsWidget* container = new QGraphicsWidget();
+    FlowLayout *lay = new FlowLayout;
+
+    int row = 0;
+    int col = 0;
+    QWidget* gridLayoutWidget_6 = new QWidget(this->ui->playBox);
+    gridLayoutWidget_6->setObjectName(QStringLiteral("gridLayoutWidget_6"));
+    gridLayoutWidget_6->setGeometry(QRect(QPoint(0, 25), QSize(800, 270) ));
+
+    QGridLayout* gridPlayPanel = new QGridLayout(gridLayoutWidget_6);
+
+    //gridPlayPanel->setSpacing(6);
+    //gridPlayPanel->setContentsMargins(5, 5, 5, 5);
+    //gridPlayPanel->setObjectName(QStringLiteral("gridPlayPanel"));
+    //gridPlayPanel->setGeometry(QRect(QPoint(0, 0), QSize(600, 300) ));
+
+    /*For each recorded trajectory we create an Button with the play icon*/
+    for(vector<Trajectory>::iterator iter = recordedTrajectories.begin(); iter!=recordedTrajectories.end();++iter){
+        Trajectory t = *iter;
+
+        //Add push button
+        QPushButton* pushButton = new QPushButton(gridLayoutWidget_6);
+       // pushButton->setMinimumSize(QSize(60, 60));
+        pushButton->setMaximumSize(QSize(120, 120));
+      //  pushButton->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+
+        QSizePolicy sizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
+        sizePolicy.setHorizontalStretch(0);
+        sizePolicy.setVerticalStretch(0);
+        sizePolicy.setHeightForWidth(pushButton->sizePolicy().hasHeightForWidth());
+        pushButton->setSizePolicy(sizePolicy);
+
+        QIcon icon8;
+        icon8.addFile(QStringLiteral(":/imagenes/img/play.png"), QSize(), QIcon::Normal, QIcon::Off);
+        pushButton->setIcon(icon8);
+        pushButton->setIconSize(QSize(60, 60));
+      //  pushButton->setGeometry(0,0,55,55);
+
+
+        gridPlayPanel->addWidget(pushButton, row, col);
+
+        //add label
+        QLabel* label = new QLabel(gridLayoutWidget_6);
+        label->setText(QString::fromStdString(t.name));
+        label->setMinimumSize(QSize(16777215, 20));
+        label->setMaximumSize(QSize(16777215, 20));
+        gridPlayPanel->addWidget(label, row+1, col, 1, 1, Qt::AlignHCenter);
+
+
+        if(col==MAX_COLUMNS_PLAY_PANEL-1){
+            col=0;
+            row= row+2;
+        }else{
+            col ++;
+        }
+    }
+    container->setLayout(lay);
+
 }
 
 MainWindow::~MainWindow()
@@ -263,68 +324,14 @@ void MainWindow::on_finger3DoubleSpinBox_valueChanged(double arg1)
     this->ui->finger3_slider->setValue(arg1);
 }
 
-void MainWindow::on_speed_horizontalSlider_sliderMoved(int position)
-{
-    this->ui->speedInput->setText(QString::number(position/1000.0));
-    if(position>=0 && position<50){
-        this->ui->speedComboBox->setCurrentIndex(0);
-    }else if(position>=50 && position<85){
-        this->ui->speedComboBox->setCurrentIndex(1);
-    }else if(position>=85 && position<300){
-        this->ui->speedComboBox->setCurrentIndex(2);
-    }else if(position>=300){
-        this->ui->speedComboBox->setCurrentIndex(3);
-    }
-}
-
-void MainWindow::on_continuousRadioButton_clicked(bool checked)
-{
-    this->ui->fixedSteps_spinBox->setEnabled(!checked);
-}
-
-void MainWindow::on_fixedSteps_radioButton_clicked(bool checked)
-{
-    this->ui->fixedSteps_spinBox->setEnabled(checked);
-}
-
 
 void MainWindow::loopSendVelocityCommad(int direction){
     if(!this->stopedTimers[direction-1]){ //we have to use a bool to know I we stopped the timer  because the timer->stop() is not immediate
-        if(this->ui->fixedSteps_radioButton->isChecked()){
-           if(this->fixedStepsCounter[direction-1] +1>= this->ui->fixedSteps_spinBox->value()){
-               switch (direction) {
-                   case Right:
-                       this->moveRightTimer->stop();
-                       break;
-                   case Left:
-                       this->moveLeftTimer->stop();
-                       break;
-                   case Up:
-                       this->moveUpTimer->stop();
-                       break;
-                   case Down:
-                       this->moveDownTimer->stop();
-                       break;
-                   case Open:
-                        this->openHandTimer->stop();
-                        break;
-                   case Close:
-                        this->closeHandTimer->stop();
-                        break;
-               }
-               this->fixedStepsCounter[direction-1] = 0;
-               this->stopedTimers[direction-1] = true;
-           }else{
-               this->fixedStepsCounter[direction-1]++;
-           }
-
-       }
        cout << "en el loop --> enviar comandos de velocidad: "  << this->fixedStepsCounter[direction-1] <<endl;
-       float speed = this->ui->speedInput->text().toFloat();
        if(direction==Close || direction==Open){
            speed=30; //Fixed speed, the unit velocity of the fingers is not clear at all!
        }
-       this->klib->moveSingleStep(direction,speed);//put the speed from the gui
+       this->klib->moveSingleStep(direction,this->speed);//put the speed from the gui
     }
 }
 
@@ -332,9 +339,6 @@ void MainWindow::loopSendVelocityCommad(int direction){
 void MainWindow::on_rightButton_pressed()
 {
     cout<<"rightPressed"<<endl;
-    if(this->ui->fixedSteps_radioButton->isChecked()){
-        this->fixedStepsCounter[Right-1]=0;
-    }
      this->stopedTimers[Right-1] = false;
 
     //We use QSignal mapper to send a parameter to the slot loopSendVelocityCommand. This parameter is the movement direction
@@ -351,18 +355,14 @@ void MainWindow::on_rightButton_pressed()
 void MainWindow::on_rightButton_released()
 {
     cout << "right button released" << endl;
-    if(this->ui->continuousRadioButton->isChecked()){//Stop moving the robot because the user released the button
-        this->moveRightTimer->stop();
-        cout<<"right timer stopped"<<endl;
-        this->stopedTimers[Right-1] = true;
-    }
+    this->moveRightTimer->stop();
+    cout<<"right timer stopped"<<endl;
+    this->stopedTimers[Right-1] = true;
 }
 
 void MainWindow::on_upButton_pressed()
 {
-    if(this->ui->fixedSteps_radioButton->isChecked()){
-        this->fixedStepsCounter[Up-1]=0;
-    }
+
     this->stopedTimers[Up-1] = false;
 
     //We use QSignal mapper to send a parameter to the slot loopSendVelocityCommand. This parameter is the movement direction
@@ -376,17 +376,13 @@ void MainWindow::on_upButton_pressed()
 
 void MainWindow::on_upButton_released()
 {
-    if(this->ui->continuousRadioButton->isChecked()){//Stop moving the robot because the user released the button
-        this->moveUpTimer->stop();
-        this->stopedTimers[Up-1] = true;
-    }
+    this->moveUpTimer->stop();
+    this->stopedTimers[Up-1] = true;
+
 }
 
 void MainWindow::on_leftButton_pressed()
 {
-    if(this->ui->fixedSteps_radioButton->isChecked()){
-        this->fixedStepsCounter[Left-1]=0;
-    }
     this->stopedTimers[Left-1] = false;
 
     //We use QSignal mapper to send a parameter to the slot loopSendVelocityCommand. This parameter is the movement direction
@@ -400,17 +396,13 @@ void MainWindow::on_leftButton_pressed()
 
 void MainWindow::on_leftButton_released()
 {
-    if(this->ui->continuousRadioButton->isChecked()){//Stop moving the robot because the user released the button
-        this->moveLeftTimer->stop();
-        this->stopedTimers[Left-1] = true;
-    }
+    this->moveLeftTimer->stop();
+    this->stopedTimers[Left-1] = true;
+
 }
 
 void MainWindow::on_downButton_pressed()
 {
-    if(this->ui->fixedSteps_radioButton->isChecked()){
-        this->fixedStepsCounter[Down-1]=0;
-    }
     this->stopedTimers[Down-1] = false;
     //We use QSignal mapper to send a parameter to the slot loopSendVelocityCommand. This parameter is the movement direction
     QSignalMapper* signalMapper = new QSignalMapper (this) ;
@@ -425,19 +417,15 @@ void MainWindow::on_downButton_pressed()
 
 void MainWindow::on_downButton_released()
 {
-    if(this->ui->continuousRadioButton->isChecked()){//Stop moving the robot because the user released the button
-        this->moveDownTimer->stop();
-        this->stopedTimers[Down-1] = true;
-    }
+   this->moveDownTimer->stop();
+   this->stopedTimers[Down-1] = true;
 }
 
 
 
 void MainWindow::on_pushButton_Y_pressed()
 {
-    if(this->ui->fixedSteps_radioButton->isChecked()){
-        this->fixedStepsCounter[Push-1]=0;
-    }
+
     this->stopedTimers[Push-1] = false;
     //We use QSignal mapper to send a parameter to the slot loopSendVelocityCommand. This parameter is the movement direction
     QSignalMapper* signalMapper = new QSignalMapper (this) ;
@@ -452,18 +440,14 @@ void MainWindow::on_pushButton_Y_pressed()
 
 void MainWindow::on_pushButton_Y_released()
 {
-    if(this->ui->continuousRadioButton->isChecked()){//Stop moving the robot because the user released the button
-        this->movePushTimer->stop();
-        this->stopedTimers[Push-1] = true;
-    }
+    this->movePushTimer->stop();
+    this->stopedTimers[Push-1] = true;
+
 }
 
 
 void MainWindow::on_pullButton_Y_pressed()
 {
-    if(this->ui->fixedSteps_radioButton->isChecked()){
-        this->fixedStepsCounter[Pull-1]=0;
-    }
     this->stopedTimers[Pull-1] = false;
     //We use QSignal mapper to send a parameter to the slot loopSendVelocityCommand. This parameter is the movement direction
     QSignalMapper* signalMapper = new QSignalMapper (this) ;
@@ -478,19 +462,15 @@ void MainWindow::on_pullButton_Y_pressed()
 
 void MainWindow::on_pullButton_Y_released()
 {
-    if(this->ui->continuousRadioButton->isChecked()){//Stop moving the robot because the user released the button
-        this->movePullTimer->stop();
-        this->stopedTimers[Pull-1] = true;
-    }
+    this->movePullTimer->stop();
+    this->stopedTimers[Pull-1] = true;
+
 }
 
 
 
 /*Real time Hand Control*/
 void MainWindow::on_openHandButton_pressed(){
-    if(this->ui->fixedSteps_radioButton->isChecked()){
-        this->fixedStepsCounter[Open-1]=0;
-    }
     this->stopedTimers[Open-1] = false;
     //We use QSignal mapper to send a parameter to the slot loopSendVelocityCommand. This parameter is the movement direction
     QSignalMapper* signalMapper = new QSignalMapper (this) ;
@@ -505,17 +485,12 @@ void MainWindow::on_openHandButton_pressed(){
 
 void MainWindow::on_openHandButton_released()
 {
-    if(this->ui->continuousRadioButton->isChecked()){//Stop opening the hand
-        this->openHandTimer->stop();
-        this->stopedTimers[Open-1] = true;
-    }
+    this->openHandTimer->stop();
+    this->stopedTimers[Open-1] = true;
 }
 
 
 void MainWindow::on_closeHandButton_pressed(){
-    if(this->ui->fixedSteps_radioButton->isChecked()){
-        this->fixedStepsCounter[Close-1]=0;
-    }
     this->stopedTimers[Close-1] = false;
     //We use QSignal mapper to send a parameter to the slot loopSendVelocityCommand. This parameter is the movement direction
     QSignalMapper* signalMapper = new QSignalMapper (this) ;
@@ -530,10 +505,8 @@ void MainWindow::on_closeHandButton_pressed(){
 
 void MainWindow::on_closeHandButton_released()
 {
-    if(this->ui->continuousRadioButton->isChecked()){//Stop closeing the hand
-        this->closeHandTimer->stop();
-        this->stopedTimers[Close-1] = true;
-    }
+    this->closeHandTimer->stop();
+    this->stopedTimers[Close-1] = true;
 }
 
 
@@ -561,20 +534,6 @@ void MainWindow::error_kinova_not_initialized(){
     }
 }
 
-
-
-/*void MainWindow::on_speedInput_textEdited(const QString &arg1)
-{
-    this->ui->speed_horizontalSlider->setValue(arg1.toFloat()*1000.0);
-}
-
-
-void MainWindow::on_speed_horizontalSlider_sliderMoved(int position)
-{
-    this->ui->speedInput->setText(QString::number(position/1000.0));
-}*/
-
-
 void MainWindow::on_finger1_slider_sliderMoved(int position)
 {
     this->ui->finger1DoubleSpinBox->setValue(position);
@@ -601,23 +560,16 @@ void MainWindow::on_presetHandPositions_currentIndexChanged(int index)
 }
 
 
-
-
-
 void MainWindow::on_speedComboBox_currentIndexChanged(const QString &arg1)
 {
     if(QString::compare(arg1,QString("low")) == 0 ){
-       this->ui->speedInput->setText(QString::number(LOW_SPEED));
-         //this->ui->speed_horizontalSlider->setValue(LOW_SPEED*1000.0);
+        this->speed = LOW_SPEED;
     }else if(QString::compare(arg1,QString("precision")) == 0 ){
-         this->ui->speedInput->setText(QString::number(PRECISION_SPEED));
-         //this->ui->speed_horizontalSlider->setValue(PRECISION_SPEED*1000.0);
+        this->speed = PRECISION_SPEED;
     }else if(QString::compare(arg1,QString("medium")) == 0 ){
-        this->ui->speedInput->setText(QString::number(MEDIUM_SPEED));
-        //this->ui->speed_horizontalSlider->setValue(MEDIUM_SPEED*1000.0);
+        this->speed = MEDIUM_SPEED;
     }else if(QString::compare(arg1,QString("high")) == 0 ){
-        this->ui->speedInput->setText(QString::number(HIGH_SPEED));
-        //this->ui->speed_horizontalSlider->setValue(HIGH_SPEED*1000.0);
+        this->speed = HIGH_SPEED;
    }
 }
 
@@ -642,45 +594,25 @@ void MainWindow::save_recorded_trajectory(){
 }
 
 void MainWindow::showSaveTrajectoryPanel(){
-
-    QDialog* dialog = new QDialog(0,0);
-
-//   Ui::Dialog* d =  new Ui::Dialog();
-
-    Ui_Dialog uid;
-    uid.setupUi(dialog);
-    dialog->show();
-/*this->save_Trajectory_Panel_Button = new
-
-  //  new Ui::
-    //save_Trajectory_Panel_Button
+   Dialog* dialog2 = new Dialog();
+   dialog2->init(this->sqlManager);
+   Trajectory saved =  dialog2->execAndReturnSavedTrajectory();
+   delete dialog2;
+}
 
 
+void tarea(string msg){
+    for(int i=0;i<10;i++){
+        cout << "task1 " << msg <<endl;
+        sleep(1);
+    }
+}
 
-
-            QMainWindow(parent),
-            ui(new Ui::MainWindow)
-        {
-            ui->setupUi(this);
-
-            QPushButton *buttonSend = ui->SendCommandButton;
-            QObject::connect(buttonSend, SIGNAL(clicked()), this, SLOT(clickedSlot()));
-
-            this->moveDownTimer = new QTimer(this);
-            this->moveLeftTimer = new QTimer(this);
-            this->moveUpTimer = new QTimer(this);
-            this->moveRightTimer = new QTimer(this);
-            this->movePushTimer = new QTimer(this);
-            this->movePullTimer = new QTimer(this);
-            this->openHandTimer = new QTimer(this);
-            this->closeHandTimer = new QTimer(this);
-            this->klib = new Kinovalib();
-            this->point.InitStruct();
-            initGUI();
-        }
-
-*/
-
+void tarea1(){
+    for(int i=0;i<10;i++){
+        cout << "task1 " << endl;
+        sleep(1);
+    }
 }
 
 void MainWindow::on_record_Button_toggled(bool checked)
@@ -698,4 +630,21 @@ void MainWindow::on_record_Button_toggled(bool checked)
             showSaveTrajectoryPanel();
         }
     }
+
+    //pthread_create()
+  /*  if(checked){
+        cout << "antes"<<endl;
+        std::thread t1(tarea, "Hello");
+        cout << "dsps"<<endl;
+        t1.detach();
+        t1.join();
+    }
+
+
+
+    std::future<void> result(std::async(tarea1));
+*/
 }
+
+
+

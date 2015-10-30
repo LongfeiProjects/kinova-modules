@@ -4,22 +4,29 @@
 #
 #-------------------------------------------------
 
-QT       += core gui
+QT       += core gui sql
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 TARGET = KinovaAdvancedGUI
 TEMPLATE = app
 
+QMAKE_CXXFLAGS += -std=c++0x -pthread
 
 SOURCES += main.cpp\
-        mainwindow.cpp
+        mainwindow.cpp \
+    sqlmanager.cpp \
+    dialog.cpp \
+    flowlayout.cpp
 
-HEADERS  += mainwindow.h
+HEADERS  += mainwindow.h \
+    sqlmanager.h \
+    dialog.h \
+    types.h \
+    flowlayout.h
 
-FORMS    += mainwindow.ui savetrajectory.ui \
-    prueba.ui \
-    mainwindownuevo.ui
+FORMS    += mainwindow.ui \
+    dialog.ui
 
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../kinovalib/release/ -lkinovalib
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../kinovalib/debug/ -lkinovalib

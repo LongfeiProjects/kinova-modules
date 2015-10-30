@@ -17,5 +17,9 @@
         <file>img/record.png</file>
         <file>img/stop.png</file>
         <file>img/save.png</file>
+        <file>img/play.png</file>
+    </qresource>
+    <qresource prefix="/database">
+        <file>database/trajectoryProg.db</file>
     </qresource>
 </RCC>
