@@ -15,7 +15,7 @@ arma::mat model::J0(State & q,std::string type)
 	this->jacob0(J,_q);
 	arma::mat Jacob((double *)(&J[0][0]),6,njoint);
 
-	if(std::strcmp(type.c_str(),"trasl") ==0)
+	if(std::strcmp(type.c_str(),"trasl") == 0)
 	{
 		//DEBUG
 		//std::cout<<"prima di costruire J trasl"<<std::endl;

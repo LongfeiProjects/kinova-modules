@@ -1,24 +1,25 @@
 #include "robot.hpp"
 
+
 int main()
 {
 
 
 	// status reader
 	Jaco* mdl = new Jaco();
-	kinova_status * st= new kinova_status(mdl);
+	kinova_status_openapi * st= new kinova_status_openapi(mdl);
 
 	// controller
-	const double Pid_coef[] = {10,0,0}; // deg
+	const double Pid_coef[] = {1,0,0}; // deg
 	std::vector<double> Pid(Pid_coef,End(Pid_coef));
-	const char * _namefiles[] = {"cart_pos.txt","cart_vel.txt"};
+	const char * _namefiles[] = {"cart_pos.txt","joint_vel.txt"};
 	std::vector<std::string> namefile (_namefiles,End(_namefiles));
 	const char * _meas_val[] ={"j_pos","cart_pos"};
 	std::vector<std::string> meas_val(_meas_val,End(_meas_val));
 	int controltype = 8;
 	bool limitation = 0;
 	Jaco* md = new Jaco();
-	kinova_controller * ct = new kinova_controller(namefile,meas_val,Pid,controltype,limitation,md,st->APIhandle); // very rough patch because i can have only one API handle
+	kinova_controller_openapi * ct = new kinova_controller_openapi(namefile,meas_val,Pid,controltype,limitation,md,st->arm); // very rough patch because i can have only one API handle
 
 	// checking module
 	// define bounding box

@@ -41,6 +41,9 @@ class robot
 
 		inline void Exec()
 		{
+		    boost::chrono::high_resolution_clock::time_point time_reference;
+		    boost::chrono::milliseconds cur_time = boost::chrono::duration_cast<boost::chrono::milliseconds>(boost::chrono::high_resolution_clock::now() - time_reference);
+
 			try
 			{
 				this->StartAllThread();
@@ -92,6 +95,7 @@ class robot
 							std::cout<<std::endl;
 							//---
 							contr->index = 0;  //DEBUG i inibhit control  instead contr->index = 0
+							time_reference = boost::chrono::high_resolution_clock::now();
 						}
 						else if(contr->index >= 0)
 						{
@@ -99,14 +103,16 @@ class robot
 							//std::cout<<"im in exec controller"<<std::endl;
 							//---
 							bool executed_control = contr->ExecController(cur_val);
-							 // using this if statement i will keep the last value when i will reach the end of this->ff vector
-							 if(contr->index<(int)contr->ff[0].size()-1 && executed_control)
-							 {
-								 contr->index++;
+							cur_time = boost::chrono::duration_cast<boost::chrono::milliseconds>(boost::chrono::high_resolution_clock::now() - time_reference);
+							contr->index = boost::chrono::round<boost::chrono::milliseconds>(cur_time).count();
+							// using this if statement i will keep the last value when i will reach the end of this->ff vector
+							 //if(contr->index<(int)contr->ff[0].size()-1 && executed_control)
+							 //{
+							 //	 contr->index++;
 								 //DEBUG
 								 //std::cout<<"index = "<< contr->index<<std::endl;
 								 //---
-							 }
+							 //}
 						}
 					}
 				}
