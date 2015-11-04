@@ -110,71 +110,121 @@
        <widget class="QWidget" name="gridLayoutWidget_3">
         <property name="geometry">
          <rect>
-          <x>320</x>
-          <y>10</y>
-          <width>121</width>
-          <height>241</height>
+          <x>290</x>
+          <y>40</y>
+          <width>91</width>
+          <height>171</height>
          </rect>
         </property>
         <layout class="QGridLayout" name="gridLayout_3">
-         <item row="0" column="0">
-          <widget class="QPushButton" name="pushButton_Y">
-           <property name="maximumSize">
-            <size>
-             <width>70</width>
-             <height>16777215</height>
-            </size>
-           </property>
-           <property name="text">
-            <string/>
-           </property>
-           <property name="icon">
-            <iconset resource="resources.qrc">
-             <normaloff>:/imagenes/img/arrow1.png</normaloff>:/imagenes/img/arrow1.png</iconset>
-           </property>
-           <property name="iconSize">
-            <size>
-             <width>45</width>
-             <height>45</height>
-            </size>
-           </property>
-          </widget>
-         </item>
          <item row="1" column="0">
-          <widget class="QPushButton" name="pullButton_Y">
-           <property name="maximumSize">
-            <size>
-             <width>70</width>
-             <height>16777215</height>
-            </size>
+          <widget class="QFrame" name="frame_8">
+           <property name="frameShape">
+            <enum>QFrame::NoFrame</enum>
            </property>
-           <property name="text">
-            <string/>
+           <property name="frameShadow">
+            <enum>QFrame::Raised</enum>
            </property>
-           <property name="icon">
-            <iconset resource="resources.qrc">
-             <normaloff>:/imagenes/img/arrow2.png</normaloff>:/imagenes/img/arrow2.png</iconset>
+           <property name="lineWidth">
+            <number>0</number>
            </property>
-           <property name="iconSize">
-            <size>
-             <width>45</width>
-             <height>45</height>
-            </size>
-           </property>
+           <widget class="QLabel" name="label_13">
+            <property name="geometry">
+             <rect>
+              <x>28</x>
+              <y>0</y>
+              <width>41</width>
+              <height>21</height>
+             </rect>
+            </property>
+            <property name="text">
+             <string>PULL</string>
+            </property>
+           </widget>
+           <widget class="QPushButton" name="pullButton_Y">
+            <property name="geometry">
+             <rect>
+              <x>12</x>
+              <y>20</y>
+              <width>67</width>
+              <height>55</height>
+             </rect>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>70</width>
+              <height>16777215</height>
+             </size>
+            </property>
+            <property name="text">
+             <string/>
+            </property>
+            <property name="icon">
+             <iconset resource="resources.qrc">
+              <normaloff>:/imagenes/img/arrow2.png</normaloff>:/imagenes/img/arrow2.png</iconset>
+            </property>
+            <property name="iconSize">
+             <size>
+              <width>45</width>
+              <height>45</height>
+             </size>
+            </property>
+           </widget>
           </widget>
          </item>
-         <item row="0" column="1" alignment="Qt::AlignHCenter">
-          <widget class="QLabel" name="label_5">
-           <property name="text">
-            <string>PUSH</string>
+         <item row="0" column="0">
+          <widget class="QFrame" name="frame_7">
+           <property name="frameShape">
+            <enum>QFrame::NoFrame</enum>
            </property>
-          </widget>
-         </item>
-         <item row="1" column="1" alignment="Qt::AlignHCenter">
-          <widget class="QLabel" name="label_6">
-           <property name="text">
-            <string>PULL</string>
+           <property name="frameShadow">
+            <enum>QFrame::Raised</enum>
            </property>
+           <property name="lineWidth">
+            <number>0</number>
+           </property>
+           <widget class="QLabel" name="label_11">
+            <property name="geometry">
+             <rect>
+              <x>25</x>
+              <y>0</y>
+              <width>41</width>
+              <height>21</height>
+             </rect>
+            </property>
+            <property name="text">
+             <string>PUSH</string>
+            </property>
+           </widget>
+           <widget class="QPushButton" name="pushButton_Y">
+            <property name="geometry">
+             <rect>
+              <x>11</x>
+              <y>20</y>
+              <width>67</width>
+              <height>55</height>
+             </rect>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>70</width>
+              <height>16777215</height>
+             </size>
+            </property>
+            <property name="text">
+             <string/>
+            </property>
+            <property name="icon">
+             <iconset resource="resources.qrc">
+              <normaloff>:/imagenes/img/arrow1.png</normaloff>:/imagenes/img/arrow1.png</iconset>
+            </property>
+            <property name="iconSize">
+             <size>
+              <width>45</width>
+              <height>45</height>
+             </size>
+            </property>
+           </widget>
           </widget>
          </item>
         </layout>
@@ -286,71 +336,121 @@
        <widget class="QWidget" name="gridLayoutWidget_4">
         <property name="geometry">
          <rect>
-          <x>690</x>
-          <y>10</y>
-          <width>121</width>
-          <height>241</height>
+          <x>580</x>
+          <y>30</y>
+          <width>211</width>
+          <height>91</height>
          </rect>
         </property>
         <layout class="QGridLayout" name="gridLayout_4">
          <item row="0" column="0">
-          <widget class="QPushButton" name="openHandButton">
-           <property name="maximumSize">
-            <size>
-             <width>70</width>
-             <height>16777215</height>
-            </size>
+          <widget class="QFrame" name="frame_5">
+           <property name="frameShape">
+            <enum>QFrame::NoFrame</enum>
            </property>
-           <property name="text">
-            <string/>
+           <property name="frameShadow">
+            <enum>QFrame::Raised</enum>
            </property>
-           <property name="icon">
-            <iconset resource="resources.qrc">
-             <normaloff>:/imagenes/img/openhand.png</normaloff>:/imagenes/img/openhand.png</iconset>
+           <property name="lineWidth">
+            <number>0</number>
            </property>
-           <property name="iconSize">
-            <size>
-             <width>45</width>
-             <height>45</height>
-            </size>
-           </property>
+           <widget class="QLabel" name="label_10">
+            <property name="geometry">
+             <rect>
+              <x>30</x>
+              <y>0</y>
+              <width>41</width>
+              <height>21</height>
+             </rect>
+            </property>
+            <property name="text">
+             <string>OPEN</string>
+            </property>
+           </widget>
+           <widget class="QPushButton" name="openHandButton">
+            <property name="geometry">
+             <rect>
+              <x>18</x>
+              <y>20</y>
+              <width>67</width>
+              <height>55</height>
+             </rect>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>70</width>
+              <height>16777215</height>
+             </size>
+            </property>
+            <property name="text">
+             <string/>
+            </property>
+            <property name="icon">
+             <iconset resource="resources.qrc">
+              <normaloff>:/imagenes/img/openhand.png</normaloff>:/imagenes/img/openhand.png</iconset>
+            </property>
+            <property name="iconSize">
+             <size>
+              <width>45</width>
+              <height>45</height>
+             </size>
+            </property>
+           </widget>
+           <zorder>label_10</zorder>
+           <zorder>openHandButton_2</zorder>
+           <zorder>openHandButton</zorder>
           </widget>
          </item>
-         <item row="1" column="0">
-          <widget class="QPushButton" name="closeHandButton">
-           <property name="maximumSize">
-            <size>
-             <width>70</width>
-             <height>16777215</height>
-            </size>
+         <item row="0" column="1">
+          <widget class="QFrame" name="frame_6">
+           <property name="frameShape">
+            <enum>QFrame::NoFrame</enum>
            </property>
-           <property name="text">
-            <string/>
+           <property name="frameShadow">
+            <enum>QFrame::Raised</enum>
            </property>
-           <property name="icon">
-            <iconset resource="resources.qrc">
-             <normaloff>:/imagenes/img/closehand.png</normaloff>:/imagenes/img/closehand.png</iconset>
-           </property>
-           <property name="iconSize">
-            <size>
-             <width>45</width>
-             <height>45</height>
-            </size>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="1" alignment="Qt::AlignHCenter">
-          <widget class="QLabel" name="label_7">
-           <property name="text">
-            <string>OPEN</string>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="1" alignment="Qt::AlignHCenter">
-          <widget class="QLabel" name="label_8">
-           <property name="text">
-            <string>CLOSE</string>
-           </property>
+           <widget class="QLabel" name="label_8">
+            <property name="geometry">
+             <rect>
+              <x>27</x>
+              <y>-5</y>
+              <width>45</width>
+              <height>31</height>
+             </rect>
+            </property>
+            <property name="text">
+             <string>CLOSE</string>
+            </property>
+           </widget>
+           <widget class="QPushButton" name="closeHandButton">
+            <property name="geometry">
+             <rect>
+              <x>16</x>
+              <y>20</y>
+              <width>67</width>
+              <height>55</height>
+             </rect>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>70</width>
+              <height>16777215</height>
+             </size>
+            </property>
+            <property name="text">
+             <string/>
+            </property>
+            <property name="icon">
+             <iconset resource="resources.qrc">
+              <normaloff>:/imagenes/img/closehand.png</normaloff>:/imagenes/img/closehand.png</iconset>
+            </property>
+            <property name="iconSize">
+             <size>
+              <width>45</width>
+              <height>45</height>
+             </size>
+            </property>
+           </widget>
           </widget>
          </item>
         </layout>
@@ -1029,6 +1129,63 @@
        <bool>false</bool>
       </property>
      </widget>
+     <widget class="QToolButton" name="saveToolButton">
+      <property name="geometry">
+       <rect>
+        <x>736</x>
+        <y>575</y>
+        <width>80</width>
+        <height>38</height>
+       </rect>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>80</width>
+        <height>0</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>36</width>
+        <height>16777215</height>
+       </size>
+      </property>
+      <property name="text">
+       <string>...</string>
+      </property>
+      <property name="icon">
+       <iconset resource="resources.qrc">
+        <normaloff>:/imagenes/img/save.png</normaloff>:/imagenes/img/save.png</iconset>
+      </property>
+      <property name="iconSize">
+       <size>
+        <width>30</width>
+        <height>30</height>
+       </size>
+      </property>
+      <property name="popupMode">
+       <enum>QToolButton::InstantPopup</enum>
+      </property>
+      <property name="autoRaise">
+       <bool>true</bool>
+      </property>
+      <property name="arrowType">
+       <enum>Qt::NoArrow</enum>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_12">
+      <property name="geometry">
+       <rect>
+        <x>760</x>
+        <y>620</y>
+        <width>32</width>
+        <height>23</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Save</string>
+      </property>
+     </widget>
     </widget>
    </widget>
    <widget class="Line" name="line">
@@ -1062,9 +1219,9 @@
     <widget class="QWidget" name="gridLayoutWidget_5">
      <property name="geometry">
       <rect>
-       <x>580</x>
+       <x>680</x>
        <y>3</y>
-       <width>261</width>
+       <width>161</width>
        <height>71</height>
       </rect>
      </property>
@@ -1089,13 +1246,6 @@
           <width>30</width>
           <height>30</height>
          </size>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="2" alignment="Qt::AlignHCenter">
-       <widget class="QLabel" name="label_12">
-        <property name="text">
-         <string>Save</string>
         </property>
        </widget>
       </item>
@@ -1132,44 +1282,6 @@
        <widget class="QLabel" name="label_record_stop">
         <property name="text">
          <string>Record</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="2" alignment="Qt::AlignHCenter">
-       <widget class="QToolButton" name="saveToolButton">
-        <property name="minimumSize">
-         <size>
-          <width>80</width>
-          <height>0</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>36</width>
-          <height>16777215</height>
-         </size>
-        </property>
-        <property name="text">
-         <string>...</string>
-        </property>
-        <property name="icon">
-         <iconset resource="resources.qrc">
-          <normaloff>:/imagenes/img/save.png</normaloff>:/imagenes/img/save.png</iconset>
-        </property>
-        <property name="iconSize">
-         <size>
-          <width>30</width>
-          <height>30</height>
-         </size>
-        </property>
-        <property name="popupMode">
-         <enum>QToolButton::InstantPopup</enum>
-        </property>
-        <property name="autoRaise">
-         <bool>true</bool>
-        </property>
-        <property name="arrowType">
-         <enum>Qt::NoArrow</enum>
         </property>
        </widget>
       </item>
@@ -1232,6 +1344,30 @@
        </widget>
       </item>
      </layout>
+    </widget>
+    <widget class="QLabel" name="recordingLabel">
+     <property name="geometry">
+      <rect>
+       <x>420</x>
+       <y>20</y>
+       <width>131</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>20</pointsize>
+      </font>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">color: rgb(237, 31, 36);</string>
+     </property>
+     <property name="text">
+      <string>Recording!</string>
+     </property>
+     <property name="textFormat">
+      <enum>Qt::RichText</enum>
+     </property>
     </widget>
    </widget>
   </widget>

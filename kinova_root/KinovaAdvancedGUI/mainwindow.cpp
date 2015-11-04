@@ -174,6 +174,9 @@ void MainWindow::initGUI(){
     }
     container->setLayout(lay);
 
+
+    /*Hide recording label*/
+    this->ui->recordingLabel->setVisible(false);
 }
 
 MainWindow::~MainWindow()
@@ -620,6 +623,7 @@ void MainWindow::on_record_Button_toggled(bool checked)
     if(checked){
         this->ui->label_record_stop->setText(QString("Stop"));
         this->ui->record_Button->setIcon(QIcon(":/imagenes/img/stop.png"));
+        this->ui->recordingLabel->setVisible(true);
     }else{
         this->ui->label_record_stop->setText(QString("Record"));
         this->ui->record_Button->setIcon(QIcon(":/imagenes/img/record.png"));
@@ -629,8 +633,11 @@ void MainWindow::on_record_Button_toggled(bool checked)
         if(reply == QMessageBox::Yes){
             showSaveTrajectoryPanel();
         }
+        this->ui->recordingLabel->setVisible(false);
     }
 
+
+    //TODO launch a status-read thread. This has to be implemented after integrate the openAPI
     //pthread_create()
   /*  if(checked){
         cout << "antes"<<endl;
