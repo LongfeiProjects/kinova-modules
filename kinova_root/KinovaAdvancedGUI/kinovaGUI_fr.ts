@@ -44,7 +44,7 @@
     <message>
         <location filename="mainwindow.ui" line="185"/>
         <source>UP</source>
-        <translation type="unfinished"></translation>
+        <translation>dessus</translation>
     </message>
     <message>
         <location filename="mainwindow.ui" line="254"/>

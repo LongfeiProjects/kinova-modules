@@ -26,4 +26,10 @@
     <qresource prefix="/database">
         <file>database/trajectoryProg.db</file>
     </qresource>
+    <qresource prefix="/translations">
+        <file>kinovaGUI_fr.ts</file>
+        <file>kinovaGUI_en.ts</file>
+        <file>kinovaGUI_fr.qm</file>
+        <file>kinovaGUI_en.qm</file>
+    </qresource>
 </RCC>

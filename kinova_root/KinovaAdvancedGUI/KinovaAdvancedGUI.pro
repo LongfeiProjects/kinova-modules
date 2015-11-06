@@ -46,3 +46,6 @@ unix|win32: LIBS += -ldl
 
 RESOURCES += \
     resources.qrc
+
+TRANSLATIONS = kinovaGUI_en.ts \n
+                kinovaGUI_fr.ts

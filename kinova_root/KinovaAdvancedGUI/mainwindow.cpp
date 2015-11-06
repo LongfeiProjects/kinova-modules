@@ -40,10 +40,10 @@ void MainWindow::initGUI(){
     this->kinova_initialized = false;
     this->isRecordedTrajecory=false;
 
-    this->ui->speedComboBox->addItem("precision", PRECISION_SPEED);
-    this->ui->speedComboBox->addItem("low", LOW_SPEED);
-    this->ui->speedComboBox->addItem("medium", MEDIUM_SPEED);
-    this->ui->speedComboBox->addItem("high", HIGH_SPEED);
+    this->ui->speedComboBox->addItem(tr("precision"), PRECISION_SPEED);
+    this->ui->speedComboBox->addItem(tr("low"), LOW_SPEED);
+    this->ui->speedComboBox->addItem(tr("medium"), MEDIUM_SPEED);
+    this->ui->speedComboBox->addItem(tr("high"), HIGH_SPEED);
     this->ui->speedComboBox->setCurrentIndex(1);
     this->speed= LOW_SPEED;
 
@@ -153,8 +153,8 @@ void MainWindow::clickedSlot(){
             this->point.Position.CartesianPosition.ThetaZ=actualPosition.Coordinates.ThetaZ;
         }else{
             QMessageBox* msgBox = new QMessageBox();
-            msgBox->setWindowTitle("Send Command");
-            msgBox->setText("Something went wrong, couldn't get the actual position of the robot");
+            msgBox->setWindowTitle(tr("Send Command"));
+            msgBox->setText(tr("Something went wrong, couldn't get the actual position of the robot"));
             msgBox->exec();
             actualPositionObtained=false;
         }
@@ -166,12 +166,12 @@ void MainWindow::clickedSlot(){
 
 void MainWindow::on_homeButton_clicked()
 {
-    cout << "Moving home" << endl;
+    cout << "Moving home"<< endl;
     int res = klib->moveHome();
     if(res!=SUCCESS){
         QMessageBox* msgBox = new QMessageBox();
-        msgBox->setWindowTitle("Send Command");
-        msgBox->setText("Couldn't go home");
+        msgBox->setWindowTitle(tr("Send Command"));
+        msgBox->setText(tr("Couldn't go home"));
         msgBox->exec();
     }
 }
@@ -451,10 +451,10 @@ void MainWindow::on_pushButton_2_clicked()
     int res = this->klib->kinovaInit();
     if(res == SUCCESS){
         this->ui->status_icon->setStyleSheet("image: url(:/imagenes/img/ok_icon.png);");
-        this->ui->status_label->setText(QString("Success!"));
+        this->ui->status_label->setText(QString(tr("Success!")));
         this->kinova_initialized = true;
     }else{
-        this->ui->status_label->setText(QString("Initialization wrong, try again"));
+        this->ui->status_label->setText(QString(tr("Initialization wrong, try again")));
     }
 }
 
@@ -463,8 +463,8 @@ void MainWindow::error_kinova_not_initialized(){
     int res = klib->moveHome();
     if(res!=SUCCESS){
         QMessageBox* msgBox = new QMessageBox();
-        msgBox->setWindowTitle("Initialization Error");
-        msgBox->setText("Kinova is not initilized. Try Init Kinova before running any command");
+        msgBox->setWindowTitle(tr("Initialization Error"));
+        msgBox->setText(tr("Kinova is not initilized. Try Init Kinova before running any command"));
         msgBox->exec();
     }
 }
@@ -472,13 +472,13 @@ void MainWindow::error_kinova_not_initialized(){
 
 void MainWindow::on_speedComboBox_currentIndexChanged(const QString &arg1)
 {
-    if(QString::compare(arg1,QString("low")) == 0 ){
+    if(QString::compare(arg1,QString(tr("low"))) == 0 ){
         this->speed = LOW_SPEED;
-    }else if(QString::compare(arg1,QString("precision")) == 0 ){
+    }else if(QString::compare(arg1,QString(tr("precision"))) == 0 ){
         this->speed = PRECISION_SPEED;
-    }else if(QString::compare(arg1,QString("medium")) == 0 ){
+    }else if(QString::compare(arg1,QString(tr("medium"))) == 0 ){
         this->speed = MEDIUM_SPEED;
-    }else if(QString::compare(arg1,QString("high")) == 0 ){
+    }else if(QString::compare(arg1,QString(tr("high"))) == 0 ){
         this->speed = HIGH_SPEED;
    }
 }
@@ -530,15 +530,15 @@ void tarea1(){
 void MainWindow::on_record_Button_toggled(bool checked)
 {
     if(checked){
-        this->ui->label_record_stop->setText(QString("Stop"));
+        this->ui->label_record_stop->setText(QString(tr("Stop")));
         this->ui->record_Button->setIcon(QIcon(":/imagenes/img/stop.png"));
         this->ui->recordingLabel->setVisible(true);
     }else{
-        this->ui->label_record_stop->setText(QString("Record"));
+        this->ui->label_record_stop->setText(QString(tr("Record")));
         this->ui->record_Button->setIcon(QIcon(":/imagenes/img/record.png"));
 
         QMessageBox::StandardButton reply;
-        reply = QMessageBox::question(this,"Save","Do you want to save the recorded trajectory?", QMessageBox::Yes|QMessageBox::No);
+        reply = QMessageBox::question(this,tr("Save"),tr("Do you want to save the recorded trajectory?"), QMessageBox::Yes|QMessageBox::No);
         if(reply == QMessageBox::Yes){
             showSaveTrajectoryPanel();
         }
@@ -570,8 +570,8 @@ void MainWindow::saveCheckPoint(){
         this->ui->undoButton->setEnabled(true);
     }else{
         QMessageBox* msgBox = new QMessageBox();
-        msgBox->setWindowTitle("Send Command");
-        msgBox->setText("Something went wrong, couldn't get the actual position of the robot");
+        msgBox->setWindowTitle(tr("Send Command"));
+        msgBox->setText(tr("Something went wrong, couldn't get the actual position of the robot"));
         msgBox->exec();
     }
 }
@@ -589,8 +589,8 @@ void MainWindow::setActualPosition(){
         this->point.Position.CartesianPosition.ThetaZ=actualPosition.Coordinates.ThetaZ;
     }else{
         QMessageBox* msgBox = new QMessageBox();
-        msgBox->setWindowTitle("Send Command");
-        msgBox->setText("Something went wrong, couldn't get the actual position of the robot");
+        msgBox->setWindowTitle(tr("Send Command"));
+        msgBox->setText(tr("Something went wrong, couldn't get the actual position of the robot"));
         msgBox->exec();
     }
 }
