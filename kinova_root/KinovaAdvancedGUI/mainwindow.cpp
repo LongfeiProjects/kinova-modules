@@ -14,8 +14,6 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    QPushButton *buttonSend = ui->SendCommandButton;
-    QObject::connect(buttonSend, SIGNAL(clicked()), this, SLOT(clickedSlot()));
 
     this->moveDownTimer = new QTimer(this);
     this->moveLeftTimer = new QTimer(this);
@@ -33,54 +31,14 @@ MainWindow::MainWindow(QWidget *parent) :
 }
 
 
-void MainWindow::changeOpType(int opType){
-    this->opType=opType;
-    if(opType==CARTESIAN_POSITION){
-        this->ui->pushButton->setEnabled(true);
-        this->ui->ArmControl_Widget->setTitle(QString("Arm Control (position units)"));
-        this->ui->FingersControl_Widget->setTitle(QString("Finger Control (position units)"));
 
-        this->ui->labelArmControlX->setText("mts");
-        this->ui->labelArmControlY->setText("mts");
-        this->ui->labelArmControlZ->setText("mts");
-
-        this->ui->labelArmControlX_2->setText("rad");
-        this->ui->labelArmControlY_2->setText("rad");
-        this->ui->labelArmControlZ_2->setText("rad");
-
-    }else if(opType==CARTESIAN_VELOCITY){
-        this->ui->pushButton->setDisabled(true);
-        this->ui->ArmControl_Widget->setTitle(QString("Arm Control (velocity units)"));
-        this->ui->FingersControl_Widget->setTitle(QString("Finger Control (velocity units)"));
-
-        this->ui->labelArmControlX->setText("mts/s");
-        this->ui->labelArmControlY->setText("mts/s");
-        this->ui->labelArmControlZ->setText("mts/s");
-
-        this->ui->labelArmControlX_2->setText("rad/s");
-        this->ui->labelArmControlY_2->setText("rad/s");
-        this->ui->labelArmControlZ_2->setText("rad/s");
-    }
-}
 
 void MainWindow::initGUI(){
-    this->changeOpType(CARTESIAN_POSITION);
-    ui->typeComboBox->addItem(QString("Cartesian Position"),QVariant(CARTESIAN_POSITION));
-    //ui->typeComboBox->addItem(QString("Angular Position"),QVariant(ANGULAR_POSITION));
-    ui->typeComboBox->addItem(QString("Cartesian Velocity"),QVariant(CARTESIAN_VELOCITY));
-    ui->typeComboBox->setCurrentIndex(0);
-
     this->armCommand=true;
     this->fingerCommand=true;
 
     this->kinova_initialized = false;
     this->isRecordedTrajecory=false;
-
-    int numPresetPositions = 0;
-    this->presetPositions = klib->getHandPresetPositions(numPresetPositions);
-    for(int i=0;i<numPresetPositions;i++){
-        this->ui->presetHandPositions->addItem(QString(presetPositions[i].name.data()));
-    }
 
     this->ui->speedComboBox->addItem("precision", PRECISION_SPEED);
     this->ui->speedComboBox->addItem("low", LOW_SPEED);
@@ -89,82 +47,23 @@ void MainWindow::initGUI(){
     this->ui->speedComboBox->setCurrentIndex(1);
     this->speed= LOW_SPEED;
 
-    /************************************   Save menu *****************************************/
-    this->ui->saveToolButton->addAction(this->ui->actionSave_Arm_Current_Position);
-    this->ui->saveToolButton->addAction(this->ui->actionSave_current_fingers_position);
-    this->ui->saveToolButton->addAction(this->ui->actionSave_full_position_arm_fingers);
-    this->ui->saveToolButton->addAction(this->ui->actionSave_Recorded_Trajectory);
-
-
-    this->ui->actionSave_Recorded_Trajectory->setEnabled(this->isRecordedTrajecory);
-    this->ui->actionSave_Arm_Current_Position->setEnabled(kinova_initialized);
-    this->ui->actionSave_current_fingers_position->setEnabled(kinova_initialized);
-    this->ui->actionSave_full_position_arm_fingers->setEnabled(kinova_initialized);
-
-
-    QObject::connect(this->ui->actionSave_Arm_Current_Position, SIGNAL(triggered()),
-                                    this, SLOT(save_arm_position()));
-    QObject::connect(this->ui->actionSave_current_fingers_position, SIGNAL(triggered()),
-                                      this, SLOT(save_fingers_position()));
-    QObject::connect(this->ui->actionSave_full_position_arm_fingers, SIGNAL(triggered()),
-                                      this, SLOT(save_full_position()));
-    QObject::connect(this->ui->actionSave_Recorded_Trajectory, SIGNAL(triggered()),
-                                      this, SLOT(save_recorded_trajectory()));
-
-    /*************************************End save menu**********************************/
-
     /*********************************** Recorded Trajectories panel ******************/
     this->recordedTrajectories = this->sqlManager->getTrajectoriesInfo();
 
-    QGraphicsWidget* container = new QGraphicsWidget();
-    FlowLayout *lay = new FlowLayout;
 
     int row = 0;
     int col = 0;
-    QWidget* gridLayoutWidget_6 = new QWidget(this->ui->playBox);
-    gridLayoutWidget_6->setObjectName(QStringLiteral("gridLayoutWidget_6"));
-    gridLayoutWidget_6->setGeometry(QRect(QPoint(0, 25), QSize(800, 270) ));
+    this->gridLayoutWidget_6 = new QWidget(this->ui->playBox);
+    this->gridLayoutWidget_6->setObjectName(QStringLiteral("gridLayoutWidget_6"));
+    this->gridLayoutWidget_6->setGeometry(QRect(QPoint(0, 25), QSize(800, 270) ));
 
-    QGridLayout* gridPlayPanel = new QGridLayout(gridLayoutWidget_6);
-
-    //gridPlayPanel->setSpacing(6);
-    //gridPlayPanel->setContentsMargins(5, 5, 5, 5);
-    //gridPlayPanel->setObjectName(QStringLiteral("gridPlayPanel"));
-    //gridPlayPanel->setGeometry(QRect(QPoint(0, 0), QSize(600, 300) ));
+    this->gridPlayPanel = new QGridLayout(gridLayoutWidget_6);
 
     /*For each recorded trajectory we create an Button with the play icon*/
-    for(vector<Trajectory>::iterator iter = recordedTrajectories.begin(); iter!=recordedTrajectories.end();++iter){
+    for(vector<Trajectory>::iterator iter = this->recordedTrajectories.begin(); iter!=this->recordedTrajectories.end();++iter){
         Trajectory t = *iter;
 
-        //Add push button
-        QPushButton* pushButton = new QPushButton(gridLayoutWidget_6);
-       // pushButton->setMinimumSize(QSize(60, 60));
-        pushButton->setMaximumSize(QSize(120, 120));
-      //  pushButton->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-
-        QSizePolicy sizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
-        sizePolicy.setHorizontalStretch(0);
-        sizePolicy.setVerticalStretch(0);
-        sizePolicy.setHeightForWidth(pushButton->sizePolicy().hasHeightForWidth());
-        pushButton->setSizePolicy(sizePolicy);
-
-        QIcon icon8;
-        icon8.addFile(QStringLiteral(":/imagenes/img/play.png"), QSize(), QIcon::Normal, QIcon::Off);
-        pushButton->setIcon(icon8);
-        pushButton->setIconSize(QSize(60, 60));
-      //  pushButton->setGeometry(0,0,55,55);
-
-
-        gridPlayPanel->addWidget(pushButton, row, col);
-
-        //add label
-        QLabel* label = new QLabel(gridLayoutWidget_6);
-        label->setText(QString::fromStdString(t.name));
-        label->setMinimumSize(QSize(16777215, 20));
-        label->setMaximumSize(QSize(16777215, 20));
-        gridPlayPanel->addWidget(label, row+1, col, 1, 1, Qt::AlignHCenter);
-
-
+        this->addTrajectory(t,col,row);
         if(col==MAX_COLUMNS_PLAY_PANEL-1){
             col=0;
             row= row+2;
@@ -172,12 +71,64 @@ void MainWindow::initGUI(){
             col ++;
         }
     }
-    container->setLayout(lay);
 
 
     /*Hide recording label*/
     this->ui->recordingLabel->setVisible(false);
+
+    /*Disable Undo button*/
+    this->ui->undoButton->setEnabled(false);
+
 }
+
+
+QLatin1String getLabelStyle(){
+    return QLatin1String("background-color: rgb(51, 51, 51);\n"
+                         "color: rgb(247, 247, 246);\n"
+                         "");
+}
+
+QFont getLabelFont(){
+    QFont font2;
+    font2.setBold(true);
+    font2.setWeight(90);
+//    font2.set
+    font2.setPointSize(15);
+    return font2;
+}
+
+void MainWindow::addTrajectory(Trajectory t, int col, int row){
+    //Add push button
+    QPushButton* pushButton = new QPushButton(this->gridLayoutWidget_6);
+    pushButton->setMaximumSize(QSize(120, 120));
+
+    QSizePolicy sizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
+    sizePolicy.setHorizontalStretch(0);
+    sizePolicy.setVerticalStretch(0);
+    sizePolicy.setHeightForWidth(pushButton->sizePolicy().hasHeightForWidth());
+    pushButton->setSizePolicy(sizePolicy);
+
+    QIcon icon8;
+    icon8.addFile(QStringLiteral(":/imagenes/img/play.png"), QSize(), QIcon::Normal, QIcon::Off);
+    pushButton->setIcon(icon8);
+    pushButton->setIconSize(QSize(75, 75));
+
+
+    this->gridPlayPanel->addWidget(pushButton, row, col);
+
+    //add label
+    QLabel* label = new QLabel(this->gridLayoutWidget_6);
+    label->setText(QString::fromStdString(t.name));
+    label->setMinimumSize(QSize(120, 40));
+    label->setMaximumSize(QSize(16777215, 40));
+    label->setStyleSheet(getLabelStyle());
+    label->setFont(getLabelFont());
+    label->setAlignment(Qt::AlignmentFlag::AlignHCenter | Qt::AlignmentFlag::AlignCenter);
+    label->setMargin(5);
+    this->gridPlayPanel->addWidget(label, row+1, col, 1, 1, Qt::AlignHCenter);
+}
+
+
 
 MainWindow::~MainWindow()
 {
@@ -225,11 +176,6 @@ void MainWindow::on_homeButton_clicked()
     }
 }
 
-void MainWindow::on_typeComboBox_currentIndexChanged(int index)
-{
-    int* data = (int*)this->ui->typeComboBox->currentData().data();
-    this->changeOpType(*data);
-}
 
 void MainWindow::on_xDoubleSpinBox_valueChanged(double arg1)
 {
@@ -286,46 +232,6 @@ void MainWindow::on_FingersControl_Widget_toggled(bool arg1)
     this->fingerCommand=arg1;
 }
 
-void MainWindow::on_pushButton_clicked()
-{
-    int res = this->klib->getActualCartesianPosition(this->actualPosition);
-    if(res==SUCCESS){
-        this->ui->xDoubleSpinBox->setValue(actualPosition.Coordinates.X);
-        this->ui->yDoubleSpinBox->setValue(actualPosition.Coordinates.Y);
-        this->ui->zDoubleSpinBox->setValue(actualPosition.Coordinates.Z);
-        this->ui->xDoubleSpinBox_2->setValue(actualPosition.Coordinates.ThetaX);
-        this->ui->yDoubleSpinBox_2->setValue(actualPosition.Coordinates.ThetaY);
-        this->ui->zDoubleSpinBox_2->setValue(actualPosition.Coordinates.ThetaZ);
-
-        this->ui->finger1DoubleSpinBox->setValue(this->actualPosition.Fingers.Finger1);
-        this->ui->finger2DoubleSpinBox->setValue(this->actualPosition.Fingers.Finger2);
-        this->ui->finger3DoubleSpinBox->setValue(this->actualPosition.Fingers.Finger3);
-    }else{
-        QMessageBox* msgBox = new QMessageBox();
-        msgBox->setWindowTitle("Send Command");
-        msgBox->setText("Couldn't get the actual position of the robot");
-        msgBox->exec();
-    }
-}
-
-void MainWindow::on_finger1DoubleSpinBox_valueChanged(double arg1)
-{
-    this->point.Position.Fingers.Finger1=arg1;
-    this->ui->finger1_slider->setValue(arg1);
-}
-
-void MainWindow::on_finger2DoubleSpinBox_valueChanged(double arg1)
-{
-    this->point.Position.Fingers.Finger2=arg1;
-    this->ui->finger2_slider->setValue(arg1);
-}
-
-
-void MainWindow::on_finger3DoubleSpinBox_valueChanged(double arg1)
-{
-    this->point.Position.Fingers.Finger3=arg1;
-    this->ui->finger3_slider->setValue(arg1);
-}
 
 
 void MainWindow::loopSendVelocityCommad(int direction){
@@ -343,6 +249,9 @@ void MainWindow::on_rightButton_pressed()
 {
     cout<<"rightPressed"<<endl;
      this->stopedTimers[Right-1] = false;
+
+    //Save actual position as a checkpoint
+    this->saveCheckPoint();
 
     //We use QSignal mapper to send a parameter to the slot loopSendVelocityCommand. This parameter is the movement direction
     QSignalMapper* signalMapper = new QSignalMapper (this) ;
@@ -365,13 +274,13 @@ void MainWindow::on_rightButton_released()
 
 void MainWindow::on_upButton_pressed()
 {
-
     this->stopedTimers[Up-1] = false;
 
+    //Save actual position as a checkpoint
+    this->saveCheckPoint();
     //We use QSignal mapper to send a parameter to the slot loopSendVelocityCommand. This parameter is the movement direction
     QSignalMapper* signalMapper = new QSignalMapper (this) ;
     connect (this->moveUpTimer, SIGNAL(timeout()), signalMapper, SLOT(map())) ;
-
     signalMapper->setMapping (this->moveUpTimer, Up) ;
     connect (signalMapper, SIGNAL(mapped(int)), this, SLOT(loopSendVelocityCommad(int)));
     this->moveUpTimer->start(LOOP_SPEED_SEND_VELOCITY_COMMAND);
@@ -387,6 +296,9 @@ void MainWindow::on_upButton_released()
 void MainWindow::on_leftButton_pressed()
 {
     this->stopedTimers[Left-1] = false;
+
+    //Save actual position as a checkpoint
+    this->saveCheckPoint();
 
     //We use QSignal mapper to send a parameter to the slot loopSendVelocityCommand. This parameter is the movement direction
     QSignalMapper* signalMapper = new QSignalMapper (this) ;
@@ -407,6 +319,10 @@ void MainWindow::on_leftButton_released()
 void MainWindow::on_downButton_pressed()
 {
     this->stopedTimers[Down-1] = false;
+
+    //Save actual position as a checkpoint
+    this->saveCheckPoint();
+
     //We use QSignal mapper to send a parameter to the slot loopSendVelocityCommand. This parameter is the movement direction
     QSignalMapper* signalMapper = new QSignalMapper (this) ;
     delete this->moveDownTimer;
@@ -431,6 +347,10 @@ void MainWindow::on_pushButton_Y_pressed()
 
     this->stopedTimers[Push-1] = false;
     //We use QSignal mapper to send a parameter to the slot loopSendVelocityCommand. This parameter is the movement direction
+
+    //Save actual position as a checkpoint
+    this->saveCheckPoint();
+
     QSignalMapper* signalMapper = new QSignalMapper (this) ;
     delete this->movePushTimer;
     this->movePushTimer = new QTimer(this);
@@ -452,6 +372,10 @@ void MainWindow::on_pushButton_Y_released()
 void MainWindow::on_pullButton_Y_pressed()
 {
     this->stopedTimers[Pull-1] = false;
+
+    //Save actual position as a checkpoint
+    this->saveCheckPoint();
+
     //We use QSignal mapper to send a parameter to the slot loopSendVelocityCommand. This parameter is the movement direction
     QSignalMapper* signalMapper = new QSignalMapper (this) ;
     delete this->movePullTimer;
@@ -475,6 +399,10 @@ void MainWindow::on_pullButton_Y_released()
 /*Real time Hand Control*/
 void MainWindow::on_openHandButton_pressed(){
     this->stopedTimers[Open-1] = false;
+
+    //Save actual position as a checkpoint
+    this->saveCheckPoint();
+
     //We use QSignal mapper to send a parameter to the slot loopSendVelocityCommand. This parameter is the movement direction
     QSignalMapper* signalMapper = new QSignalMapper (this) ;
     delete this->openHandTimer;
@@ -495,6 +423,10 @@ void MainWindow::on_openHandButton_released()
 
 void MainWindow::on_closeHandButton_pressed(){
     this->stopedTimers[Close-1] = false;
+
+    //Save actual position as a checkpoint
+    this->saveCheckPoint();
+
     //We use QSignal mapper to send a parameter to the slot loopSendVelocityCommand. This parameter is the movement direction
     QSignalMapper* signalMapper = new QSignalMapper (this) ;
     delete this->closeHandTimer;
@@ -537,31 +469,6 @@ void MainWindow::error_kinova_not_initialized(){
     }
 }
 
-void MainWindow::on_finger1_slider_sliderMoved(int position)
-{
-    this->ui->finger1DoubleSpinBox->setValue(position);
-}
-
-void MainWindow::on_finger2_slider_sliderMoved(int position)
-{
-    this->ui->finger2DoubleSpinBox->setValue(position);
-}
-
-void MainWindow::on_finger3_slider_sliderMoved(int position)
-{
-    this->ui->finger3DoubleSpinBox->setValue(position);
-}
-
-
-
-void MainWindow::on_presetHandPositions_currentIndexChanged(int index)
-{
-    HandPosition pos = this->presetPositions[index];
-    this->ui->finger1DoubleSpinBox->setValue(pos.fingers.Finger1);
-    this->ui->finger2DoubleSpinBox->setValue(pos.fingers.Finger2);
-    this->ui->finger3DoubleSpinBox->setValue(pos.fingers.Finger3);
-}
-
 
 void MainWindow::on_speedComboBox_currentIndexChanged(const QString &arg1)
 {
@@ -577,29 +484,31 @@ void MainWindow::on_speedComboBox_currentIndexChanged(const QString &arg1)
 }
 
 
-/****************************Save menu actions**********************************/
 
 
-void MainWindow::save_arm_position(){
-    //TODO
-}
-
-void MainWindow::save_fingers_position(){
-    //TODO
-}
-
-void MainWindow::save_full_position(){
-    //TODO
-}
-
-void MainWindow::save_recorded_trajectory(){
-    //TODO
+/*Add the recorded trajectory to the list of trajectories and also to the panel*/
+void MainWindow::addRecordedTrajectory(Trajectory t){
+    this->recordedTrajectories.push_back(t);
+    int row, col;
+    int cant_trajectories = this->recordedTrajectories.size();
+    row = cant_trajectories/MAX_COLUMNS_PLAY_PANEL;
+    row=row*2;
+    col = cant_trajectories%MAX_COLUMNS_PLAY_PANEL;
+    if(col==0){
+        col=MAX_COLUMNS_PLAY_PANEL-1;
+        row-=2;
+    }else{
+        col=col-1;
+    }
+    this->addTrajectory(t,col,row);
 }
 
 void MainWindow::showSaveTrajectoryPanel(){
    Dialog* dialog2 = new Dialog();
    dialog2->init(this->sqlManager);
    Trajectory saved =  dialog2->execAndReturnSavedTrajectory();
+
+   this->addRecordedTrajectory(saved);
    delete dialog2;
 }
 
@@ -653,5 +562,96 @@ void MainWindow::on_record_Button_toggled(bool checked)
 */
 }
 
+/*Save the actual position as a checkpoint. This allows the user to undo actions*/
+void MainWindow::saveCheckPoint(){
+    int res = this->klib->getActualCartesianPosition(this->actualPosition);
+    if(res==SUCCESS){
+        this->checkpoints.push_back(this->actualPosition);
+        this->ui->undoButton->setEnabled(true);
+    }else{
+        QMessageBox* msgBox = new QMessageBox();
+        msgBox->setWindowTitle("Send Command");
+        msgBox->setText("Something went wrong, couldn't get the actual position of the robot");
+        msgBox->exec();
+    }
+}
+
+void MainWindow::setActualPosition(){
+    /*As the Kinova API does not provide any finger only command, then we simulate it by sending the actual coordinates of the arm.
+    So, here we load the actual position and then send the command with the finger parameters*/
+    int res = this->klib->getActualCartesianPosition(this->actualPosition);
+    if(res==SUCCESS){
+        this->point.Position.CartesianPosition.X = actualPosition.Coordinates.X;
+        this->point.Position.CartesianPosition.Y = actualPosition.Coordinates.Y;
+        this->point.Position.CartesianPosition.Z = actualPosition.Coordinates.Z;
+        this->point.Position.CartesianPosition.ThetaX= actualPosition.Coordinates.ThetaX;
+        this->point.Position.CartesianPosition.ThetaY=actualPosition.Coordinates.ThetaY;
+        this->point.Position.CartesianPosition.ThetaZ=actualPosition.Coordinates.ThetaZ;
+    }else{
+        QMessageBox* msgBox = new QMessageBox();
+        msgBox->setWindowTitle("Send Command");
+        msgBox->setText("Something went wrong, couldn't get the actual position of the robot");
+        msgBox->exec();
+    }
+}
+
+void MainWindow::setHandPull(){
+    this->setActualPosition();
+    this->point.Position.Fingers.Finger1 = 23;
+    this->point.Position.Fingers.Finger2 = 19;
+    this->point.Position.Fingers.Finger3 = 29;
+}
+
+void MainWindow::setHandPoint(){
+    this->setActualPosition();
+    this->point.Position.Fingers.Finger1 = 57;
+    this->point.Position.Fingers.Finger2 = 50;
+    this->point.Position.Fingers.Finger3 = 59;
+}
+
+void MainWindow::setHandGrasp(){
+    this->setActualPosition();
+    this->point.Position.Fingers.Finger1 = 27;
+    this->point.Position.Fingers.Finger2 = 25;
+    this->point.Position.Fingers.Finger3 = 25;
+}
+
+void MainWindow::on_playPointPosition_clicked()
+{
+    this->setHandPoint();
+    klib->sendCommand(CARTESIAN_POSITION,false,true,this->point);
+}
+
+void MainWindow::on_playPullPosition_clicked()
+{
+    this->setHandPull();
+    klib->sendCommand(CARTESIAN_POSITION,false,true,this->point);
+}
+
+void MainWindow::on_playGraspPosition_clicked()
+{
+    this->setHandGrasp();
+    klib->sendCommand(CARTESIAN_POSITION,false,true,this->point);
+}
 
 
+void MainWindow::on_undoButton_clicked()
+{
+
+    this->actualPosition = this->checkpoints.back();
+    this->checkpoints.pop_back();
+
+    this->point.Position.CartesianPosition.X = this->actualPosition.Coordinates.X;
+    this->point.Position.CartesianPosition.Y = this->actualPosition.Coordinates.Y;
+    this->point.Position.CartesianPosition.Z = this->actualPosition.Coordinates.Z;
+    this->point.Position.CartesianPosition.ThetaX= this->actualPosition.Coordinates.ThetaX;
+    this->point.Position.CartesianPosition.ThetaY=this->actualPosition.Coordinates.ThetaY;
+    this->point.Position.CartesianPosition.ThetaZ=this->actualPosition.Coordinates.ThetaZ;
+    this->point.Position.Fingers.Finger1 = this->actualPosition.Fingers.Finger1;
+    this->point.Position.Fingers.Finger2 = this->actualPosition.Fingers.Finger2;
+    this->point.Position.Fingers.Finger3 = this->actualPosition.Fingers.Finger3;
+
+    this->ui->undoButton->setDisabled(this->checkpoints.empty());
+
+    klib->sendCommand(CARTESIAN_POSITION,true,true,this->point);
+}

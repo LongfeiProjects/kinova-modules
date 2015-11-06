@@ -6,37 +6,37 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>887</width>
-    <height>908</height>
+    <width>885</width>
+    <height>932</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralWidget">
-   <widget class="QTabWidget" name="tabWidget">
+   <widget class="QTabWidget" name="Play">
     <property name="geometry">
      <rect>
       <x>20</x>
-      <y>100</y>
+      <y>60</y>
       <width>861</width>
-      <height>741</height>
+      <height>801</height>
      </rect>
     </property>
     <property name="currentIndex">
-     <number>0</number>
+     <number>1</number>
     </property>
     <widget class="QWidget" name="simpleControlTab">
      <attribute name="title">
-      <string>Simple</string>
+      <string>Control</string>
      </attribute>
      <widget class="QGroupBox" name="groupBox">
       <property name="geometry">
        <rect>
         <x>10</x>
-        <y>0</y>
+        <y>10</y>
         <width>841</width>
-        <height>361</height>
+        <height>771</height>
        </rect>
       </property>
       <property name="sizePolicy">
@@ -44,6 +44,11 @@
         <horstretch>44</horstretch>
         <verstretch>0</verstretch>
        </sizepolicy>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>14</pointsize>
+       </font>
       </property>
       <property name="title">
        <string>Move Panel</string>
@@ -55,7 +60,7 @@
        <property name="geometry">
         <rect>
          <x>0</x>
-         <y>30</y>
+         <y>50</y>
          <width>171</width>
          <height>61</height>
         </rect>
@@ -71,7 +76,7 @@
          <rect>
           <x>10</x>
           <y>10</y>
-          <width>151</width>
+          <width>153</width>
           <height>41</height>
          </rect>
         </property>
@@ -81,6 +86,19 @@
          </property>
          <item>
           <widget class="QLabel" name="label">
+           <property name="font">
+            <font>
+             <pointsize>11</pointsize>
+             <weight>75</weight>
+             <bold>true</bold>
+            </font>
+           </property>
+           <property name="autoFillBackground">
+            <bool>false</bool>
+           </property>
+           <property name="styleSheet">
+            <string notr="true"/>
+           </property>
            <property name="text">
             <string>Speed</string>
            </property>
@@ -96,374 +114,1093 @@
        <property name="geometry">
         <rect>
          <x>0</x>
-         <y>100</y>
+         <y>160</y>
          <width>841</width>
-         <height>261</height>
+         <height>591</height>
         </rect>
        </property>
        <property name="frameShape">
-        <enum>QFrame::StyledPanel</enum>
+        <enum>QFrame::NoFrame</enum>
        </property>
        <property name="frameShadow">
-        <enum>QFrame::Raised</enum>
+        <enum>QFrame::Plain</enum>
        </property>
-       <widget class="QWidget" name="gridLayoutWidget_3">
+       <widget class="QFrame" name="frame_13">
         <property name="geometry">
          <rect>
-          <x>290</x>
-          <y>40</y>
-          <width>91</width>
-          <height>171</height>
+          <x>0</x>
+          <y>140</y>
+          <width>511</width>
+          <height>431</height>
          </rect>
         </property>
-        <layout class="QGridLayout" name="gridLayout_3">
-         <item row="1" column="0">
-          <widget class="QFrame" name="frame_8">
-           <property name="frameShape">
-            <enum>QFrame::NoFrame</enum>
-           </property>
-           <property name="frameShadow">
-            <enum>QFrame::Raised</enum>
-           </property>
-           <property name="lineWidth">
-            <number>0</number>
-           </property>
-           <widget class="QLabel" name="label_13">
-            <property name="geometry">
-             <rect>
-              <x>28</x>
-              <y>0</y>
-              <width>41</width>
-              <height>21</height>
-             </rect>
+        <property name="frameShape">
+         <enum>QFrame::StyledPanel</enum>
+        </property>
+        <property name="frameShadow">
+         <enum>QFrame::Raised</enum>
+        </property>
+        <widget class="QWidget" name="gridLayoutWidget">
+         <property name="geometry">
+          <rect>
+           <x>10</x>
+           <y>30</y>
+           <width>311</width>
+           <height>371</height>
+          </rect>
+         </property>
+         <layout class="QGridLayout" name="gridLayout">
+          <item row="0" column="1">
+           <widget class="QFrame" name="frame_9">
+            <property name="frameShape">
+             <enum>QFrame::NoFrame</enum>
             </property>
-            <property name="text">
-             <string>PULL</string>
+            <property name="frameShadow">
+             <enum>QFrame::Raised</enum>
             </property>
+            <property name="lineWidth">
+             <number>0</number>
+            </property>
+            <widget class="QLabel" name="label_13">
+             <property name="geometry">
+              <rect>
+               <x>12</x>
+               <y>0</y>
+               <width>71</width>
+               <height>21</height>
+              </rect>
+             </property>
+             <property name="font">
+              <font>
+               <weight>75</weight>
+               <bold>true</bold>
+              </font>
+             </property>
+             <property name="styleSheet">
+              <string notr="true">background-color: rgb(51, 51, 51);
+color: rgb(247, 247, 246);
+</string>
+             </property>
+             <property name="text">
+              <string>UP</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
+             </property>
+            </widget>
+            <widget class="QPushButton" name="upButton">
+             <property name="geometry">
+              <rect>
+               <x>5</x>
+               <y>40</y>
+               <width>83</width>
+               <height>55</height>
+              </rect>
+             </property>
+             <property name="styleSheet">
+              <string notr="true">image: url(:/imagenes/img/arrow_up.png);</string>
+             </property>
+             <property name="text">
+              <string/>
+             </property>
+             <property name="icon">
+              <iconset resource="resources.qrc">
+               <normaloff>:/imagenes/img/arrow_up.png</normaloff>:/imagenes/img/arrow_up.png</iconset>
+             </property>
+             <property name="iconSize">
+              <size>
+               <width>45</width>
+               <height>45</height>
+              </size>
+             </property>
+             <property name="flat">
+              <bool>false</bool>
+             </property>
+            </widget>
            </widget>
-           <widget class="QPushButton" name="pullButton_Y">
-            <property name="geometry">
-             <rect>
-              <x>12</x>
-              <y>20</y>
-              <width>67</width>
-              <height>55</height>
-             </rect>
+          </item>
+          <item row="1" column="2">
+           <widget class="QFrame" name="frame_11">
+            <property name="frameShape">
+             <enum>QFrame::NoFrame</enum>
             </property>
-            <property name="maximumSize">
-             <size>
-              <width>70</width>
-              <height>16777215</height>
-             </size>
+            <property name="frameShadow">
+             <enum>QFrame::Raised</enum>
             </property>
-            <property name="text">
-             <string/>
+            <property name="lineWidth">
+             <number>0</number>
             </property>
-            <property name="icon">
-             <iconset resource="resources.qrc">
-              <normaloff>:/imagenes/img/arrow2.png</normaloff>:/imagenes/img/arrow2.png</iconset>
-            </property>
-            <property name="iconSize">
-             <size>
-              <width>45</width>
-              <height>45</height>
-             </size>
-            </property>
+            <widget class="QLabel" name="label_19">
+             <property name="geometry">
+              <rect>
+               <x>10</x>
+               <y>0</y>
+               <width>71</width>
+               <height>21</height>
+              </rect>
+             </property>
+             <property name="font">
+              <font>
+               <weight>75</weight>
+               <bold>true</bold>
+              </font>
+             </property>
+             <property name="styleSheet">
+              <string notr="true">background-color: rgb(51, 51, 51);
+color: rgb(247, 247, 246);
+</string>
+             </property>
+             <property name="text">
+              <string>RIGHT</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
+             </property>
+            </widget>
+            <widget class="QPushButton" name="rightButton">
+             <property name="geometry">
+              <rect>
+               <x>5</x>
+               <y>40</y>
+               <width>82</width>
+               <height>55</height>
+              </rect>
+             </property>
+             <property name="styleSheet">
+              <string notr="true">image: url(:/imagenes/img/arrow_up.png);</string>
+             </property>
+             <property name="text">
+              <string/>
+             </property>
+             <property name="icon">
+              <iconset resource="resources.qrc">
+               <normaloff>:/imagenes/img/arrow_right.png</normaloff>:/imagenes/img/arrow_right.png</iconset>
+             </property>
+             <property name="iconSize">
+              <size>
+               <width>45</width>
+               <height>45</height>
+              </size>
+             </property>
+             <property name="flat">
+              <bool>false</bool>
+             </property>
+            </widget>
            </widget>
-          </widget>
-         </item>
-         <item row="0" column="0">
-          <widget class="QFrame" name="frame_7">
-           <property name="frameShape">
-            <enum>QFrame::NoFrame</enum>
-           </property>
-           <property name="frameShadow">
-            <enum>QFrame::Raised</enum>
-           </property>
-           <property name="lineWidth">
-            <number>0</number>
-           </property>
-           <widget class="QLabel" name="label_11">
-            <property name="geometry">
-             <rect>
-              <x>25</x>
-              <y>0</y>
-              <width>41</width>
-              <height>21</height>
-             </rect>
+          </item>
+          <item row="1" column="0">
+           <widget class="QFrame" name="frame_12">
+            <property name="frameShape">
+             <enum>QFrame::NoFrame</enum>
             </property>
-            <property name="text">
-             <string>PUSH</string>
+            <property name="frameShadow">
+             <enum>QFrame::Raised</enum>
             </property>
+            <property name="lineWidth">
+             <number>0</number>
+            </property>
+            <widget class="QLabel" name="label_20">
+             <property name="geometry">
+              <rect>
+               <x>15</x>
+               <y>0</y>
+               <width>71</width>
+               <height>21</height>
+              </rect>
+             </property>
+             <property name="font">
+              <font>
+               <weight>75</weight>
+               <bold>true</bold>
+              </font>
+             </property>
+             <property name="styleSheet">
+              <string notr="true">background-color: rgb(51, 51, 51);
+color: rgb(247, 247, 246);
+</string>
+             </property>
+             <property name="text">
+              <string>LEFT</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
+             </property>
+            </widget>
+            <widget class="QPushButton" name="leftButton">
+             <property name="geometry">
+              <rect>
+               <x>9</x>
+               <y>40</y>
+               <width>81</width>
+               <height>55</height>
+              </rect>
+             </property>
+             <property name="styleSheet">
+              <string notr="true">image: url(:/imagenes/img/arrow_up.png);</string>
+             </property>
+             <property name="text">
+              <string/>
+             </property>
+             <property name="icon">
+              <iconset resource="resources.qrc">
+               <normaloff>:/imagenes/img/arrow_left.png</normaloff>:/imagenes/img/arrow_left.png</iconset>
+             </property>
+             <property name="iconSize">
+              <size>
+               <width>45</width>
+               <height>45</height>
+              </size>
+             </property>
+             <property name="flat">
+              <bool>false</bool>
+             </property>
+            </widget>
            </widget>
-           <widget class="QPushButton" name="pushButton_Y">
-            <property name="geometry">
-             <rect>
-              <x>11</x>
-              <y>20</y>
-              <width>67</width>
-              <height>55</height>
-             </rect>
+          </item>
+          <item row="2" column="1">
+           <widget class="QFrame" name="frame_10">
+            <property name="frameShape">
+             <enum>QFrame::NoFrame</enum>
             </property>
-            <property name="maximumSize">
-             <size>
-              <width>70</width>
-              <height>16777215</height>
-             </size>
+            <property name="frameShadow">
+             <enum>QFrame::Raised</enum>
             </property>
-            <property name="text">
-             <string/>
+            <property name="lineWidth">
+             <number>0</number>
             </property>
-            <property name="icon">
-             <iconset resource="resources.qrc">
-              <normaloff>:/imagenes/img/arrow1.png</normaloff>:/imagenes/img/arrow1.png</iconset>
-            </property>
-            <property name="iconSize">
-             <size>
-              <width>45</width>
-              <height>45</height>
-             </size>
-            </property>
+            <widget class="QLabel" name="label_17">
+             <property name="geometry">
+              <rect>
+               <x>10</x>
+               <y>92</y>
+               <width>81</width>
+               <height>21</height>
+              </rect>
+             </property>
+             <property name="font">
+              <font>
+               <weight>75</weight>
+               <bold>true</bold>
+              </font>
+             </property>
+             <property name="styleSheet">
+              <string notr="true">background-color: rgb(51, 51, 51);
+color: rgb(247, 247, 246);
+</string>
+             </property>
+             <property name="text">
+              <string>DOWN</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
+             </property>
+            </widget>
+            <widget class="QPushButton" name="downButton">
+             <property name="geometry">
+              <rect>
+               <x>7</x>
+               <y>20</y>
+               <width>83</width>
+               <height>55</height>
+              </rect>
+             </property>
+             <property name="styleSheet">
+              <string notr="true">image: url(:/imagenes/img/arrow_up.png);</string>
+             </property>
+             <property name="text">
+              <string/>
+             </property>
+             <property name="icon">
+              <iconset resource="resources.qrc">
+               <normaloff>:/imagenes/img/arrow_down.png</normaloff>:/imagenes/img/arrow_down.png</iconset>
+             </property>
+             <property name="iconSize">
+              <size>
+               <width>45</width>
+               <height>45</height>
+              </size>
+             </property>
+             <property name="flat">
+              <bool>false</bool>
+             </property>
+            </widget>
            </widget>
-          </widget>
-         </item>
-        </layout>
+          </item>
+         </layout>
+        </widget>
+        <widget class="QWidget" name="gridLayoutWidget_3">
+         <property name="geometry">
+          <rect>
+           <x>390</x>
+           <y>80</y>
+           <width>91</width>
+           <height>301</height>
+          </rect>
+         </property>
+         <layout class="QGridLayout" name="gridLayout_3">
+          <property name="spacing">
+           <number>12</number>
+          </property>
+          <item row="1" column="0">
+           <widget class="QFrame" name="frame_8">
+            <property name="frameShape">
+             <enum>QFrame::NoFrame</enum>
+            </property>
+            <property name="frameShadow">
+             <enum>QFrame::Raised</enum>
+            </property>
+            <property name="lineWidth">
+             <number>0</number>
+            </property>
+            <widget class="QPushButton" name="pullButton_Y">
+             <property name="geometry">
+              <rect>
+               <x>12</x>
+               <y>40</y>
+               <width>67</width>
+               <height>55</height>
+              </rect>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>70</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="text">
+              <string/>
+             </property>
+             <property name="icon">
+              <iconset resource="resources.qrc">
+               <normaloff>:/imagenes/img/arrow2.png</normaloff>:/imagenes/img/arrow2.png</iconset>
+             </property>
+             <property name="iconSize">
+              <size>
+               <width>45</width>
+               <height>45</height>
+              </size>
+             </property>
+            </widget>
+            <widget class="QLabel" name="label_16">
+             <property name="geometry">
+              <rect>
+               <x>14</x>
+               <y>0</y>
+               <width>61</width>
+               <height>21</height>
+              </rect>
+             </property>
+             <property name="font">
+              <font>
+               <weight>75</weight>
+               <bold>true</bold>
+              </font>
+             </property>
+             <property name="styleSheet">
+              <string notr="true">background-color: rgb(51, 51, 51);
+color: rgb(247, 247, 246);
+</string>
+             </property>
+             <property name="text">
+              <string>PULL</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
+             </property>
+            </widget>
+           </widget>
+          </item>
+          <item row="0" column="0">
+           <widget class="QFrame" name="frame_7">
+            <property name="frameShape">
+             <enum>QFrame::NoFrame</enum>
+            </property>
+            <property name="frameShadow">
+             <enum>QFrame::Raised</enum>
+            </property>
+            <property name="lineWidth">
+             <number>0</number>
+            </property>
+            <widget class="QPushButton" name="pushButton_Y">
+             <property name="geometry">
+              <rect>
+               <x>11</x>
+               <y>40</y>
+               <width>67</width>
+               <height>55</height>
+              </rect>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>70</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="text">
+              <string/>
+             </property>
+             <property name="icon">
+              <iconset resource="resources.qrc">
+               <normaloff>:/imagenes/img/arrow1.png</normaloff>:/imagenes/img/arrow1.png</iconset>
+             </property>
+             <property name="iconSize">
+              <size>
+               <width>45</width>
+               <height>45</height>
+              </size>
+             </property>
+            </widget>
+            <widget class="QLabel" name="label_15">
+             <property name="geometry">
+              <rect>
+               <x>14</x>
+               <y>0</y>
+               <width>61</width>
+               <height>21</height>
+              </rect>
+             </property>
+             <property name="font">
+              <font>
+               <weight>75</weight>
+               <bold>true</bold>
+              </font>
+             </property>
+             <property name="styleSheet">
+              <string notr="true">background-color: rgb(51, 51, 51);
+color: rgb(247, 247, 246);
+</string>
+             </property>
+             <property name="text">
+              <string>PUSH</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
+             </property>
+            </widget>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+        <widget class="Line" name="line_2">
+         <property name="geometry">
+          <rect>
+           <x>345</x>
+           <y>10</y>
+           <width>20</width>
+           <height>411</height>
+          </rect>
+         </property>
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+        </widget>
        </widget>
-       <widget class="QWidget" name="gridLayoutWidget">
+       <widget class="QFrame" name="frame_14">
         <property name="geometry">
          <rect>
-          <x>5</x>
+          <x>550</x>
+          <y>140</y>
+          <width>271</width>
+          <height>431</height>
+         </rect>
+        </property>
+        <property name="frameShape">
+         <enum>QFrame::StyledPanel</enum>
+        </property>
+        <property name="frameShadow">
+         <enum>QFrame::Raised</enum>
+        </property>
+        <widget class="QWidget" name="gridLayoutWidget_4">
+         <property name="geometry">
+          <rect>
+           <x>24</x>
+           <y>10</y>
+           <width>211</width>
+           <height>91</height>
+          </rect>
+         </property>
+         <layout class="QGridLayout" name="gridLayout_4">
+          <property name="spacing">
+           <number>12</number>
+          </property>
+          <item row="0" column="0">
+           <widget class="QFrame" name="frame_5">
+            <property name="frameShape">
+             <enum>QFrame::NoFrame</enum>
+            </property>
+            <property name="frameShadow">
+             <enum>QFrame::Raised</enum>
+            </property>
+            <property name="lineWidth">
+             <number>0</number>
+            </property>
+            <widget class="QPushButton" name="openHandButton">
+             <property name="geometry">
+              <rect>
+               <x>19</x>
+               <y>30</y>
+               <width>67</width>
+               <height>55</height>
+              </rect>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>70</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="text">
+              <string/>
+             </property>
+             <property name="icon">
+              <iconset resource="resources.qrc">
+               <normaloff>:/imagenes/img/openhand.png</normaloff>:/imagenes/img/openhand.png</iconset>
+             </property>
+             <property name="iconSize">
+              <size>
+               <width>45</width>
+               <height>45</height>
+              </size>
+             </property>
+            </widget>
+            <widget class="QLabel" name="label_12">
+             <property name="geometry">
+              <rect>
+               <x>20</x>
+               <y>0</y>
+               <width>61</width>
+               <height>21</height>
+              </rect>
+             </property>
+             <property name="font">
+              <font>
+               <weight>75</weight>
+               <bold>true</bold>
+              </font>
+             </property>
+             <property name="styleSheet">
+              <string notr="true">background-color: rgb(51, 51, 51);
+color: rgb(247, 247, 246);
+</string>
+             </property>
+             <property name="text">
+              <string>OPEN</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
+             </property>
+            </widget>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QFrame" name="frame_6">
+            <property name="frameShape">
+             <enum>QFrame::NoFrame</enum>
+            </property>
+            <property name="frameShadow">
+             <enum>QFrame::Raised</enum>
+            </property>
+            <widget class="QPushButton" name="closeHandButton">
+             <property name="geometry">
+              <rect>
+               <x>18</x>
+               <y>30</y>
+               <width>67</width>
+               <height>55</height>
+              </rect>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>70</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="text">
+              <string/>
+             </property>
+             <property name="icon">
+              <iconset resource="resources.qrc">
+               <normaloff>:/imagenes/img/closehand.png</normaloff>:/imagenes/img/closehand.png</iconset>
+             </property>
+             <property name="iconSize">
+              <size>
+               <width>45</width>
+               <height>45</height>
+              </size>
+             </property>
+            </widget>
+            <widget class="QLabel" name="label_14">
+             <property name="geometry">
+              <rect>
+               <x>20</x>
+               <y>0</y>
+               <width>61</width>
+               <height>21</height>
+              </rect>
+             </property>
+             <property name="font">
+              <font>
+               <weight>75</weight>
+               <bold>true</bold>
+              </font>
+             </property>
+             <property name="styleSheet">
+              <string notr="true">background-color: rgb(51, 51, 51);
+color: rgb(247, 247, 246);
+</string>
+             </property>
+             <property name="text">
+              <string>CLOSE</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
+             </property>
+            </widget>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+        <widget class="Line" name="line_3">
+         <property name="geometry">
+          <rect>
+           <x>20</x>
+           <y>126</y>
+           <width>221</width>
+           <height>16</height>
+          </rect>
+         </property>
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+        </widget>
+        <widget class="QLabel" name="label_22">
+         <property name="geometry">
+          <rect>
+           <x>326</x>
+           <y>210</y>
+           <width>93</width>
+           <height>32</height>
+          </rect>
+         </property>
+         <property name="font">
+          <font>
+           <weight>75</weight>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">background-color: rgb(51, 51, 51);
+color: rgb(247, 247, 246);
+</string>
+         </property>
+         <property name="text">
+          <string>POINT</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+        </widget>
+        <widget class="QWidget" name="gridLayoutWidget_7">
+         <property name="geometry">
+          <rect>
+           <x>0</x>
+           <y>180</y>
+           <width>261</width>
+           <height>251</height>
+          </rect>
+         </property>
+         <layout class="QGridLayout" name="presetHandPositionsLayout_3">
+          <property name="spacing">
+           <number>20</number>
+          </property>
+          <item row="1" column="1">
+           <widget class="QWidget" name="widget_8" native="true">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>60</width>
+              <height>60</height>
+             </size>
+            </property>
+            <property name="styleSheet">
+             <string notr="true">image: url(:/imagenes/img/handleGrasp.png);</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="2" alignment="Qt::AlignHCenter">
+           <widget class="QPushButton" name="playPullPosition">
+            <property name="maximumSize">
+             <size>
+              <width>60</width>
+              <height>16777215</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>Play</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="2" alignment="Qt::AlignHCenter">
+           <widget class="QPushButton" name="playPointPosition">
+            <property name="maximumSize">
+             <size>
+              <width>60</width>
+              <height>16777215</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>Play</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QWidget" name="widget_9" native="true">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>60</width>
+              <height>60</height>
+             </size>
+            </property>
+            <property name="styleSheet">
+             <string notr="true">image: url(:/imagenes/img/point.png);</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="2" alignment="Qt::AlignHCenter">
+           <widget class="QPushButton" name="playGraspPosition">
+            <property name="maximumSize">
+             <size>
+              <width>60</width>
+              <height>16777215</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>Play</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="1">
+           <widget class="QWidget" name="widget_10" native="true">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>60</width>
+              <height>60</height>
+             </size>
+            </property>
+            <property name="styleSheet">
+             <string notr="true">image: url(:/imagenes/img/graspObject.png);</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="0">
+           <widget class="QLabel" name="label_2">
+            <property name="text">
+             <string>   POINT</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QLabel" name="label_3">
+            <property name="text">
+             <string>     PULL 
+   HANDLE</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0">
+           <widget class="QLabel" name="label_4">
+            <property name="text">
+             <string>    GRASP 
+   OBJECT</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+        <widget class="QLabel" name="label_36">
+         <property name="geometry">
+          <rect>
+           <x>0</x>
+           <y>150</y>
+           <width>271</width>
+           <height>21</height>
+          </rect>
+         </property>
+         <property name="font">
+          <font>
+           <weight>75</weight>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">background-color: rgb(51, 51, 51);
+color: rgb(247, 247, 246);
+</string>
+         </property>
+         <property name="text">
+          <string>PRESET HAND POSITIONS</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+        </widget>
+       </widget>
+       <widget class="QFrame" name="frame_15">
+        <property name="geometry">
+         <rect>
+          <x>0</x>
           <y>10</y>
-          <width>261</width>
-          <height>241</height>
+          <width>191</width>
+          <height>111</height>
          </rect>
         </property>
-        <layout class="QGridLayout" name="gridLayout">
-         <item row="0" column="1">
-          <widget class="QPushButton" name="upButton">
-           <property name="styleSheet">
-            <string notr="true">image: url(:/imagenes/img/arrow_up.png);</string>
-           </property>
-           <property name="text">
-            <string/>
-           </property>
-           <property name="icon">
-            <iconset resource="resources.qrc">
-             <normaloff>:/imagenes/img/arrow_up.png</normaloff>:/imagenes/img/arrow_up.png</iconset>
-           </property>
-           <property name="iconSize">
-            <size>
-             <width>45</width>
-             <height>45</height>
-            </size>
-           </property>
-           <property name="flat">
-            <bool>false</bool>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="1">
-          <widget class="QPushButton" name="downButton">
-           <property name="styleSheet">
-            <string notr="true">image: url(:/imagenes/img/arrow_up.png);</string>
-           </property>
-           <property name="text">
-            <string/>
-           </property>
-           <property name="icon">
-            <iconset resource="resources.qrc">
-             <normaloff>:/imagenes/img/arrow_down.png</normaloff>:/imagenes/img/arrow_down.png</iconset>
-           </property>
-           <property name="iconSize">
-            <size>
-             <width>45</width>
-             <height>45</height>
-            </size>
-           </property>
-           <property name="flat">
-            <bool>false</bool>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="2">
-          <widget class="QPushButton" name="rightButton">
-           <property name="styleSheet">
-            <string notr="true">image: url(:/imagenes/img/arrow_up.png);</string>
-           </property>
-           <property name="text">
-            <string/>
-           </property>
-           <property name="icon">
-            <iconset resource="resources.qrc">
-             <normaloff>:/imagenes/img/arrow_right.png</normaloff>:/imagenes/img/arrow_right.png</iconset>
-           </property>
-           <property name="iconSize">
-            <size>
-             <width>45</width>
-             <height>45</height>
-            </size>
-           </property>
-           <property name="flat">
-            <bool>false</bool>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="0">
-          <widget class="QPushButton" name="leftButton">
-           <property name="styleSheet">
-            <string notr="true">image: url(:/imagenes/img/arrow_up.png);</string>
-           </property>
-           <property name="text">
-            <string/>
-           </property>
-           <property name="icon">
-            <iconset resource="resources.qrc">
-             <normaloff>:/imagenes/img/arrow_left.png</normaloff>:/imagenes/img/arrow_left.png</iconset>
-           </property>
-           <property name="iconSize">
-            <size>
-             <width>45</width>
-             <height>45</height>
-            </size>
-           </property>
-           <property name="flat">
-            <bool>false</bool>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </widget>
-       <widget class="QWidget" name="gridLayoutWidget_4">
-        <property name="geometry">
-         <rect>
-          <x>580</x>
-          <y>30</y>
-          <width>211</width>
-          <height>91</height>
-         </rect>
+        <property name="frameShape">
+         <enum>QFrame::StyledPanel</enum>
         </property>
-        <layout class="QGridLayout" name="gridLayout_4">
-         <item row="0" column="0">
-          <widget class="QFrame" name="frame_5">
-           <property name="frameShape">
-            <enum>QFrame::NoFrame</enum>
-           </property>
-           <property name="frameShadow">
-            <enum>QFrame::Raised</enum>
-           </property>
-           <property name="lineWidth">
-            <number>0</number>
-           </property>
-           <widget class="QLabel" name="label_10">
-            <property name="geometry">
-             <rect>
-              <x>30</x>
-              <y>0</y>
-              <width>41</width>
-              <height>21</height>
-             </rect>
+        <property name="frameShadow">
+         <enum>QFrame::Raised</enum>
+        </property>
+        <widget class="QWidget" name="verticalLayoutWidget">
+         <property name="geometry">
+          <rect>
+           <x>30</x>
+           <y>0</y>
+           <width>131</width>
+           <height>101</height>
+          </rect>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout">
+          <item>
+           <widget class="QLabel" name="label_28">
+            <property name="maximumSize">
+             <size>
+              <width>16777215</width>
+              <height>22</height>
+             </size>
+            </property>
+            <property name="font">
+             <font>
+              <weight>75</weight>
+              <bold>true</bold>
+             </font>
+            </property>
+            <property name="styleSheet">
+             <string notr="true">background-color: rgb(51, 51, 51);
+color: rgb(247, 247, 246);
+</string>
             </property>
             <property name="text">
-             <string>OPEN</string>
+             <string>UNDO</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignCenter</set>
             </property>
            </widget>
-           <widget class="QPushButton" name="openHandButton">
-            <property name="geometry">
-             <rect>
-              <x>18</x>
-              <y>20</y>
-              <width>67</width>
-              <height>55</height>
-             </rect>
+          </item>
+          <item alignment="Qt::AlignHCenter|Qt::AlignBottom">
+           <widget class="QPushButton" name="undoButton">
+            <property name="minimumSize">
+             <size>
+              <width>70</width>
+              <height>70</height>
+             </size>
             </property>
             <property name="maximumSize">
              <size>
-              <width>70</width>
-              <height>16777215</height>
+              <width>80</width>
+              <height>80</height>
              </size>
+            </property>
+            <property name="styleSheet">
+             <string notr="true">image: url(:/imagenes/img/undo.png);</string>
             </property>
             <property name="text">
              <string/>
             </property>
             <property name="icon">
              <iconset resource="resources.qrc">
-              <normaloff>:/imagenes/img/openhand.png</normaloff>:/imagenes/img/openhand.png</iconset>
+              <normaloff>:/imagenes/img/undo.png</normaloff>:/imagenes/img/undo.png</iconset>
             </property>
             <property name="iconSize">
              <size>
-              <width>45</width>
-              <height>45</height>
+              <width>60</width>
+              <height>60</height>
              </size>
             </property>
            </widget>
-           <zorder>label_10</zorder>
-           <zorder>openHandButton_2</zorder>
-           <zorder>openHandButton</zorder>
-          </widget>
-         </item>
-         <item row="0" column="1">
-          <widget class="QFrame" name="frame_6">
-           <property name="frameShape">
-            <enum>QFrame::NoFrame</enum>
-           </property>
-           <property name="frameShadow">
-            <enum>QFrame::Raised</enum>
-           </property>
-           <widget class="QLabel" name="label_8">
-            <property name="geometry">
-             <rect>
-              <x>27</x>
-              <y>-5</y>
-              <width>45</width>
-              <height>31</height>
-             </rect>
-            </property>
-            <property name="text">
-             <string>CLOSE</string>
-            </property>
-           </widget>
-           <widget class="QPushButton" name="closeHandButton">
-            <property name="geometry">
-             <rect>
-              <x>16</x>
-              <y>20</y>
-              <width>67</width>
-              <height>55</height>
-             </rect>
-            </property>
-            <property name="maximumSize">
-             <size>
-              <width>70</width>
-              <height>16777215</height>
-             </size>
-            </property>
-            <property name="text">
-             <string/>
-            </property>
-            <property name="icon">
-             <iconset resource="resources.qrc">
-              <normaloff>:/imagenes/img/closehand.png</normaloff>:/imagenes/img/closehand.png</iconset>
-            </property>
-            <property name="iconSize">
-             <size>
-              <width>45</width>
-              <height>45</height>
-             </size>
-            </property>
-           </widget>
-          </widget>
-         </item>
-        </layout>
+          </item>
+         </layout>
+        </widget>
        </widget>
       </widget>
+      <widget class="QLabel" name="recordingLabel">
+       <property name="geometry">
+        <rect>
+         <x>300</x>
+         <y>50</y>
+         <width>251</width>
+         <height>61</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <family>Ubuntu</family>
+         <pointsize>38</pointsize>
+         <weight>50</weight>
+         <italic>false</italic>
+         <bold>false</bold>
+        </font>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">color: rgb(237, 31, 36);
+font: 38pt &quot;Ubuntu&quot;;</string>
+       </property>
+       <property name="text">
+        <string>Recording!</string>
+       </property>
+       <property name="textFormat">
+        <enum>Qt::RichText</enum>
+       </property>
+      </widget>
+      <widget class="QWidget" name="gridLayoutWidget_5">
+       <property name="geometry">
+        <rect>
+         <x>590</x>
+         <y>20</y>
+         <width>221</width>
+         <height>111</height>
+        </rect>
+       </property>
+       <layout class="QGridLayout" name="gridLayout_5">
+        <property name="spacing">
+         <number>12</number>
+        </property>
+        <item row="0" column="1" alignment="Qt::AlignHCenter">
+         <widget class="QPushButton" name="record_Button">
+          <property name="maximumSize">
+           <size>
+            <width>80</width>
+            <height>16777215</height>
+           </size>
+          </property>
+          <property name="text">
+           <string/>
+          </property>
+          <property name="icon">
+           <iconset resource="resources.qrc">
+            <normaloff>:/imagenes/img/record.png</normaloff>:/imagenes/img/record.png</iconset>
+          </property>
+          <property name="iconSize">
+           <size>
+            <width>60</width>
+            <height>60</height>
+           </size>
+          </property>
+          <property name="checkable">
+           <bool>true</bool>
+          </property>
+          <property name="checked">
+           <bool>false</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1">
+         <widget class="QLabel" name="label_record_stop">
+          <property name="font">
+           <font>
+            <weight>75</weight>
+            <bold>true</bold>
+           </font>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">background-color: rgb(51, 51, 51);
+color: rgb(247, 247, 246);
+</string>
+          </property>
+          <property name="text">
+           <string>RECORD</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="0" alignment="Qt::AlignHCenter">
+         <widget class="QPushButton" name="homeButton">
+          <property name="maximumSize">
+           <size>
+            <width>80</width>
+            <height>16777215</height>
+           </size>
+          </property>
+          <property name="text">
+           <string/>
+          </property>
+          <property name="icon">
+           <iconset resource="resources.qrc">
+            <normaloff>:/imagenes/img/homeIcon.png</normaloff>:/imagenes/img/homeIcon.png</iconset>
+          </property>
+          <property name="iconSize">
+           <size>
+            <width>60</width>
+            <height>60</height>
+           </size>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="0">
+         <widget class="QLabel" name="label_record_stop_2">
+          <property name="font">
+           <font>
+            <weight>75</weight>
+            <bold>true</bold>
+           </font>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">background-color: rgb(51, 51, 51);
+color: rgb(247, 247, 246);
+</string>
+          </property>
+          <property name="text">
+           <string> MOVE HOME </string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
      </widget>
+    </widget>
+    <widget class="QWidget" name="tab">
+     <attribute name="title">
+      <string>Play</string>
+     </attribute>
      <widget class="QGroupBox" name="playBox">
       <property name="geometry">
        <rect>
         <x>10</x>
-        <y>390</y>
+        <y>30</y>
         <width>841</width>
-        <height>311</height>
+        <height>731</height>
        </rect>
       </property>
       <property name="title">
@@ -475,7 +1212,7 @@
          <x>0</x>
          <y>30</y>
          <width>841</width>
-         <height>281</height>
+         <height>701</height>
         </rect>
        </property>
        <property name="frameShape">
@@ -487,704 +1224,520 @@
       </widget>
      </widget>
     </widget>
-    <widget class="QWidget" name="advancedControlTab">
+    <widget class="QWidget" name="tab_2">
      <attribute name="title">
-      <string>Advanced</string>
+      <string>Trash_DeleteThisTab</string>
      </attribute>
-     <widget class="QGroupBox" name="commandBuilder_Widget">
+     <widget class="QFrame" name="frame_16">
       <property name="geometry">
        <rect>
-        <x>10</x>
-        <y>30</y>
-        <width>821</width>
-        <height>491</height>
+        <x>50</x>
+        <y>210</y>
+        <width>431</width>
+        <height>291</height>
        </rect>
       </property>
-      <property name="title">
-       <string>Command Builder</string>
+      <property name="frameShape">
+       <enum>QFrame::StyledPanel</enum>
       </property>
-      <widget class="QGroupBox" name="ArmControl_Widget">
-       <property name="geometry">
-        <rect>
-         <x>0</x>
-         <y>80</y>
-         <width>811</width>
-         <height>191</height>
-        </rect>
-       </property>
-       <property name="font">
-        <font>
-         <weight>50</weight>
-         <bold>false</bold>
-         <kerning>true</kerning>
-        </font>
-       </property>
-       <property name="autoFillBackground">
-        <bool>true</bool>
-       </property>
-       <property name="title">
-        <string>Arm Control</string>
-       </property>
-       <property name="checkable">
-        <bool>true</bool>
-       </property>
-       <widget class="QWidget" name="formLayoutWidget">
-        <property name="geometry">
-         <rect>
-          <x>10</x>
-          <y>40</y>
-          <width>109</width>
-          <height>101</height>
-         </rect>
-        </property>
-        <layout class="QFormLayout" name="formLayout">
-         <item row="0" column="0">
-          <widget class="QLabel" name="xLabel">
-           <property name="text">
-            <string>X</string>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="1">
-          <widget class="QDoubleSpinBox" name="xDoubleSpinBox">
-           <property name="decimals">
-            <number>2</number>
-           </property>
-           <property name="minimum">
-            <double>-1.000000000000000</double>
-           </property>
-           <property name="maximum">
-            <double>1.000000000000000</double>
-           </property>
-           <property name="singleStep">
-            <double>0.010000000000000</double>
-           </property>
-           <property name="value">
-            <double>0.000000000000000</double>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="0">
-          <widget class="QLabel" name="yLabel">
-           <property name="text">
-            <string>Y</string>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="1">
-          <widget class="QDoubleSpinBox" name="yDoubleSpinBox">
-           <property name="decimals">
-            <number>2</number>
-           </property>
-           <property name="minimum">
-            <double>-1.000000000000000</double>
-           </property>
-           <property name="maximum">
-            <double>1.000000000000000</double>
-           </property>
-           <property name="singleStep">
-            <double>0.010000000000000</double>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="0">
-          <widget class="QLabel" name="zLabel">
-           <property name="text">
-            <string>Z</string>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="1">
-          <widget class="QDoubleSpinBox" name="zDoubleSpinBox">
-           <property name="decimals">
-            <number>2</number>
-           </property>
-           <property name="minimum">
-            <double>-1.000000000000000</double>
-           </property>
-           <property name="maximum">
-            <double>1.000000000000000</double>
-           </property>
-           <property name="singleStep">
-            <double>0.010000000000000</double>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </widget>
-       <widget class="QWidget" name="formLayoutWidget_2">
-        <property name="geometry">
-         <rect>
-          <x>210</x>
-          <y>40</y>
-          <width>140</width>
-          <height>101</height>
-         </rect>
-        </property>
-        <layout class="QFormLayout" name="formLayout_2">
-         <item row="0" column="0">
-          <widget class="QLabel" name="xLabel_2">
-           <property name="text">
-            <string>ThetaX</string>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="1">
-          <widget class="QDoubleSpinBox" name="xDoubleSpinBox_2">
-           <property name="decimals">
-            <number>1</number>
-           </property>
-           <property name="minimum">
-            <double>-9999.000000000000000</double>
-           </property>
-           <property name="maximum">
-            <double>9999.000000000000000</double>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="0">
-          <widget class="QLabel" name="yLabel_2">
-           <property name="text">
-            <string>ThetaY</string>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="1">
-          <widget class="QDoubleSpinBox" name="yDoubleSpinBox_2">
-           <property name="decimals">
-            <number>1</number>
-           </property>
-           <property name="minimum">
-            <double>-9999.000000000000000</double>
-           </property>
-           <property name="maximum">
-            <double>9999.000000000000000</double>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="0">
-          <widget class="QLabel" name="zLabel_2">
-           <property name="text">
-            <string>ThetaZ</string>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="1">
-          <widget class="QDoubleSpinBox" name="zDoubleSpinBox_2">
-           <property name="decimals">
-            <number>1</number>
-           </property>
-           <property name="minimum">
-            <double>-9999.000000000000000</double>
-           </property>
-           <property name="maximum">
-            <double>9999.000000000000000</double>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </widget>
-       <widget class="QGroupBox" name="limitationsGroup">
-        <property name="geometry">
-         <rect>
-          <x>470</x>
-          <y>40</y>
-          <width>241</width>
-          <height>91</height>
-         </rect>
-        </property>
-        <property name="font">
-         <font>
-          <pointsize>10</pointsize>
-          <italic>false</italic>
-          <kerning>false</kerning>
-         </font>
-        </property>
-        <property name="title">
-         <string>Limitations</string>
-        </property>
-        <property name="checkable">
-         <bool>true</bool>
-        </property>
-        <property name="checked">
-         <bool>false</bool>
-        </property>
-        <widget class="QWidget" name="formLayoutWidget_3">
-         <property name="geometry">
-          <rect>
-           <x>0</x>
-           <y>20</y>
-           <width>234</width>
-           <height>61</height>
-          </rect>
-         </property>
-         <layout class="QFormLayout" name="formLayout_3">
-          <item row="0" column="0">
-           <widget class="QLabel" name="speed1Label">
-            <property name="text">
-             <string>Translation Velocity (cm/s)</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="1">
-           <widget class="QDoubleSpinBox" name="speed1DoubleSpinBox"/>
-          </item>
-          <item row="1" column="0">
-           <widget class="QLabel" name="speed2Label">
-            <property name="text">
-             <string>Orientation Velocity (rad/s)</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="1">
-           <widget class="QDoubleSpinBox" name="speed2DoubleSpinBox"/>
-          </item>
-         </layout>
-        </widget>
-       </widget>
-       <widget class="QWidget" name="verticalLayoutWidget">
-        <property name="geometry">
-         <rect>
-          <x>130</x>
-          <y>40</y>
-          <width>69</width>
-          <height>101</height>
-         </rect>
-        </property>
-        <layout class="QVBoxLayout" name="verticalLayout">
-         <item>
-          <widget class="QLabel" name="labelArmControlX">
-           <property name="text">
-            <string>TextLabel</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QLabel" name="labelArmControlY">
-           <property name="text">
-            <string>TextLabel</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QLabel" name="labelArmControlZ">
-           <property name="text">
-            <string>TextLabel</string>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </widget>
-       <widget class="QWidget" name="verticalLayoutWidget_2">
-        <property name="geometry">
-         <rect>
-          <x>360</x>
-          <y>40</y>
-          <width>69</width>
-          <height>101</height>
-         </rect>
-        </property>
-        <layout class="QVBoxLayout" name="verticalLayout_2">
-         <item>
-          <widget class="QLabel" name="labelArmControlX_2">
-           <property name="text">
-            <string>TextLabel</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QLabel" name="labelArmControlY_2">
-           <property name="text">
-            <string>TextLabel</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QLabel" name="labelArmControlZ_2">
-           <property name="text">
-            <string>TextLabel</string>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </widget>
-       <widget class="QWidget" name="horizontalLayoutWidget_6">
-        <property name="geometry">
-         <rect>
-          <x>538</x>
-          <y>160</y>
-          <width>269</width>
-          <height>31</height>
-         </rect>
-        </property>
-        <layout class="QHBoxLayout" name="horizontalLayout_7">
-         <item>
-          <widget class="QPushButton" name="saveArmButton">
-           <property name="text">
-            <string>Save Arm</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QPushButton" name="LoadArmButton">
-           <property name="text">
-            <string>Load</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QPushButton" name="ResetArmInputs">
-           <property name="text">
-            <string>Reset</string>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </widget>
-      </widget>
-      <widget class="QWidget" name="formLayoutWidget_5">
-       <property name="geometry">
-        <rect>
-         <x>0</x>
-         <y>30</y>
-         <width>181</width>
-         <height>31</height>
-        </rect>
-       </property>
-       <layout class="QFormLayout" name="formLayout_5">
-        <property name="sizeConstraint">
-         <enum>QLayout::SetFixedSize</enum>
-        </property>
-        <item row="0" column="0">
-         <widget class="QLabel" name="typeLabel">
-          <property name="text">
-           <string>Type</string>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="1">
-         <widget class="QComboBox" name="typeComboBox"/>
-        </item>
-       </layout>
-      </widget>
-      <widget class="QGroupBox" name="FingersControl_Widget">
-       <property name="geometry">
-        <rect>
-         <x>0</x>
-         <y>290</y>
-         <width>811</width>
-         <height>211</height>
-        </rect>
-       </property>
-       <property name="autoFillBackground">
-        <bool>true</bool>
-       </property>
-       <property name="title">
-        <string>Fingers Control</string>
-       </property>
-       <property name="checkable">
-        <bool>true</bool>
-       </property>
-       <widget class="QWidget" name="formLayoutWidget_4">
-        <property name="geometry">
-         <rect>
-          <x>10</x>
-          <y>40</y>
-          <width>141</width>
-          <height>104</height>
-         </rect>
-        </property>
-        <layout class="QFormLayout" name="formLayout_4">
-         <item row="0" column="0">
-          <widget class="QLabel" name="finger1Label">
-           <property name="text">
-            <string>Finger 1</string>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="1">
-          <widget class="QDoubleSpinBox" name="finger1DoubleSpinBox">
-           <property name="decimals">
-            <number>1</number>
-           </property>
-           <property name="minimum">
-            <double>-100.000000000000000</double>
-           </property>
-           <property name="maximum">
-            <double>180.000000000000000</double>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="0">
-          <widget class="QLabel" name="finger2Label">
-           <property name="text">
-            <string>Finger 2</string>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="1">
-          <widget class="QDoubleSpinBox" name="finger2DoubleSpinBox">
-           <property name="decimals">
-            <number>1</number>
-           </property>
-           <property name="maximum">
-            <double>180.000000000000000</double>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="0">
-          <widget class="QLabel" name="finger3Label">
-           <property name="text">
-            <string>Finger 3</string>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="1">
-          <widget class="QDoubleSpinBox" name="finger3DoubleSpinBox">
-           <property name="decimals">
-            <number>1</number>
-           </property>
-           <property name="maximum">
-            <double>180.000000000000000</double>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </widget>
-       <widget class="QWidget" name="gridLayoutWidget_2">
-        <property name="geometry">
-         <rect>
-          <x>170</x>
-          <y>40</y>
-          <width>121</width>
-          <height>104</height>
-         </rect>
-        </property>
-        <layout class="QGridLayout" name="gridLayout_2">
-         <item row="0" column="0">
-          <widget class="QSlider" name="finger1_slider">
-           <property name="maximum">
-            <number>180</number>
-           </property>
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="0">
-          <widget class="QSlider" name="finger2_slider">
-           <property name="maximum">
-            <number>180</number>
-           </property>
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="0">
-          <widget class="QSlider" name="finger3_slider">
-           <property name="maximum">
-            <number>180</number>
-           </property>
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </widget>
-       <widget class="QLabel" name="label_3">
-        <property name="geometry">
-         <rect>
-          <x>150</x>
-          <y>150</y>
-          <width>51</width>
-          <height>20</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string>Closed</string>
-        </property>
-       </widget>
-       <widget class="QLabel" name="label_4">
-        <property name="geometry">
-         <rect>
-          <x>260</x>
-          <y>150</y>
-          <width>67</width>
-          <height>20</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string>Opened</string>
-        </property>
-       </widget>
-       <widget class="QGroupBox" name="groupBox_2">
-        <property name="geometry">
-         <rect>
-          <x>390</x>
-          <y>20</y>
-          <width>141</width>
-          <height>61</height>
-         </rect>
-        </property>
-        <property name="title">
-         <string>Preset Positions</string>
-        </property>
-        <widget class="QComboBox" name="presetHandPositions">
-         <property name="geometry">
-          <rect>
-           <x>0</x>
-           <y>20</y>
-           <width>131</width>
-           <height>27</height>
-          </rect>
-         </property>
-        </widget>
-       </widget>
-       <widget class="QWidget" name="horizontalLayoutWidget_3">
-        <property name="geometry">
-         <rect>
-          <x>415</x>
-          <y>149</y>
-          <width>391</width>
-          <height>41</height>
-         </rect>
-        </property>
-        <layout class="QHBoxLayout" name="horizontalLayout_4">
-         <item>
-          <widget class="QPushButton" name="pushButton_3">
-           <property name="text">
-            <string>Add preset</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QPushButton" name="SaveFingersButton">
-           <property name="text">
-            <string>Save Fingers</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QPushButton" name="LoadFingerButton">
-           <property name="text">
-            <string>Load</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QPushButton" name="ResetFingerInputs">
-           <property name="text">
-            <string>Reset</string>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </widget>
-      </widget>
-      <widget class="QPushButton" name="pushButton">
-       <property name="geometry">
-        <rect>
-         <x>690</x>
-         <y>30</y>
-         <width>121</width>
-         <height>27</height>
-        </rect>
-       </property>
-       <property name="text">
-        <string>Actual Position</string>
-       </property>
-      </widget>
-      <widget class="Line" name="line_2">
+      <property name="frameShadow">
+       <enum>QFrame::Raised</enum>
+      </property>
+      <widget class="QWidget" name="gridLayoutWidget_6">
        <property name="geometry">
         <rect>
          <x>0</x>
          <y>60</y>
-         <width>850</width>
-         <height>10</height>
+         <width>431</width>
+         <height>231</height>
         </rect>
        </property>
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
+       <layout class="QGridLayout" name="presetHandPositionsLayout_2">
+        <property name="spacing">
+         <number>20</number>
+        </property>
+        <item row="1" column="1">
+         <widget class="QWidget" name="widget_5" native="true">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>60</width>
+            <height>60</height>
+           </size>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">image: url(:/imagenes/img/handleGrasp.png);</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="2" alignment="Qt::AlignHCenter">
+         <widget class="QPushButton" name="playDrawerPosition_2">
+          <property name="maximumSize">
+           <size>
+            <width>60</width>
+            <height>16777215</height>
+           </size>
+          </property>
+          <property name="text">
+           <string>Play</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="2" alignment="Qt::AlignHCenter">
+         <widget class="QPushButton" name="playPointPosition_233">
+          <property name="maximumSize">
+           <size>
+            <width>60</width>
+            <height>16777215</height>
+           </size>
+          </property>
+          <property name="text">
+           <string>Play</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="1">
+         <widget class="QWidget" name="widget_6" native="true">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>60</width>
+            <height>60</height>
+           </size>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">image: url(:/imagenes/img/point.png);</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="2" alignment="Qt::AlignHCenter">
+         <widget class="QPushButton" name="playGraspPosition_2">
+          <property name="maximumSize">
+           <size>
+            <width>60</width>
+            <height>16777215</height>
+           </size>
+          </property>
+          <property name="text">
+           <string>Play</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="0">
+         <widget class="QLabel" name="label_29">
+          <property name="font">
+           <font>
+            <weight>75</weight>
+            <bold>true</bold>
+           </font>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">background-color: rgb(51, 51, 51);
+color: rgb(247, 247, 246);
+</string>
+          </property>
+          <property name="text">
+           <string>POINT</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="0">
+         <widget class="QLabel" name="label_30">
+          <property name="font">
+           <font>
+            <weight>75</weight>
+            <bold>true</bold>
+           </font>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">background-color: rgb(51, 51, 51);
+color: rgb(247, 247, 246);
+</string>
+          </property>
+          <property name="text">
+           <string>DRAWER
+HANDLE</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="0">
+         <widget class="QLabel" name="label_31">
+          <property name="font">
+           <font>
+            <weight>75</weight>
+            <bold>true</bold>
+           </font>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">background-color: rgb(51, 51, 51);
+color: rgb(247, 247, 246);
+</string>
+          </property>
+          <property name="text">
+           <string>GRASP
+OBJECT</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="1">
+         <widget class="QWidget" name="widget_7" native="true">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>60</width>
+            <height>60</height>
+           </size>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">image: url(:/imagenes/img/graspObject.png);</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QLabel" name="label_32">
+       <property name="geometry">
+        <rect>
+         <x>0</x>
+         <y>0</y>
+         <width>431</width>
+         <height>31</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <weight>75</weight>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">background-color: rgb(51, 51, 51);
+color: rgb(247, 247, 246);
+</string>
+       </property>
+       <property name="text">
+        <string>PRESET HAND POSITIONS</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
        </property>
       </widget>
      </widget>
-     <widget class="QPushButton" name="SendCommandButton">
+     <widget class="QLabel" name="label_24">
       <property name="geometry">
        <rect>
-        <x>670</x>
-        <y>550</y>
-        <width>151</width>
-        <height>27</height>
+        <x>530</x>
+        <y>40</y>
+        <width>261</width>
+        <height>21</height>
        </rect>
       </property>
+      <property name="font">
+       <font>
+        <weight>75</weight>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">background-color: rgb(51, 51, 51);
+color: rgb(247, 247, 246);
+</string>
+      </property>
       <property name="text">
-       <string>Send Command</string>
+       <string>PRESET HAND POSITIONS</string>
       </property>
-      <property name="checkable">
-       <bool>false</bool>
-      </property>
-      <property name="checked">
-       <bool>false</bool>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
       </property>
      </widget>
-     <widget class="QToolButton" name="saveToolButton">
+     <widget class="QWidget" name="formLayoutWidget">
       <property name="geometry">
        <rect>
-        <x>736</x>
-        <y>575</y>
-        <width>80</width>
-        <height>38</height>
+        <x>50</x>
+        <y>100</y>
+        <width>351</width>
+        <height>91</height>
        </rect>
       </property>
-      <property name="minimumSize">
-       <size>
-        <width>80</width>
-        <height>0</height>
-       </size>
-      </property>
-      <property name="maximumSize">
-       <size>
-        <width>36</width>
-        <height>16777215</height>
-       </size>
-      </property>
-      <property name="text">
-       <string>...</string>
-      </property>
-      <property name="icon">
-       <iconset resource="resources.qrc">
-        <normaloff>:/imagenes/img/save.png</normaloff>:/imagenes/img/save.png</iconset>
-      </property>
-      <property name="iconSize">
-       <size>
-        <width>30</width>
-        <height>30</height>
-       </size>
-      </property>
-      <property name="popupMode">
-       <enum>QToolButton::InstantPopup</enum>
-      </property>
-      <property name="autoRaise">
-       <bool>true</bool>
-      </property>
-      <property name="arrowType">
-       <enum>Qt::NoArrow</enum>
-      </property>
+      <layout class="QFormLayout" name="formLayout">
+       <item row="0" column="0" colspan="2">
+        <widget class="QLabel" name="label_18">
+         <property name="font">
+          <font>
+           <weight>75</weight>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">background-color: rgb(51, 51, 51);
+color: rgb(247, 247, 246);
+</string>
+         </property>
+         <property name="text">
+          <string>PRESET HAND POSITIONS</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QPushButton" name="pushButton">
+         <property name="text">
+          <string>Play</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1">
+        <widget class="QLabel" name="label_21">
+         <property name="font">
+          <font>
+           <weight>75</weight>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">background-color: rgb(51, 51, 51);
+color: rgb(247, 247, 246);
+</string>
+         </property>
+         <property name="text">
+          <string>POINT</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="0">
+        <widget class="QPushButton" name="pushButton_3">
+         <property name="text">
+          <string>Play</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="1">
+        <widget class="QLabel" name="label_23">
+         <property name="font">
+          <font>
+           <weight>75</weight>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">background-color: rgb(51, 51, 51);
+color: rgb(247, 247, 246);
+</string>
+         </property>
+         <property name="text">
+          <string>GRASP</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+        </widget>
+       </item>
+      </layout>
      </widget>
-     <widget class="QLabel" name="label_12">
+     <widget class="QWidget" name="gridLayoutWidget_2">
       <property name="geometry">
        <rect>
-        <x>760</x>
-        <y>620</y>
-        <width>32</width>
-        <height>23</height>
+        <x>530</x>
+        <y>70</y>
+        <width>255</width>
+        <height>251</height>
        </rect>
       </property>
-      <property name="text">
-       <string>Save</string>
-      </property>
+      <layout class="QGridLayout" name="presetHandPositionsLayout">
+       <property name="spacing">
+        <number>20</number>
+       </property>
+       <item row="1" column="1">
+        <widget class="QWidget" name="widget_2" native="true">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>60</width>
+           <height>60</height>
+          </size>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">image: url(:/imagenes/img/handleGrasp.png);</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="2" alignment="Qt::AlignHCenter">
+        <widget class="QPushButton" name="playDrawerPosition333">
+         <property name="maximumSize">
+          <size>
+           <width>60</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>Play</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="2" alignment="Qt::AlignHCenter">
+        <widget class="QPushButton" name="playPointPosition333">
+         <property name="maximumSize">
+          <size>
+           <width>60</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>Play</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="1">
+        <widget class="QWidget" name="widget_4" native="true">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>60</width>
+           <height>60</height>
+          </size>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">image: url(:/imagenes/img/point.png);</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="2" alignment="Qt::AlignHCenter">
+        <widget class="QPushButton" name="playGraspPosition3333">
+         <property name="maximumSize">
+          <size>
+           <width>60</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>Play</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="1">
+        <widget class="QWidget" name="widget_3" native="true">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>60</width>
+           <height>60</height>
+          </size>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">image: url(:/imagenes/img/graspObject.png);</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="0">
+        <widget class="QLabel" name="label_25">
+         <property name="font">
+          <font>
+           <weight>75</weight>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">background-color: rgb(51, 51, 51);
+color: rgb(247, 247, 246);
+</string>
+         </property>
+         <property name="text">
+          <string>POINT</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QLabel" name="label_26">
+         <property name="font">
+          <font>
+           <weight>75</weight>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">background-color: rgb(51, 51, 51);
+color: rgb(247, 247, 246);
+</string>
+         </property>
+         <property name="text">
+          <string>DRAWER
+HANDLE</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="0">
+        <widget class="QLabel" name="label_27">
+         <property name="font">
+          <font>
+           <weight>75</weight>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">background-color: rgb(51, 51, 51);
+color: rgb(247, 247, 246);
+</string>
+         </property>
+         <property name="text">
+          <string>GRASP
+OBJECT</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+        </widget>
+       </item>
+      </layout>
      </widget>
     </widget>
    </widget>
@@ -1192,7 +1745,7 @@
     <property name="geometry">
      <rect>
       <x>20</x>
-      <y>87</y>
+      <y>50</y>
       <width>860</width>
       <height>10</height>
      </rect>
@@ -1207,7 +1760,7 @@
       <x>20</x>
       <y>0</y>
       <width>861</width>
-      <height>81</height>
+      <height>51</height>
      </rect>
     </property>
     <property name="frameShape">
@@ -1216,84 +1769,6 @@
     <property name="frameShadow">
      <enum>QFrame::Raised</enum>
     </property>
-    <widget class="QWidget" name="gridLayoutWidget_5">
-     <property name="geometry">
-      <rect>
-       <x>680</x>
-       <y>3</y>
-       <width>161</width>
-       <height>71</height>
-      </rect>
-     </property>
-     <layout class="QGridLayout" name="gridLayout_5">
-      <item row="0" column="0">
-       <widget class="QPushButton" name="homeButton">
-        <property name="maximumSize">
-         <size>
-          <width>80</width>
-          <height>16777215</height>
-         </size>
-        </property>
-        <property name="text">
-         <string/>
-        </property>
-        <property name="icon">
-         <iconset resource="resources.qrc">
-          <normaloff>:/imagenes/img/homeIcon.png</normaloff>:/imagenes/img/homeIcon.png</iconset>
-        </property>
-        <property name="iconSize">
-         <size>
-          <width>30</width>
-          <height>30</height>
-         </size>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="1" alignment="Qt::AlignHCenter">
-       <widget class="QPushButton" name="record_Button">
-        <property name="maximumSize">
-         <size>
-          <width>80</width>
-          <height>16777215</height>
-         </size>
-        </property>
-        <property name="text">
-         <string/>
-        </property>
-        <property name="icon">
-         <iconset resource="resources.qrc">
-          <normaloff>:/imagenes/img/record.png</normaloff>:/imagenes/img/record.png</iconset>
-        </property>
-        <property name="iconSize">
-         <size>
-          <width>30</width>
-          <height>30</height>
-         </size>
-        </property>
-        <property name="checkable">
-         <bool>true</bool>
-        </property>
-        <property name="checked">
-         <bool>false</bool>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="1" alignment="Qt::AlignHCenter">
-       <widget class="QLabel" name="label_record_stop">
-        <property name="text">
-         <string>Record</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="0" alignment="Qt::AlignHCenter">
-       <widget class="QLabel" name="label_9">
-        <property name="text">
-         <string>Move Home</string>
-        </property>
-       </widget>
-      </item>
-     </layout>
-    </widget>
     <widget class="QWidget" name="horizontalLayoutWidget_2">
      <property name="geometry">
       <rect>
@@ -1345,30 +1820,6 @@
       </item>
      </layout>
     </widget>
-    <widget class="QLabel" name="recordingLabel">
-     <property name="geometry">
-      <rect>
-       <x>420</x>
-       <y>20</y>
-       <width>131</width>
-       <height>31</height>
-      </rect>
-     </property>
-     <property name="font">
-      <font>
-       <pointsize>20</pointsize>
-      </font>
-     </property>
-     <property name="styleSheet">
-      <string notr="true">color: rgb(237, 31, 36);</string>
-     </property>
-     <property name="text">
-      <string>Recording!</string>
-     </property>
-     <property name="textFormat">
-      <enum>Qt::RichText</enum>
-     </property>
-    </widget>
    </widget>
   </widget>
   <widget class="QMenuBar" name="menuBar">
@@ -1376,7 +1827,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>887</width>
+     <width>885</width>
      <height>25</height>
     </rect>
    </property>

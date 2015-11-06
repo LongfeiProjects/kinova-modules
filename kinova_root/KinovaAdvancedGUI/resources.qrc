@@ -18,6 +18,10 @@
         <file>img/stop.png</file>
         <file>img/save.png</file>
         <file>img/play.png</file>
+        <file>img/point.png</file>
+        <file>img/handleGrasp.png</file>
+        <file>img/graspObject.png</file>
+        <file>img/undo.png</file>
     </qresource>
     <qresource prefix="/database">
         <file>database/trajectoryProg.db</file>
