@@ -197,7 +197,7 @@ void Kinovalib::moveSingleStep(int direction, float speed){
 
         switch (direction) {
         case Right:
-            point.Position.CartesianPosition.X = speed;
+            point.Position.CartesianPosition.X = -speed;
             point.Position.CartesianPosition.Y = 0;
             point.Position.CartesianPosition.Z = 0;
             point.Position.CartesianPosition.ThetaX = 0;
@@ -213,7 +213,7 @@ void Kinovalib::moveSingleStep(int direction, float speed){
             point.Position.CartesianPosition.ThetaZ = 0;
             break;
         case Left:
-            point.Position.CartesianPosition.X = -speed;
+            point.Position.CartesianPosition.X = speed;
             point.Position.CartesianPosition.Y = 0;
             point.Position.CartesianPosition.Z = 0;
             point.Position.CartesianPosition.ThetaX = 0;
@@ -230,7 +230,7 @@ void Kinovalib::moveSingleStep(int direction, float speed){
             break;
         case Push:
             point.Position.CartesianPosition.X = 0;
-            point.Position.CartesianPosition.Y = speed;
+            point.Position.CartesianPosition.Y = -speed;
             point.Position.CartesianPosition.Z = 0;
             point.Position.CartesianPosition.ThetaX = 0;
             point.Position.CartesianPosition.ThetaY = 0;
@@ -238,7 +238,7 @@ void Kinovalib::moveSingleStep(int direction, float speed){
             break;
         case Pull:
             point.Position.CartesianPosition.X = 0;
-            point.Position.CartesianPosition.Y = -speed;
+            point.Position.CartesianPosition.Y = speed;
             point.Position.CartesianPosition.Z = 0;
             point.Position.CartesianPosition.ThetaX = 0;
             point.Position.CartesianPosition.ThetaY = 0;

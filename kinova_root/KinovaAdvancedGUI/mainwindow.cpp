@@ -238,9 +238,10 @@ void MainWindow::loopSendVelocityCommad(int direction){
     if(!this->stopedTimers[direction-1]){ //we have to use a bool to know I we stopped the timer  because the timer->stop() is not immediate
        cout << "en el loop --> enviar comandos de velocidad: "  << this->fixedStepsCounter[direction-1] <<endl;
        if(direction==Close || direction==Open){
-           speed=30; //Fixed speed, the unit velocity of the fingers is not clear at all!
+           this->klib->moveSingleStep(direction,30); //Fixed speed, the unit velocity of the fingers is not clear at all!
+       }else{
+            this->klib->moveSingleStep(direction,this->speed);
        }
-       this->klib->moveSingleStep(direction,this->speed);//put the speed from the gui
     }
 }
 
@@ -600,17 +601,29 @@ void MainWindow::setHandPull(){
     this->point.Position.Fingers.Finger1 = 23;
     this->point.Position.Fingers.Finger2 = 19;
     this->point.Position.Fingers.Finger3 = 29;
+    this->point.Position.CartesianPosition.ThetaX = 1.5;
+    this->point.Position.CartesianPosition.ThetaY = -0.1;
+    this->point.Position.CartesianPosition.ThetaZ = -1.8;
+
 }
 
 void MainWindow::setHandPoint(){
     this->setActualPosition();
-    this->point.Position.Fingers.Finger1 = 57;
-    this->point.Position.Fingers.Finger2 = 50;
-    this->point.Position.Fingers.Finger3 = 59;
+
+    this->point.Position.CartesianPosition.ThetaX=1.5;
+    this->point.Position.CartesianPosition.ThetaY=-0.1;
+    this->point.Position.CartesianPosition.ThetaZ=0;
+    this->point.Position.Fingers.Finger1 = 47;
+    this->point.Position.Fingers.Finger2 = 43;
+    this->point.Position.Fingers.Finger3 = 54;
 }
 
 void MainWindow::setHandGrasp(){
     this->setActualPosition();
+    this->point.Position.CartesianPosition.ThetaX = 2.9;
+    this->point.Position.CartesianPosition.ThetaY = 0;
+    this->point.Position.CartesianPosition.ThetaZ = -1.5;
+
     this->point.Position.Fingers.Finger1 = 27;
     this->point.Position.Fingers.Finger2 = 25;
     this->point.Position.Fingers.Finger3 = 25;
@@ -625,13 +638,13 @@ void MainWindow::on_playPointPosition_clicked()
 void MainWindow::on_playPullPosition_clicked()
 {
     this->setHandPull();
-    klib->sendCommand(CARTESIAN_POSITION,false,true,this->point);
+    klib->sendCommand(CARTESIAN_POSITION,true,true,this->point);
 }
 
 void MainWindow::on_playGraspPosition_clicked()
 {
     this->setHandGrasp();
-    klib->sendCommand(CARTESIAN_POSITION,false,true,this->point);
+    klib->sendCommand(CARTESIAN_POSITION,true,true,this->point);
 }
 
 
