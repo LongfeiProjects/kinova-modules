@@ -3,14 +3,13 @@
 
 int main()
 {
-
-
 	// status reader
 	Jaco* mdl = new Jaco();
 	kinova_status_openapi * st= new kinova_status_openapi(mdl);
+	//kinova_status * st1 = new kinova_status(mdl);
 
 	// controller
-	const double Pid_coef[] = {1,0,0}; // deg
+	const double Pid_coef[] = {5,0,0}; // deg
 	std::vector<double> Pid(Pid_coef,End(Pid_coef));
 	const char * _namefiles[] = {"cart_pos.txt","joint_vel.txt"};
 	std::vector<std::string> namefile (_namefiles,End(_namefiles));
@@ -20,6 +19,8 @@ int main()
 	bool limitation = 0;
 	Jaco* md = new Jaco();
 	kinova_controller_openapi * ct = new kinova_controller_openapi(namefile,meas_val,Pid,controltype,limitation,md,st->arm); // very rough patch because i can have only one API handle
+	//kinova_controller * ct = new kinova_controller(namefile,meas_val,Pid,controltype,limitation,md,st1->APIhandle);
+
 
 	// checking module
 	// define bounding box

@@ -73,6 +73,7 @@ void kinova_status_openapi::Stop()
 void kinova_status_openapi::Reading()
 {
 	this->tStart = clock();
+	boost::chrono::milliseconds reading_time;
 	while(this->running.load(boost::memory_order_acquire))
 	{
 
@@ -92,7 +93,7 @@ void kinova_status_openapi::Reading()
 		//cart_pos = this->arm->get_cart_pos();
 
 
-		this->ReadTimeStamp();
+		//this->ReadTimeStamp();
 		this->ReadJoints(position,velocity,force);
 		this->ReadCartesian(position);
 		//this->ReadCurrents(cur);
@@ -101,8 +102,13 @@ void kinova_status_openapi::Reading()
 			std::cout<<"first write"<<std::endl;
 			first_write.store(true,boost::memory_order_release);
 		}
-		std::cout << "time spent Reading: " << boost::chrono::duration_cast<boost::chrono::milliseconds>(boost::chrono::high_resolution_clock::now() - global_begin).count() << " ms\n";
-
+		reading_time = boost::chrono::duration_cast<boost::chrono::milliseconds>(boost::chrono::high_resolution_clock::now() - global_begin);
+		std::cout << "time spent Reading: " << reading_time.count() << " ms\n";
+		int test_time = boost::chrono::round<boost::chrono::milliseconds>(reading_time).count();
+		//if(test_time < 10)
+		//{
+			//usleep(1000*(()));
+		//}
 	}
 	std::cout<<"im out of Reading thread"<<std::endl;
 }
@@ -138,6 +144,8 @@ void kinova_status_openapi::Cleaning()
 			this->ds_mot_amp.pop_front();
 			this->ds_robot_t.pop_front();
 		}
+
+		usleep(1000*((900)));
 	}
 	std::cout<<"im out of Cleaning thread"<<std::endl;
 

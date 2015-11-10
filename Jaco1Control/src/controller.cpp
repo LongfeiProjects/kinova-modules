@@ -10,15 +10,15 @@ void controller::InitCartesianKinematicController(std::vector<State> initial_sta
 {
 	// initialize the structure of desired vaule
 
-	 desired_values.push_back(initial_state[0]);
-     desired_values.push_back(initial_state[1]);
+	 //desired_values.push_back(initial_state[0]);
+     //desired_values.push_back(initial_state[1]);
 
 }
 State controller::CartesianKinematicController(std::vector<State> current_state)
 {
 
-	desired_values[0] = ff[0][index];
-	desired_values[1] = ff[1][index];
+	//desired_values[0] = ff[0][index];
+	//desired_values[1] = ff[1][index];
 	State result;
 	double lambda = 0.001; // bring outside
 
@@ -27,19 +27,13 @@ State controller::CartesianKinematicController(std::vector<State> current_state)
 	arma::mat I=arma::eye(J.n_rows,J.n_rows);
 	arma::mat J_brack = arma::inv(J*J.t() + I*lambda);
 	arma::mat J_damp = J.t()*(J_brack);
-	result = J_damp*(P*(desired_values[0] - current_state[1]));// + desired_values[1]);
-	std::cout << "desired_values[0] = " << desired_values[0] << std::endl;
-	std::cout << "current_state[1][0] = " << current_state[1][0] << std::endl;
-	std::cout << "current_state[1][1] = " << current_state[1][1] << std::endl;
-	std::cout << "current_state[1][2] = " << current_state[1][2] << std::endl;
-	std::cout << "index = " << index<< std::endl;
+	result = J_damp*(P*(ff[0][index] - current_state[1]));// + desired_values[1]);
 	result[0] = -result[0];
 	//arma::mat J_sub_inv = arma::pinv(J_sub);
 	//result = J_sub_inv*(P*(desired_values[0] - cart) + desired_values[1]);
 
-	result = desired_values[1];
+	result = result + ff[1][index];
 
-	result = result*(1/DEG);
 	std::cout << "result[0] = " << result[0]<< std::endl;
 	std::cout << "result[1] = " << result[1]<< std::endl;
 	std::cout << "result[2] = " << result[2]<< std::endl;

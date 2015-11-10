@@ -42,6 +42,7 @@ void robot::Cheking()
 				}
 
 			}
+			usleep(1000*((900)));
 		}
 		std::cout<< "im out the the Cheking thread"<<std::endl;
 	}

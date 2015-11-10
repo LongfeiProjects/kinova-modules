@@ -1,6 +1,6 @@
 /*
  * robot.hpp
- *
+ *l
  *  Created on: May 31, 2015
  *      Author: vale
  */
@@ -42,42 +42,33 @@ class robot
 		inline void Exec()
 		{
 		    boost::chrono::high_resolution_clock::time_point time_reference;
-		    boost::chrono::milliseconds cur_time = boost::chrono::duration_cast<boost::chrono::milliseconds>(boost::chrono::high_resolution_clock::now() - time_reference);
-
+		    boost::chrono::milliseconds cur_time,control_time;
+		    boost::chrono::high_resolution_clock::time_point begin;
 			try
 			{
 				this->StartAllThread();
 				contr->index = -1; // in this way i define the inizialization of the controller contr->index = -1
+				bool read_data = false;  // debug true
 				while(!this->stop.load(boost::memory_order_acquire) )
 				{
 					std::vector<State> cur_val;
-					bool read_data = false;
-					//DEBUG
-					//std::cout<<"before GetLastValue "<<std::endl;
-					//std::cout<<"contr->measured_value.size() "<<contr->measured_value.size()<<std::endl;
-					//----
+					begin = boost::chrono::high_resolution_clock::now();
 					read_data = st->GetLastValue(cur_val,contr->measured_value);
-					//DEBUG
-					/*if(read_data)
-					{
-						std::cout<< "cur_val"<<std::endl;
-						for(unsigned int ik =0;ik<cur_val[0].size();ik++)
-								std::cout<<cur_val[0][ik]<<" ";
-						std::cout<<std::endl;
-					}*/
-					//std::cout<<"read_data after GetLastValue= "<<read_data<<std::endl;
-					//---
-
 					// control block
-					if(read_data)
+					//debug
+
+					//
+					if(read_data) // debug
 					{
 						if(contr->index == -1)
 						{
+							time_reference = boost::chrono::high_resolution_clock::now();
 							//DEBUG
 							std::cout<<"before move2home"<<std::endl;
 							//---
 							//contr->Move2Home();
-							std::vector<State> start = st->FirstRead(contr->measured_value);
+							std::vector<State> start;
+							start = st->FirstRead(contr->measured_value);
 							//DEBUG
 							std::cout<<"after move2home"<<std::endl;
 							//---
@@ -85,34 +76,31 @@ class robot
 							// inizialization of current value after after move2home
 							cur_val = start;
 							//DEBUG
-							std::cout<< "starting joint position"<<std::endl;
+							/*std::cout<< "starting joint position"<<std::endl;
 							for(unsigned int ik =0;ik<start[0].size();ik++)
 									std::cout<<start[0][ik]<<" ";
 							std::cout<<std::endl;
 							std::cout<< "starting cartesian position"<<std::endl;
 							for(unsigned int ik =0;ik<start[1].size();ik++)
 									std::cout<<start[1][ik]<<" ";
-							std::cout<<std::endl;
+							std::cout<<std::endl;*/
 							//---
-							contr->index = 0;  //DEBUG i inibhit control  instead contr->index = 0
-							time_reference = boost::chrono::high_resolution_clock::now();
+							contr->index = 0;
 						}
 						else if(contr->index >= 0)
 						{
-							//DEBUG
-							//std::cout<<"im in exec controller"<<std::endl;
-							//---
 							bool executed_control = contr->ExecController(cur_val);
+							control_time = boost::chrono::duration_cast<boost::chrono::milliseconds>(boost::chrono::high_resolution_clock::now() - begin);
+							std::cout << "time spent in main cycle: " << control_time.count()  << " ms\n";
+						    int test_time = boost::chrono::round<boost::chrono::milliseconds>(control_time).count();
+							if(test_time < 10)
+							{
+								usleep(1000*((3)));
+							}
+
+
 							cur_time = boost::chrono::duration_cast<boost::chrono::milliseconds>(boost::chrono::high_resolution_clock::now() - time_reference);
 							contr->index = boost::chrono::round<boost::chrono::milliseconds>(cur_time).count();
-							// using this if statement i will keep the last value when i will reach the end of this->ff vector
-							 //if(contr->index<(int)contr->ff[0].size()-1 && executed_control)
-							 //{
-							 //	 contr->index++;
-								 //DEBUG
-								 //std::cout<<"index = "<< contr->index<<std::endl;
-								 //---
-							 //}
 						}
 					}
 				}

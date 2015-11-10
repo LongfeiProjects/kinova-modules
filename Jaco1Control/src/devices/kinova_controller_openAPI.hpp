@@ -10,7 +10,7 @@
 
 #include "../controller.hpp"
 #include <dlfcn.h>
-#include <kindrv.h>
+#include "../Interface/Kinova_Driver/kindrv.h"
 
 class kinova_controller_openapi : public controller
 {

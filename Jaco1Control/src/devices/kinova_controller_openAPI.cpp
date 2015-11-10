@@ -32,14 +32,6 @@ kinova_controller_openapi::kinova_controller_openapi(std::vector<std::string> na
 										  std::vector<double> Pid,int _controltype,bool _limitation,model* mdl,KinDrv::JacoArm *arm_)
 {
 	arm = arm_;
-
-	{
-		/*MySetCartesianControl = (int (*)()) dlsym(APIhandle,"SetCartesianControl");
-		MySendBasicTrajectory = (int (*)(TrajectoryPoint)) dlsym(APIhandle,"SendBasicTrajectory");
-		MySendAdvanceTrajectory = (int (*)(TrajectoryPoint)) dlsym(APIhandle,"SendAdvanceTrajectory");
-		MyMoveHome = (int (*)()) dlsym(APIhandle,"MoveHome");*/
-	}
-
 	this->P = Pid[0];
 	this->I = Pid[1];
 	this->D = Pid[2];
@@ -112,34 +104,34 @@ KinDrv::jaco_basic_traj_point_t  kinova_controller_openapi::ConvertControl(State
 {
 
 	KinDrv::jaco_basic_traj_point_t pointToSend;
-	value = value*(1/DEG);
-	pointToSend.pos_type = controltype;
+	pointToSend.pos_type = KinDrv::SPEED_ANGULAR;
+	pointToSend.time_delay = 0;
+	pointToSend.hand_mode = KinDrv::NO_MOVEMENT;
 	if(controltype==KinDrv::POSITION_ANGULAR || controltype==KinDrv::SPEED_ANGULAR)
 	{
-
-		//DEBUG
-		std::cout<< "angular control"<<std::endl;
-		//
+		value=value/DEG;
 		pointToSend.target.joints[0] = (float)value[0];
 		pointToSend.target.joints[1] = (float)value[1];
 		pointToSend.target.joints[2] = (float)value[2];
 		pointToSend.target.joints[3] = (float)value[3];
 		pointToSend.target.joints[4] = (float)value[4];
 		pointToSend.target.joints[5] = (float)value[5];
+		pointToSend.target.finger_position[0] = (float)0;
+	    pointToSend.target.finger_position[1] = (float)0;
+		pointToSend.target.finger_position[2] = (float)0;
 	}
 	else
 	{
-		//DEBUG
-		std::cout<< "cartesian control"<<std::endl;
-		//
 		pointToSend.target.position[0] = (float)value[0];
 		pointToSend.target.position[1] = (float)value[1];
 		pointToSend.target.position[2] = (float)value[2];
-
 		//We set the orientation part of the position (unit is RAD)
 		pointToSend.target.rotation[0]= (float)value[3];
 		pointToSend.target.rotation[1] = (float)value[4];
 		pointToSend.target.rotation[2] = (float)value[5];
+		pointToSend.target.finger_position[0] = (float)0;
+		pointToSend.target.finger_position[1] = (float)0;
+		pointToSend.target.finger_position[2] = (float)0;
 	}
 	return pointToSend;
 }

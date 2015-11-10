@@ -13,7 +13,7 @@
 #include <dlfcn.h>
 #include "../visualization.hpp"
 
-#include <kindrv.h>
+#include "../Interface/Kinova_Driver/kindrv.h"
 
 
 //#define SLEEP_INTERVAL 10000    // ms    // with this value i control the sleep interval beetween
