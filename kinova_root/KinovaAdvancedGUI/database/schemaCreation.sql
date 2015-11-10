@@ -9,9 +9,18 @@ create table CartesianInfo(
    pos_x real not null,
    pos_y real not null,
    pos_z real not null,
-   vel_x real not null,
-   vel_y real not null,
-   vel_z real not null);
+   theta_x real not null,
+   theta_y real not null,
+   theta_z real not null,
+   finger1 real not null,
+   finger2 real not null,
+   finger3 real not null,	
+   angvel_j1 real not null,
+   angvel_j2 real not null,
+   angvel_j3 real not null,
+   angvel_j4 real not null,
+   angvel_j5 real not null,
+   angvel_j6 real not null);
 
 create table trajectory_cartesianInfo(
 trajectory_id int not null,

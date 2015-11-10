@@ -34,7 +34,8 @@ void Dialog::setSqlManager(SqlManager* sqlManager){
     this->sqlManager = sqlManager;
 }
 
-Trajectory Dialog::execAndReturnSavedTrajectory(){
+Trajectory Dialog::execAndReturnSavedTrajectory(vector<RecordedCartesianInfo> sampledTrajectoryInfo){
+    this->savedTrajectory.trajectoryInfo = sampledTrajectoryInfo;
     this->exec();
     if(this->success){
          return this->savedTrajectory;
@@ -44,16 +45,6 @@ Trajectory Dialog::execAndReturnSavedTrajectory(){
         return t;
     }
 }
-
-
-
-
-
-
-
-
-
-
 
 
 /*

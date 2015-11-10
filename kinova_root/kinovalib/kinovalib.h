@@ -22,7 +22,8 @@ private:
     int (*MyStartControlAPI)();
     int (*MySendAdvanceTrajectory)(TrajectoryPoint command);
     int (*MySetCartesianControl)();
-
+    int (*MyGetActualTrajectoryInfo)(TrajectoryPoint &point);
+    int (*MyGetAngularVelocity)(AngularPosition &);
     /* Class atributes*/
     bool isKinovaInit;
     bool initResult;
@@ -55,6 +56,8 @@ public:
     int getActualCartesianPosition(CartesianPosition &position);
     void moveSingleStep(int direction, float speed);
     void sendCartesianVelocitySingleStep(TrajectoryPoint pointToSend);
+    void getTrajectoryInfo(TrajectoryPoint &point);
+    int getAngularVelocity(AngularPosition &angPos);
     HandPosition *getHandPresetPositions(int &numPresetPos);
 };
 

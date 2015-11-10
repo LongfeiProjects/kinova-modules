@@ -38,7 +38,7 @@ void MainWindow::initGUI(){
     this->fingerCommand=true;
 
     this->kinova_initialized = false;
-    this->isRecordedTrajecory=false;
+    this->isRecordingTrajecory=false;
 
     this->ui->speedComboBox->addItem(tr("precision"), PRECISION_SPEED);
     this->ui->speedComboBox->addItem(tr("low"), LOW_SPEED);
@@ -241,6 +241,34 @@ void MainWindow::loopSendVelocityCommad(int direction){
            this->klib->moveSingleStep(direction,30); //Fixed speed, the unit velocity of the fingers is not clear at all!
        }else{
             this->klib->moveSingleStep(direction,this->speed);
+       }
+       //FIXME the code below should be ideally in other thread in charge of reading the status of the arm.
+       //As the official sdf is not thread safe we cannot do it. If someday we start using a thread safe driver then
+       //we can fix this issue.
+       if(this->isRecordingTrajecory){
+           RecordedCartesianInfo cartesianInfo;
+           TrajectoryPoint point;
+           this->klib->getTrajectoryInfo(point);
+           cartesianInfo.pos_x = point.Position.CartesianPosition.X;
+           cartesianInfo.pos_y = point.Position.CartesianPosition.Y;
+           cartesianInfo.pos_z = point.Position.CartesianPosition.Z;
+           cartesianInfo.theta_x = point.Position.CartesianPosition.ThetaX;
+           cartesianInfo.theta_y = point.Position.CartesianPosition.ThetaY;
+           cartesianInfo.theta_z = point.Position.CartesianPosition.ThetaZ;
+
+           cartesianInfo.finger1 = point.Position.Fingers.Finger1;
+           cartesianInfo.finger2 = point.Position.Fingers.Finger2;
+           cartesianInfo.finger3 = point.Position.Fingers.Finger3;
+
+           AngularPosition angPos;
+           this->klib->getAngularVelocity(angPos);
+           cartesianInfo.angvel_j1 = angPos.Actuators.Actuator1;
+           cartesianInfo.angvel_j2 = angPos.Actuators.Actuator2;
+           cartesianInfo.angvel_j3 = angPos.Actuators.Actuator3;
+           cartesianInfo.angvel_j4 = angPos.Actuators.Actuator4;
+           cartesianInfo.angvel_j5 = angPos.Actuators.Actuator5;
+           cartesianInfo.angvel_j6 = angPos.Actuators.Actuator6;
+           this->sampledTrajectoryInfo.push_back(cartesianInfo);
        }
     }
 }
@@ -451,7 +479,8 @@ void MainWindow::on_pushButton_2_clicked()
     cout << "Initilizating kinova" << endl;
     int res = this->klib->kinovaInit();
     if(res == SUCCESS){
-        this->ui->status_icon->setStyleSheet("image: url(:/imagenes/img/ok_icon.png);");
+   //     this->ui->status_icon->setStyleSheet("image: url(:/imagenes/img/ok_icon.png);");
+        this->ui->status_icon->setVisible(false);
         this->ui->status_label->setText(QString(tr("Success!")));
         this->kinova_initialized = true;
     }else{
@@ -507,9 +536,10 @@ void MainWindow::addRecordedTrajectory(Trajectory t){
 void MainWindow::showSaveTrajectoryPanel(){
    Dialog* dialog2 = new Dialog();
    dialog2->init(this->sqlManager);
-   Trajectory saved =  dialog2->execAndReturnSavedTrajectory();
+   Trajectory saved =  dialog2->execAndReturnSavedTrajectory(this->sampledTrajectoryInfo);
 
    this->addRecordedTrajectory(saved);
+   this->sampledTrajectoryInfo.clear();
    delete dialog2;
 }
 
@@ -534,6 +564,7 @@ void MainWindow::on_record_Button_toggled(bool checked)
         this->ui->label_record_stop->setText(QString(tr("Stop")));
         this->ui->record_Button->setIcon(QIcon(":/imagenes/img/stop.png"));
         this->ui->recordingLabel->setVisible(true);
+        this->isRecordingTrajecory=true;
     }else{
         this->ui->label_record_stop->setText(QString(tr("Record")));
         this->ui->record_Button->setIcon(QIcon(":/imagenes/img/record.png"));
@@ -544,6 +575,7 @@ void MainWindow::on_record_Button_toggled(bool checked)
             showSaveTrajectoryPanel();
         }
         this->ui->recordingLabel->setVisible(false);
+        this->isRecordingTrajecory=false;
     }
 
 

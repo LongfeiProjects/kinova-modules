@@ -30,6 +30,8 @@ int Kinovalib::kinovaInit(){
     this->MyStartControlAPI = (int (*)()) dlsym(commandLayer_handle,"StartControlAPI");
     this->MySetCartesianControl = (int (*)()) dlsym(commandLayer_handle,"SetCartesianControl");
     this->MySendAdvanceTrajectory = (int (*)(TrajectoryPoint)) dlsym(commandLayer_handle,"SendAdvanceTrajectory");
+    this->MyGetActualTrajectoryInfo = (int (*)(TrajectoryPoint &)) dlsym(commandLayer_handle,"GetActualTrajectoryInfo");
+    this->MyGetAngularVelocity = (int (*)(AngularPosition &)) dlsym(commandLayer_handle,"GetAngularVelocity");
 
     if((this->MyInitAPI == NULL) || (this->MyCloseAPI == NULL) ||
        (this->MyGetQuickStatus == NULL) || (this->MySendBasicTrajectory == NULL) ||
@@ -130,6 +132,23 @@ int Kinovalib::getActualCartesianPosition(CartesianPosition &position){
     return res;
 }
 
+int Kinovalib::getAngularVelocity(AngularPosition &angPos){
+    int res =-1;
+    initIfnotYetInitialized();
+    if(this->isKinovaInit){
+       res = (*MyGetAngularVelocity)(angPos);
+    }
+    return res;
+}
+
+void Kinovalib::getTrajectoryInfo(TrajectoryPoint &point){
+     int res =-1;
+     initIfnotYetInitialized();
+     if(this->isKinovaInit){
+        res = (*MyGetActualTrajectoryInfo)(point);
+         cout<< "GetActualTrajectoryInfo: " << res << endl;
+     }
+ }
 
 void Kinovalib::sendCartesianPosition(bool fingerCommand, bool armCommand, TrajectoryPoint pointToSend)
 {

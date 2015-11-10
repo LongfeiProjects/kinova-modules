@@ -29,7 +29,7 @@ public:
     void loadTrajectoryList();
 
     void init(SqlManager* sqlManager);
-    Trajectory execAndReturnSavedTrajectory();
+    Trajectory execAndReturnSavedTrajectory(vector<RecordedCartesianInfo> sampledTrajectoryInfo);
 private:
     Ui::Dialog *ui;
     SqlManager* sqlManager;

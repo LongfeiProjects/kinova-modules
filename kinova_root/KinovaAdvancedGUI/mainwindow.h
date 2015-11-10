@@ -66,7 +66,7 @@ private:
     int LOOP_SPEED_SEND_VELOCITY_COMMAND = 5; // time in miliseconds.
 
     bool kinova_initialized;
-    void error_kinova_not_initialized();
+
 
     HandPosition* presetPositions;
 
@@ -79,18 +79,20 @@ private:
     float    HIGH_SPEED = 1.5;
 
 
-    bool isRecordedTrajecory;
-
-    void showSaveTrajectoryPanel();
-
+    bool isRecordingTrajecory;
     vector<Trajectory> recordedTrajectories;
     vector<CartesianPosition> checkpoints;
+    vector<RecordedCartesianInfo> sampledTrajectoryInfo;
 
+    //GUI auxiliar fields
     QGridLayout* gridPlayPanel;
     QWidget* gridLayoutWidget_6;
 
     void addTrajectory(Trajectory y, int col, int row);
     void addRecordedTrajectory(Trajectory t);
+    void showSaveTrajectoryPanel();
+    void error_kinova_not_initialized();
+
 private slots:
      void clickedSlot();
     void on_homeButton_clicked();
