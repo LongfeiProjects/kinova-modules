@@ -41,31 +41,62 @@ int driverbot_contr::Move2Home()
 }
 
 
-void driverbot_contr::SendSingleCommand(State cmd)
+void driverbot_contr::SendSingleCommand(State cmd,int type)
 {
-	if(controltype == 0) // position
+	if(type == -1)
 	{
-		for(unsigned int i =0;i<cmd.size();i++)
-			simxSetJointTargetPosition(this->clientID,this->joint_handle[i],cmd[i],simx_opmode_oneshot);
-	}
-	else if(controltype == 1) // velocity
-	{
-		//DEBUG
-		//std::cout<<"velocity control"<<std::endl;
-		//---
-		for(unsigned int i =0;i<cmd.size();i++)
-					simxSetJointTargetVelocity(this->clientID,this->joint_handle[i],cmd[i],simx_opmode_oneshot);
-	}
-	else if(controltype == 2) // torque
-	{
-		for(unsigned int i =0;i<cmd.size();i++)
+		if(controltype == 0) // position
 		{
-			if(cmd[i]>=0)
-				simxSetJointTargetVelocity(this->clientID,this->joint_handle[i],9000,simx_opmode_oneshot);
-			else
-				simxSetJointTargetVelocity(this->clientID,this->joint_handle[i],-9000,simx_opmode_oneshot);
+			for(unsigned int i =0;i<cmd.size();i++)
+				simxSetJointTargetPosition(this->clientID,this->joint_handle[i],cmd[i],simx_opmode_oneshot);
+		}
+		else if(controltype == 1) // velocity
+		{
+			//DEBUG
+			//std::cout<<"velocity control"<<std::endl;
+			//---
+			for(unsigned int i =0;i<cmd.size();i++)
+						simxSetJointTargetVelocity(this->clientID,this->joint_handle[i],cmd[i],simx_opmode_oneshot);
+		}
+		else if(controltype == 2) // torque
+		{
+			for(unsigned int i =0;i<cmd.size();i++)
+			{
+				if(cmd[i]>=0)
+					simxSetJointTargetVelocity(this->clientID,this->joint_handle[i],9000,simx_opmode_oneshot);
+				else
+					simxSetJointTargetVelocity(this->clientID,this->joint_handle[i],-9000,simx_opmode_oneshot);
 
-			simxSetJointForce(this->clientID,this->joint_handle[i],abs(cmd[i]),simx_opmode_oneshot);
+				simxSetJointForce(this->clientID,this->joint_handle[i],abs(cmd[i]),simx_opmode_oneshot);
+			}
+		}
+	}
+	else
+	{
+		if(type == 0) // position
+		{
+			for(unsigned int i =0;i<cmd.size();i++)
+				simxSetJointTargetPosition(this->clientID,this->joint_handle[i],cmd[i],simx_opmode_oneshot);
+		}
+		else if(type == 1) // velocity
+		{
+			//DEBUG
+			//std::cout<<"velocity control"<<std::endl;
+			//---
+			for(unsigned int i =0;i<cmd.size();i++)
+						simxSetJointTargetVelocity(this->clientID,this->joint_handle[i],cmd[i],simx_opmode_oneshot);
+		}
+		else if(type == 2) // torque
+		{
+			for(unsigned int i =0;i<cmd.size();i++)
+			{
+				if(cmd[i]>=0)
+					simxSetJointTargetVelocity(this->clientID,this->joint_handle[i],9000,simx_opmode_oneshot);
+				else
+					simxSetJointTargetVelocity(this->clientID,this->joint_handle[i],-9000,simx_opmode_oneshot);
+
+				simxSetJointForce(this->clientID,this->joint_handle[i],abs(cmd[i]),simx_opmode_oneshot);
+			}
 		}
 	}
 
@@ -98,7 +129,7 @@ bool driverbot_contr::InitController(std::vector<State> initial_state)
 	 return true;
 
 }
-bool driverbot_contr::ExecController(std::vector<State> current_state)
+bool driverbot_contr::ExecController(std::vector<State> current_state,int type)
 {
 	//DEBUG
 	//std::cout<<"1"<<std::endl;
@@ -118,7 +149,7 @@ bool driverbot_contr::ExecController(std::vector<State> current_state)
 	//	std::cout<<result[i]<<" ";
 	//std::cout<<std::endl;
 	//---
-	this->SendSingleCommand(result);
+	this->SendSingleCommand(result,type);
 	boost::this_thread::sleep(boost::posix_time::milliseconds(10));
 
 	return true;

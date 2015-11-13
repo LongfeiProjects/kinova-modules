@@ -30,6 +30,7 @@ class kinova_status_openapi : public stats
 	public:
 		KinDrv::JacoArm *arm;
 		boost::atomic<bool> running;
+		boost::atomic<bool> running_cleaner;
 		boost::atomic<bool> first_write;
 		boost::thread* reader_stats;
 		boost::thread* log_stats;
@@ -44,6 +45,7 @@ class kinova_status_openapi : public stats
 		DataStore ds_comp_t;	DataFlow comp_t;
 		DataStore ds_robot_t;
 		DataStore ds_cart_pos;              		 DataLast dl_cart_pos;
+		std::vector<DataStoreIt> bookmarks;
 
 		kinova_status_openapi(model * p);
 		~kinova_status_openapi();
@@ -51,9 +53,11 @@ class kinova_status_openapi : public stats
 		void Start();
 		void Stop();
 		void Reading();
+		void StartSaving(std::vector<std::string>  & type);
+		std::vector<Log> StopSaving(std::vector<std::string>  & type);
 		void Logging();
 		void Cleaning();
-
+        // kinova specific functions
 		void ReadTimeStamp();
 		void ReadJoints(KinDrv::jaco_position_t &position,KinDrv::jaco_position_t & velocity,KinDrv::jaco_position_t & force);
 		void ReadCartesian(KinDrv::jaco_position_t & position);

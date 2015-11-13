@@ -48,7 +48,7 @@ kinova_controller::kinova_controller(std::vector<std::string> namefile,std::vect
 		index = -2; // for accessing inizialization procedure
 		this->time_interval = 0.01; // second TO CHANGE
 		this->measured_value = list_meas_value;
-		controltype = _controltype;
+		controltype = this->InitPositionType(_controltype);
 		limitation = _limitation;
 		bot=mdl;
 		for(unsigned int i =0;i<namefile.size();i++)
@@ -68,25 +68,22 @@ int kinova_controller::Move2Home()
 	int result = (*MyMoveHome)();
 	return result;
 }
-TrajectoryPoint  kinova_controller::ConvertControl(State & value)
+TrajectoryPoint  kinova_controller::ConvertControl(State & value, int type)
 {
 	TrajectoryPoint pointToSend;
 	pointToSend.InitStruct();
-	pointToSend.Position.Type = ANGULAR_VELOCITY;
+	if(type == -1)
+	{
+		pointToSend.Position.Type = this->controltype;
+	}
+	else
+	{
+		pointToSend.Position.Type = this->InitPositionType(type);
+	}
 	pointToSend.Position.HandMode = HAND_NOMOVEMENT;
-	//pointToSend.LimitationsActive = limitation;
-
-	//DEFINE LIMITATIONS HERE
-	//pointToSend.Limitations.speedParameter1 = 100.f;//We limit the translation velocity to 8 cm per second.
-	//pointToSend.Limitations.speedParameter2 = 100.f; //We limit the orientation velocity to 0.6 RAD per second
-	// conversion from rad/s to deg/s
-	value = value*(1/DEG);
-
 	if(controltype==ANGULAR_POSITION || controltype==ANGULAR_VELOCITY)
 	{
-		//DEBUG
-		//std::cout<< "position velocity control"<<std::endl;
-		//
+		value=value/DEG;
 		pointToSend.Position.Actuators.Actuator1 = (float)value[0];
 		pointToSend.Position.Actuators.Actuator2 = (float)value[1];
 		pointToSend.Position.Actuators.Actuator3 = (float)value[2];
@@ -106,13 +103,13 @@ TrajectoryPoint  kinova_controller::ConvertControl(State & value)
 	}
 	return pointToSend;
 }
-void kinova_controller::SendSingleCommand(State cmd)
+void kinova_controller::SendSingleCommand(State cmd,int type)
 {
      //boost::recursive_mutex::scoped_lock scoped_lock(api_mutex);
 	 TrajectoryPoint p;
 
 	 boost::chrono::high_resolution_clock::time_point begin = boost::chrono::high_resolution_clock::now();
-	 p = this->ConvertControl(cmd);
+	 p = this->ConvertControl(cmd,type);
 	 std::cout << "time spent ConvertControl: " << boost::chrono::duration_cast<boost::chrono::milliseconds>(boost::chrono::high_resolution_clock::now() - begin).count() << " ms\n";
 
 	 begin = boost::chrono::high_resolution_clock::now();
@@ -136,7 +133,7 @@ bool kinova_controller::InitController(std::vector<State> initial_state)
 	 // this is really important! because in this way i can exit from initialization and start the execution of controller
 	 return true;
 }
-bool kinova_controller::ExecController(std::vector<State> current_state)
+bool kinova_controller::ExecController(std::vector<State> current_state,int type)
 {
 	if(_second.load(boost::memory_order_acquire))
 	{
@@ -154,7 +151,7 @@ bool kinova_controller::ExecController(std::vector<State> current_state)
 		std::cout << "time spent CartesianKinematicController: " << boost::chrono::duration_cast<boost::chrono::milliseconds>(boost::chrono::high_resolution_clock::now() - begin).count() << " ms\n";
 
 		begin = boost::chrono::high_resolution_clock::now();;
-		this->SendSingleCommand(result);
+		this->SendSingleCommand(result,type);
 		std::cout << "time spent SendSingleCommand: " << boost::chrono::duration_cast<boost::chrono::milliseconds>(boost::chrono::high_resolution_clock::now() - begin).count() << " ms\n";
 
 		// this sleep control the frequency of the serialized threads (read and send)

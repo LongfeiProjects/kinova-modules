@@ -26,20 +26,6 @@ class kinova_status : public stats
 {
 
 	private:
-
-		// joint space
-		//int (*MyGetPositionCurrentActuators)(std::vector<float> &data);
-		//int (*MyGetAngularVelocity)(AngularPosition &);
-		/*int (*MyGetForcesInfo)(ForcesInfo &Response);
-		// cartesian space
-		int (*MyGetCartesianForce)(CartesianPosition &);
-		// others
-		int (*MyGetAngularCommand)(AngularPosition &);
-		int (*MyGetCartesianCommand)(CartesianPosition &);
-		int (*MyGetSensorsInfo)(SensorsInfo &);
-		int (*MyGetActuatorAcceleration)(AngularAcceleration &);*/
-
-
 		int (*MyInitAPI)();
 		int (*MyCloseAPI)();
 		int (*MyStartControlAPI)();
@@ -76,6 +62,8 @@ class kinova_status : public stats
 		void Start();
 		void Stop();
 		void Reading();
+		void StartSaving(std::vector<std::string>  & type){};
+		std::vector<Log> StopSaving(std::vector<std::string>  & type){};
 		void Logging();
 		void Cleaning();
 

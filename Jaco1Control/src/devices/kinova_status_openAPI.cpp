@@ -2,6 +2,7 @@
 
 kinova_status_openapi::kinova_status_openapi(model * mdl)
 : running(true)
+, running_cleaner(true)
 , first_write(false)
 , ang_pos(0)
 , ang_tau(0)
@@ -60,6 +61,7 @@ void kinova_status_openapi::Stop()
 	// maybe add the command to empty the stack of command
 	// and to put the velocity at zero
 	this->running.store(false,boost::memory_order_release);
+	this->running_cleaner.store(false,boost::memory_order_release);
 	this->reader_stats->join();
 	//this->log_stats->join();
 	this->garbage_collection->join();
@@ -81,18 +83,12 @@ void kinova_status_openapi::Reading()
 		//DEBUG
 		//std::cout<<"reading new value"<<std::endl;
 		//---
-
-		//GeneralInformations cur;
 		KinDrv::jaco_position_t cart_pos;
 		KinDrv::jaco_position_t position,velocity,force;
-
 		position = this->arm->get_ang_pos();
 		//velocity = this->arm->get_ang_vel();
 		//force = this->arm->get_ang_force();
-
 		//cart_pos = this->arm->get_cart_pos();
-
-
 		//this->ReadTimeStamp();
 		this->ReadJoints(position,velocity,force);
 		this->ReadCartesian(position);
@@ -131,7 +127,7 @@ void kinova_status_openapi::Logging()
 
 void kinova_status_openapi::Cleaning()
 {
-	while(this->running.load(boost::memory_order_acquire))
+	while(this->running_cleaner.load(boost::memory_order_acquire))
 	{
 		if(this->ds_ang_pos.size() > (unsigned int)(this->Max_DS_allowed) )
 		{
@@ -145,14 +141,95 @@ void kinova_status_openapi::Cleaning()
 			this->ds_robot_t.pop_front();
 		}
 
-		usleep(1000*((900)));
+		usleep(1000*((1)));
 	}
 	std::cout<<"im out of Cleaning thread"<<std::endl;
 
 }
 
+void kinova_status_openapi::StartSaving(std::vector<std::string>  & type)
+{
+	// first i have to stop the garbage collector process
+	this->running_cleaner.store(false,boost::memory_order_release);
+	this->garbage_collection->join();
+	if(first_write.load(boost::memory_order_acquire))
+	{
+		for(unsigned int i =0;i<type.size();i++)
+		{
+			DataStoreIt app;
+			if(type[i].compare("j_pos") == 0)
+			{
+				app = this->ds_ang_pos.end();
+				app--;
+			}
+			else if(type[i].compare("j_vel") == 0)
+			{
+				app = this->ds_ang_vel.end();
+				app--;
+			}
+			else if(type[i].compare("j_tau") == 0)
+			{
+				app = this->ds_ang_tau.end();
+				app--;
+			}
+			else if(type[i].compare("cart_f") == 0)
+			{
+				app = this->ds_cart_f.end();
+				app--;
+			}
+			else if(type[i].compare("cart_pos") == 0)
+			{
+				app = this->ds_cart_pos.end();
+				app--;
+			}
+			this->bookmarks.push_back(app);
+		}
+	 }
+}
 
-// FROM THIS POINT FUNCTIONS are KINOVA API DEPENDANT //
+
+std::vector<Log> kinova_status_openapi::StopSaving(std::vector<std::string>  & type)
+{
+	std::vector<Log> result;
+	for(unsigned int i =0;i<type.size();i++)
+	{
+		if(type[i].compare("j_pos") == 0)
+		{   // here i construct the log by assigning to the vec of state Log
+			// the sublist
+			Log app(this->bookmarks[i],this->ds_ang_pos.end());
+			result.push_back(app);
+		}
+		else if(type[i].compare("j_vel") == 0)
+		{
+			Log app(this->bookmarks[i],this->ds_ang_vel.end());
+			result.push_back(app);
+		}
+		else if(type[i].compare("j_tau") == 0)
+		{
+			Log app(this->bookmarks[i],this->ds_ang_tau.end());
+			result.push_back(app);
+		}
+		else if(type[i].compare("cart_f") == 0)
+		{
+			Log app(this->bookmarks[i],this->ds_cart_f.end());
+			result.push_back(app);
+		}
+		else if(type[i].compare("cart_pos") == 0)
+		{
+			Log app(this->bookmarks[i],this->ds_cart_pos.end());
+			result.push_back(app);
+		}
+	}
+	// reactivate the cleaner tasks
+	this->running_cleaner.store(true,boost::memory_order_release);
+	this->garbage_collection = new boost::thread(boost::bind(&kinova_status_openapi::Cleaning,this));
+	// clean bookmarks
+	this->bookmarks.clear();
+
+	return result;
+}
+
+// FROM THIS POINT ALL THE FUNCTIONS are KINOVA API DEPENDANT //
 
 void kinova_status_openapi::ReadTimeStamp()
 {

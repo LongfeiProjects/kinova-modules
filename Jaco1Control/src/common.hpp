@@ -8,7 +8,6 @@
 #ifndef COMMON_HPP_
 #define COMMON_HPP_
 
-#include <vector>
 #include <cassert>
 #include <algorithm>
 #include <vector>
@@ -33,8 +32,10 @@
 // typedef
 typedef arma::vec                                      State;
 typedef State*                                         State_ptr;
+typedef std::vector<State>                             Log;
 typedef boost::lockfree::queue<State_ptr>              DataFlow;
 typedef std::list<State>                               DataStore;
+typedef DataStore::iterator                            DataStoreIt;
 typedef boost::atomic<State_ptr>                       DataLast;
 
 #define SSTR( x ) dynamic_cast< std::ostringstream & >( \

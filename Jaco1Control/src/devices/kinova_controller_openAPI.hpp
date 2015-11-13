@@ -26,11 +26,10 @@ public:
 
 	KinDrv::jaco_position_type_t InitPositionType(int value);
 	int Move2Home();
-	KinDrv::jaco_basic_traj_point_t  ConvertControl(State & value);
-	void SendSingleCommand(State cmd);
-	//State PID(std::vector<State> ff,std::vector<State> current_state);
+	KinDrv::jaco_basic_traj_point_t  ConvertControl(State & value,int type);
+	void SendSingleCommand(State cmd,int type);
 	bool InitController(std::vector<State> initial_state);
-	bool ExecController(std::vector<State> current_state);
+	bool ExecController(std::vector<State> current_state, int type);
 
 };
 

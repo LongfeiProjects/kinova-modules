@@ -100,11 +100,17 @@ int kinova_controller_openapi::Move2Home()
 	  return 0;
 }
 
-KinDrv::jaco_basic_traj_point_t  kinova_controller_openapi::ConvertControl(State & value)
+KinDrv::jaco_basic_traj_point_t  kinova_controller_openapi::ConvertControl(State & value,int type)
 {
-
 	KinDrv::jaco_basic_traj_point_t pointToSend;
-	pointToSend.pos_type = KinDrv::SPEED_ANGULAR;
+	if(type == -1)
+	{
+		pointToSend.pos_type = this->controltype;
+	}
+	else
+	{
+		pointToSend.pos_type = this->InitPositionType(type);
+	}
 	pointToSend.time_delay = 0;
 	pointToSend.hand_mode = KinDrv::NO_MOVEMENT;
 	if(controltype==KinDrv::POSITION_ANGULAR || controltype==KinDrv::SPEED_ANGULAR)
@@ -117,7 +123,7 @@ KinDrv::jaco_basic_traj_point_t  kinova_controller_openapi::ConvertControl(State
 		pointToSend.target.joints[4] = (float)value[4];
 		pointToSend.target.joints[5] = (float)value[5];
 		pointToSend.target.finger_position[0] = (float)0;
-	    pointToSend.target.finger_position[1] = (float)0;
+		pointToSend.target.finger_position[1] = (float)0;
 		pointToSend.target.finger_position[2] = (float)0;
 	}
 	else
@@ -135,20 +141,22 @@ KinDrv::jaco_basic_traj_point_t  kinova_controller_openapi::ConvertControl(State
 	}
 	return pointToSend;
 }
-void kinova_controller_openapi::SendSingleCommand(State cmd)
+void kinova_controller_openapi::SendSingleCommand(State cmd,int type)
 {
 
-
-	 boost::chrono::high_resolution_clock::time_point begin = boost::chrono::high_resolution_clock::now();
-	 KinDrv::jaco_basic_traj_point_t  p = this->ConvertControl(cmd);
-
-	 std::cout << "time spent ConvertControl: " << boost::chrono::duration_cast<boost::chrono::milliseconds>(boost::chrono::high_resolution_clock::now() - begin).count() << " ms\n";
-
+    //DEBUG
+	boost::chrono::high_resolution_clock::time_point begin = boost::chrono::high_resolution_clock::now();
+	//---
+	KinDrv::jaco_basic_traj_point_t  p = this->ConvertControl(cmd,type);
+	//DEBUG
+	std::cout << "time spent ConvertControl: " << boost::chrono::duration_cast<boost::chrono::milliseconds>(boost::chrono::high_resolution_clock::now() - begin).count() << " ms\n";
 	begin = boost::chrono::high_resolution_clock::now();
+	//---
 	this->arm->erase_trajectories();
 	this->arm->set_target(p);
+	//DEBUG
 	std::cout << "time spent MySendAdvanceTrajectory: " << boost::chrono::duration_cast<boost::chrono::milliseconds>(boost::chrono::high_resolution_clock::now() - begin).count() << " ms\n";
-
+	//----
 }
 bool kinova_controller_openapi::InitController(std::vector<State> initial_state)
 {
@@ -166,7 +174,7 @@ bool kinova_controller_openapi::InitController(std::vector<State> initial_state)
 	 // this is really important! because in this way i can exit from initialization and start the execution of controller
 	 return true;
 }
-bool kinova_controller_openapi::ExecController(std::vector<State> current_state)
+bool kinova_controller_openapi::ExecController(std::vector<State> current_state,int type)
 {
 
 	//DEBUG
@@ -181,7 +189,7 @@ bool kinova_controller_openapi::ExecController(std::vector<State> current_state)
 	std::cout << "time spent CartesianKinematicController: " << boost::chrono::duration_cast<boost::chrono::milliseconds>(boost::chrono::high_resolution_clock::now() - begin).count() << " ms\n";
 
 	begin = boost::chrono::high_resolution_clock::now();;
-	this->SendSingleCommand(result);
+	this->SendSingleCommand(result,type);
 	std::cout << "time spent SendSingleCommand: " << boost::chrono::duration_cast<boost::chrono::milliseconds>(boost::chrono::high_resolution_clock::now() - begin).count() << " ms\n";
 
 
