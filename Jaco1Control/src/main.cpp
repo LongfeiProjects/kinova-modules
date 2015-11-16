@@ -1,29 +1,26 @@
 #include "robot.hpp"
 
+
 int main()
 {
-
-
 	// status reader
 	Jaco* mdl = new Jaco();
-	kinova_status * st= new kinova_status(mdl);
-
+	kinova_status_openapi * st= new kinova_status_openapi(mdl);
 	// controller
-	const double Pid_coef[] = {10,0,0}; // deg
+	const double Pid_coef[] = {5,0,0}; // deg
 	std::vector<double> Pid(Pid_coef,End(Pid_coef));
-	const char * _namefiles[] = {"cart_pos.txt","cart_vel.txt"};
+	const char * _namefiles[] = {"cart_pos.txt","joint_vel.txt"};
 	std::vector<std::string> namefile (_namefiles,End(_namefiles));
 	const char * _meas_val[] ={"j_pos","cart_pos"};
 	std::vector<std::string> meas_val(_meas_val,End(_meas_val));
 	int controltype = 8;
 	bool limitation = 0;
 	Jaco* md = new Jaco();
-	kinova_controller * ct = new kinova_controller(namefile,meas_val,Pid,controltype,limitation,md,st->APIhandle); // very rough patch because i can have only one API handle
-
+	kinova_controller_openapi * ct = new kinova_controller_openapi(namefile,meas_val,Pid,controltype,limitation,md,st->arm); // very rough patch because i can have only one API handle
 	// checking module
 	// define bounding box
-	const double bb_point[] = {-0.6,-0.2,-0.4};
-    const double bb_dims[]  = {1.2,0.4,0.7};
+	const double bb_point[] = {-0.6,-0.8,-0.4};
+    const double bb_dims[]  = {1.2,1.6,0.8};
     std::vector<double> bb_p(bb_point,End(bb_point)),bb_d(bb_dims,End(bb_dims));
 
 	// define all the limit
@@ -43,10 +40,11 @@ int main()
 
 	safetycheck checker(l_down_left_corner,l_dims,l_min,l_max,chekclist);
 	robot bot(st,ct,checker);
-	bot.Exec();
+	bot.ExecuteTrajectory();
 
-	/*// status reader
-	Lwr* mdl = new Lwr();
+	/* // status reader
+	//Lwr* mdl = new Lwr();
+	Jaco* mdl = new Jaco();
 	bool sync = false;
 	std::string joint_base_name = "LBR4p_joint";
 	driverbot * vrep = new driverbot(sync,joint_base_name,mdl);
@@ -56,14 +54,15 @@ int main()
 	std::vector<double> Pid(Pid_coef,End(Pid_coef));
 	const char * _meas_val[] ={"j_pos","cart_pos"};
 	std::vector<std::string> meas_val(_meas_val,End(_meas_val));
-	const char * _namefiles[] = {"cart_pos.txt","cart_vel.txt"};
+	const char * _namefiles[] = {"cart_pos.txt","joint_vel.txt"};
 	std::vector<std::string> namefile (_namefiles,End(_namefiles));
-	Lwr* md = new Lwr();
+	//Lwr* md = new Lwr();
+	Jaco* md = new Jaco();
 	int controltype = 1;
-	driverbot_contr * ct = new driverbot_contr(namefile,meas_val,Pid,controltype,mdl,vrep->idclient,vrep->joint_handle); // very rough patch because i can have only one API handle
+	driverbot_contr * ct = new driverbot_contr(namefile,meas_val,Pid,controltype,md,vrep->idclient,vrep->joint_handle); // very rough patch because i can have only one API handle
 	safetycheck checker;
 	robot bot(vrep,ct,checker);
-	bot.Exec();*/
+	bot.ExecuteTrajectory();*/
 
 
 	return 1;

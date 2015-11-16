@@ -24,9 +24,9 @@ public:
 	~driverbot_contr(){};
 
 	int Move2Home();
-	void SendSingleCommand(State cmd);
+	void SendSingleCommand(State cmd,int type);
 	bool InitController(std::vector<State> initial_state);
-	bool ExecController(std::vector<State> current_state);
+	bool ExecController(std::vector<State> current_state, int type);
 
 };
 

@@ -5,16 +5,15 @@
  *      Author: vale
  */
 
-#ifndef KINOVA_STATUS_HPP_
-#define KINOVA_STATUS_HPP_
+#ifndef KINOVA_STATUS_OPENAPI_HPP_
+#define KINOVA_STATUS_OPENAPI_HPP_
 
 #include "../stats.hpp"
 
 #include <dlfcn.h>
-#include <KinovaTypes.h>
-#include <Kinova.API.UsbCommandLayerUbuntu.h>
 #include "../visualization.hpp"
 
+#include "../Interface/Kinova_Driver/kindrv.h"
 
 
 //#define SLEEP_INTERVAL 10000    // ms    // with this value i control the sleep interval beetween
@@ -22,25 +21,16 @@
 //#define EXT_FORCE_LIM  10       // Nm
 //#define VELOCITY_LIM   25       // percentage reduce
 
-class kinova_status : public stats
+class kinova_status_openapi : public stats
 {
 
 	private:
-		int (*MyInitAPI)();
-		int (*MyCloseAPI)();
-		int (*MyStartControlAPI)();
-		int (*MyStopControlAPI)();
-		int (*MyGetAngularPosition)(AngularPosition &);
-		int (*MyGetAngularVelocity)(AngularPosition &);
-		int (*MyGetAngularForce)(AngularPosition &);
-		int (*MyGetCartesianPosition)(CartesianPosition &);
-		int (*MyGetGeneralInformations)(GeneralInformations &);
-		int (*MyGetGlobalTrajectoryInfo)(TrajectoryFIFO &);
 		visualization vis;
 		int Max_DS_allowed;
 	public:
-		void * APIhandle;
+		KinDrv::JacoArm *arm;
 		boost::atomic<bool> running;
+		boost::atomic<bool> running_cleaner;
 		boost::atomic<bool> first_write;
 		boost::thread* reader_stats;
 		boost::thread* log_stats;
@@ -55,26 +45,27 @@ class kinova_status : public stats
 		DataStore ds_comp_t;	DataFlow comp_t;
 		DataStore ds_robot_t;
 		DataStore ds_cart_pos;              		 DataLast dl_cart_pos;
+		std::vector<DataStoreIt> bookmarks;
 
-		kinova_status(model * p);
-		~kinova_status();
+		kinova_status_openapi(model * p);
+		~kinova_status_openapi();
 
 		void Start();
 		void Stop();
 		void Reading();
-		void StartSaving(std::vector<std::string>  & type){};
-		std::vector<Log> StopSaving(std::vector<std::string>  & type){};
+		void StartSaving(std::vector<std::string>  & type);
+		std::vector<Log> StopSaving(std::vector<std::string>  & type);
 		void Logging();
 		void Cleaning();
-
+        // kinova specific functions
 		void ReadTimeStamp();
-		void ReadJoints(AngularPosition & position,AngularPosition & velocity,AngularPosition & force);
-		void ReadCartesian(AngularPosition & position);
-		void ReadCurrents(GeneralInformations & info);
+		void ReadJoints(KinDrv::jaco_position_t &position,KinDrv::jaco_position_t & velocity,KinDrv::jaco_position_t & force);
+		void ReadCartesian(KinDrv::jaco_position_t & position);
+		//FIXME exist this in the open driver? void ReadCurrents(GeneralInformations & info);
 		int Read4Vis(std::vector<State_ptr > & lastval);
 		std::vector<State> FirstRead(std::vector<std::string>);
 		bool GetLastValue(std::vector<State>& , std::vector<std::string>  & type );
 
 };
 
-#endif /* KINOVA_STATUS_HPP_ */
+#endif /* KINOVA_STATUS_OPENAPI_HPP_ */

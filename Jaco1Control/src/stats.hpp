@@ -21,6 +21,8 @@ class stats
       virtual void Start() = 0;
       virtual void Stop() = 0;
       virtual void Reading() = 0;
+      virtual void StartSaving(std::vector<std::string>  & type) = 0;
+      virtual std::vector<Log> StopSaving(std::vector<std::string>  & type) = 0;
       virtual ~stats(){};
 };
 

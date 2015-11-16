@@ -12,6 +12,7 @@
 #include "devices/kinova_controller.hpp"
 #include "devices/driverbot.hpp"
 #include "devices/driverbot_contr.hpp"
-
+#include "devices/kinova_controller_openAPI.hpp"
+#include "devices/kinova_status_openAPI.hpp"
 
 #endif /* IDEVICE_HPP_ */

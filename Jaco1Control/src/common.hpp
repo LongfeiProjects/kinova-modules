@@ -8,7 +8,6 @@
 #ifndef COMMON_HPP_
 #define COMMON_HPP_
 
-#include <vector>
 #include <cassert>
 #include <algorithm>
 #include <vector>
@@ -22,8 +21,9 @@
 #include <boost/lockfree/queue.hpp>
 #include <boost/atomic.hpp>
 #include <boost/date_time.hpp>
+#include <boost/chrono.hpp>
 #include <boost/shared_ptr.hpp>
-#include  <boost/make_shared.hpp>
+#include <boost/make_shared.hpp>
 #include <boost/thread/recursive_mutex.hpp>
 #include <boost/thread/lockable_concepts.hpp>
 #include <armadillo>
@@ -32,8 +32,10 @@
 // typedef
 typedef arma::vec                                      State;
 typedef State*                                         State_ptr;
+typedef std::vector<State>                             Log;
 typedef boost::lockfree::queue<State_ptr>              DataFlow;
 typedef std::list<State>                               DataStore;
+typedef DataStore::iterator                            DataStoreIt;
 typedef boost::atomic<State_ptr>                       DataLast;
 
 #define SSTR( x ) dynamic_cast< std::ostringstream & >( \

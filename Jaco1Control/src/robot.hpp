@@ -1,6 +1,6 @@
 /*
  * robot.hpp
- *
+ *l
  *  Created on: May 31, 2015
  *      Author: vale
  */
@@ -18,110 +18,38 @@
 class robot
 {
 	public:
-		boost::shared_ptr<stats>  st;
-		boost::shared_ptr<controller>  contr;
-		safetycheck check;
-		boost::thread* safety_check;
-		boost::thread* emergency_stop;
+		boost::shared_ptr<stats>  st;              // interface to the state object that collect data from the robot
+		boost::shared_ptr<controller>  contr;      // interface to the controller object that send command to the robot
+		safetycheck check;                         // structure used for defining the non safe conditions
+		boost::thread* safety_check;               // thread that monitors if the robot is getting into a non safe conditions
+		boost::thread* emergency_stop;             // thread that control the emergency stop (when the button c is pressed)
+		boost::thread* action_thread;              // i can use action thread to lunch some command that are not instantaneous
 
-		boost::atomic<bool> stop;
+		boost::atomic<bool> stop_auxiliary_thread; // this flag control the execution of the auxiliary thread (safety check and emergency stop)
+		boost::atomic<bool> stop;                  // this flag is activated when a non safe condition takes place and stop all the action threads
 
-		robot()
-		{};
+		robot(){};
 
 		robot(stats * _st,controller * _ct,safetycheck _check)
 		: st(_st)
 		,contr(_ct)
+		,stop_auxiliary_thread(false)
 		,stop(false)
 		{
 			this->check = _check;
 			this->safety_check = NULL;
 			this->emergency_stop = NULL;
+			this->action_thread = NULL;
+			this->StartAllThread();
 		};
-
-		inline void Exec()
-		{
-			try
-			{
-				this->StartAllThread();
-				contr->index = -1; // in this way i define the inizialization of the controller contr->index = -1
-				while(!this->stop.load(boost::memory_order_acquire) )
-				{
-					std::vector<State> cur_val;
-					bool read_data = false;
-					//DEBUG
-					//std::cout<<"before GetLastValue "<<std::endl;
-					//std::cout<<"contr->measured_value.size() "<<contr->measured_value.size()<<std::endl;
-					//----
-					read_data = st->GetLastValue(cur_val,contr->measured_value);
-					//DEBUG
-					/*if(read_data)
-					{
-						std::cout<< "cur_val"<<std::endl;
-						for(unsigned int ik =0;ik<cur_val[0].size();ik++)
-								std::cout<<cur_val[0][ik]<<" ";
-						std::cout<<std::endl;
-					}*/
-					//std::cout<<"read_data after GetLastValue= "<<read_data<<std::endl;
-					//---
-
-					// control block
-					if(read_data)
-					{
-						if(contr->index == -1)
-						{
-							//DEBUG
-							std::cout<<"before move2home"<<std::endl;
-							//---
-							//contr->Move2Home();
-							std::vector<State> start = st->FirstRead(contr->measured_value);
-							//DEBUG
-							std::cout<<"after move2home"<<std::endl;
-							//---
-							contr->InitController(start);
-							// inizialization of current value after after move2home
-							cur_val = start;
-							//DEBUG
-							std::cout<< "starting joint position"<<std::endl;
-							for(unsigned int ik =0;ik<start[0].size();ik++)
-									std::cout<<start[0][ik]<<" ";
-							std::cout<<std::endl;
-							std::cout<< "starting cartesian position"<<std::endl;
-							for(unsigned int ik =0;ik<start[1].size();ik++)
-									std::cout<<start[1][ik]<<" ";
-							std::cout<<std::endl;
-							//---
-							contr->index = 0;  //DEBUG i inibhit control  instead contr->index = 0
-						}
-						else if(contr->index >= 0)
-						{
-							//DEBUG
-							//std::cout<<"im in exec controller"<<std::endl;
-							//---
-							bool executed_control = contr->ExecController(cur_val);
-							 // using this if statement i will keep the last value when i will reach the end of this->ff vector
-							 if(contr->index<(int)contr->ff[0].size()-1 && executed_control)
-							 {
-								 contr->index++;
-								 //DEBUG
-								 std::cout<<"index = "<< contr->index<<std::endl;
-								 //---
-							 }
-						}
-					}
-				}
-				this->StopAllThread();
-				std::cout<< "im out the main cycle"<<std::endl;
-			}
-			catch(const std::exception &e)
-			{
-				std::cout<< "something gone wrong"<<std::endl;
-				this->stop.store(true,boost::memory_order_release);
-				this->StopAllThread();
-				return;
-			}
-		};
-
+		~robot(){this->StopAllThread();};
+		// method
+		void ReadCurrentState(std::vector<State>& , std::vector<std::string> & type );
+		void StartLog(std::vector<std::string>  & type);
+		std::vector<Log> StopLog(std::vector<std::string>  & type);
+		void ExecuteTrajectory();
+		void SendCommand(State cmd,int type);
+	private:
 		void StartAllThread();
 		void StopAllThread();
 		void Cheking();
