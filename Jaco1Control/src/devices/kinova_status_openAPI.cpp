@@ -60,6 +60,7 @@ void kinova_status_openapi::Stop()
 
 	// maybe add the command to empty the stack of command
 	// and to put the velocity at zero
+	this->arm->erase_trajectories();
 	this->running.store(false,boost::memory_order_release);
 	this->running_cleaner.store(false,boost::memory_order_release);
 	this->reader_stats->join();
@@ -96,8 +97,8 @@ void kinova_status_openapi::Reading()
 			first_write.store(true,boost::memory_order_release);
 		}
 		reading_time = boost::chrono::duration_cast<boost::chrono::milliseconds>(boost::chrono::high_resolution_clock::now() - global_begin);
-    //	std::cout << "time spent Reading: " << reading_time.count() << " ms\n";
-		int test_time = boost::chrono::round<boost::chrono::milliseconds>(reading_time).count();
+    	//std::cout << "time spent Reading: " << reading_time.count() << " ms\n";
+		//int test_time = boost::chrono::round<boost::chrono::milliseconds>(reading_time).count();
 		//if(test_time < 10)
 		//{
 			//usleep(1000*(()));
@@ -126,8 +127,7 @@ void kinova_status_openapi::Cleaning()
 {
 	while(this->running_cleaner.load(boost::memory_order_acquire))
 	{
-		if(this->ds_ang_pos.size() > (unsigned int)(this->Max_DS_allowed) )
-		{
+		if(this->ds_ang_pos.size() > (unsigned int)(this->Max_DS_allowed) ){
 			this->ds_ang_pos.pop_front();
         }
         if(this->ds_ang_vel.size() > (unsigned int)(this->Max_DS_allowed)){
@@ -168,6 +168,10 @@ void kinova_status_openapi::StartSaving(std::vector<std::string>  & type)
 		for(unsigned int i =0;i<type.size();i++)
 		{
 			DataStoreIt app;
+			if(type[i].compare("comp_t")==0)
+			{
+				app = this->ds_comp_t.end();
+			}
 			if(type[i].compare("j_pos") == 0)
 			{
 				app = this->ds_ang_pos.end();
@@ -204,6 +208,17 @@ std::vector<Log> kinova_status_openapi::StopSaving(std::vector<std::string>  & t
 	std::vector<Log> result;
 	for(unsigned int i =0;i<type.size();i++)
 	{
+		if(type[i].compare("comp_t")==0)
+		{
+			Log app(this->bookmarks[i],this->ds_comp_t.end());
+
+			for(unsigned int i =0;i<app.size();i++)
+			{
+				app[i]=app[i]-app[0];
+			}
+		    result.push_back(app);
+
+		}
 		if(type[i].compare("j_pos") == 0)
 		{   // here i construct the log by assigning to the vec of state Log
 			// the sublist
