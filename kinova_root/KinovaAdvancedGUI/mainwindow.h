@@ -58,6 +58,10 @@ private:
     bool armCommand;
     bool fingerCommand;
     CartesianPosition actualPosition;
+
+    //This is to call the openAPI
+    vector<string> readType;
+    std::map<string,int> readTypeMap;
     /*Aux functions*/
     void initGUI();
     void changeOpType(int opType);
@@ -103,6 +107,9 @@ private:
     void showSaveTrajectoryPanel();
     void error_kinova_not_initialized();
 
+    void convertSampledTrajectories(vector<Log> recordedLogs);
+    void startRecording();
+    void stopRecording();
 private slots:
      void clickedSlot();
     void on_homeButton_clicked();
@@ -142,6 +149,7 @@ private slots:
     void on_playPullPosition_clicked();
     void on_playGraspPosition_clicked();
     void on_undoButton_clicked();
+    void on_MainWindow_destroyed();
 };
 
 #endif // MAINWINDOW_H

@@ -134,17 +134,20 @@ KinDrv::jaco_basic_traj_point_t  kinova_controller_openapi::ConvertControl(State
     KinDrv::jaco_position_type_t ty;
     // set the hand control type
     if(type > 10 && type < 20)
-	{
+    {
+        std::cout<<"MODE_POSITION" <<  std::endl;
 		type = type - 10;
 		pointToSend.hand_mode = KinDrv::MODE_POSITION;
 	}
 	else if(type>20)
 	{
+        std::cout<<"MODE_SPEED" <<  std::endl;
 		type = type - 20;
 		pointToSend.hand_mode = KinDrv::MODE_SPEED;
 	}
 	else
 	{
+        std::cout<<"NO_MOVEMENT" <<  std::endl;
 		pointToSend.hand_mode = KinDrv::NO_MOVEMENT;
 	}
     // set the robot control type
@@ -165,19 +168,20 @@ KinDrv::jaco_basic_traj_point_t  kinova_controller_openapi::ConvertControl(State
 
     if(ty==KinDrv::POSITION_ANGULAR || ty==KinDrv::SPEED_ANGULAR)
 	{
-		value=value/DEG;
+        value=value/DEG;
 		pointToSend.target.joints[0] = (float)value[0];
 		pointToSend.target.joints[1] = (float)value[1];
 		pointToSend.target.joints[2] = (float)value[2];
 		pointToSend.target.joints[3] = (float)value[3];
 		pointToSend.target.joints[4] = (float)value[4];
 		pointToSend.target.joints[5] = (float)value[5];
-		pointToSend.target.finger_position[0] = (float)value[6];
-		pointToSend.target.finger_position[1] = (float)value[7];
-		pointToSend.target.finger_position[2] = (float)value[8];
+        pointToSend.target.finger_position[0] = (float)value[6]*DEG;
+        pointToSend.target.finger_position[1] = (float)value[7]*DEG;
+        pointToSend.target.finger_position[2] = (float)value[8]*DEG;
 	}
 	else if(ty==KinDrv::POSITION_CARTESIAN || ty==KinDrv::SPEED_CARTESIAN)
 	{
+        std::cout << value << std::endl;
 		pointToSend.target.position[0] = (float)value[0];
 		pointToSend.target.position[1] = (float)value[1];
 		pointToSend.target.position[2] = (float)value[2];

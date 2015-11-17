@@ -81,10 +81,9 @@ void kinova_status_openapi::Reading()
 	while(this->running.load(boost::memory_order_acquire))
 	{
 		boost::chrono::high_resolution_clock::time_point global_begin = boost::chrono::high_resolution_clock::now();
-		KinDrv::jaco_position_t cart_pos;
 		KinDrv::jaco_position_t position,velocity,force;
+        velocity = this->arm->get_ang_vel();
 		position = this->arm->get_ang_pos();
-		velocity = this->arm->get_ang_vel();
 		//force = this->arm->get_ang_force();
 		//cart_pos = this->arm->get_cart_pos();
 		this->ReadTimeStamp();
@@ -194,6 +193,7 @@ void kinova_status_openapi::StartSaving(std::vector<std::string>  & type)
 			}
 			else if(type[i].compare("cart_pos") == 0)
 			{
+                std::cout << "cart_pos if" << std::endl;
 				app = this->ds_cart_pos.end();
 				app--;
 			}
@@ -268,8 +268,8 @@ void kinova_status_openapi::ReadTimeStamp()
     boost::chrono::milliseconds reading_time;
     boost::chrono::duration_cast<boost::chrono::milliseconds>(boost::chrono::high_resolution_clock::now() - this->tStart);
     t_cur[0] =  boost::chrono::round<boost::chrono::milliseconds>(reading_time).count();
-    //t_rob[0] = info.TimeFromStartup;
 
+    //std::cout<< t_cur << std::endl;
 	this->ds_comp_t.push_back(t_cur);
 	// i can write for the vis less often then the other op
 	this->comp_t.push( &(ds_comp_t.back()) );
@@ -297,13 +297,15 @@ void kinova_status_openapi::ReadJoints(KinDrv::jaco_position_t &position,KinDrv:
 	// i can write for the vis less often then the other op
 	this->ang_pos.push( &(ds_ang_pos.back()) );
 	// joint velocity
-	app[0]=velocity.joints[0];
-	app[1]=velocity.joints[1];
-	app[2]=velocity.joints[2];
-	app[3]=velocity.joints[3];
-	app[4]=velocity.joints[4];
-	app[5]=velocity.joints[5];
-	this->ds_ang_vel.push_back(app);
+    State app_short(6);
+    app_short[0]=velocity.joints[0];
+    app_short[1]=velocity.joints[1];
+    app_short[2]=velocity.joints[2];
+    app_short[3]=velocity.joints[3];
+    app_short[4]=velocity.joints[4];
+    app_short[5]=velocity.joints[5];
+    std::cout<<app_short << std::endl;
+    this->ds_ang_vel.push_back(app_short);
 	this->dl_ang_vel.store(&(ds_ang_vel.back()),boost::memory_order_release);
 	// joint torques
 	/*app[0]=force.joints[0];
@@ -325,20 +327,18 @@ void kinova_status_openapi::ReadCartesian(KinDrv::jaco_position_t & position)
 	State q(6);
 	State cart_pos;
 	arma::mat R;
-	q[0]=position.position[0];
-	q[1]=position.position[1];
-	q[2]=position.position[2];
-	q[3]=position.rotation[0];
-	q[4]=position.rotation[1];
-	q[5]=position.rotation[2];
+    q[0]=position.joints[0];
+    q[1]=position.joints[1];
+    q[2]=position.joints[2];
+    q[3]=position.joints[3];
+    q[4]=position.joints[4];
+    q[5]=position.joints[5];
 
 	// convert angle from deg to rad
 	q=q*DEG;
 
 
-	bot->DK(q,cart_pos,R);
-
-
+    bot->DK(q,cart_pos,R);
 	this->ds_cart_pos.push_back(cart_pos);
 	this->dl_cart_pos.store( &(ds_cart_pos.back()),boost::memory_order_release);
 

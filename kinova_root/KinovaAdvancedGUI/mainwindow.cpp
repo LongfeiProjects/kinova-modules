@@ -167,13 +167,20 @@ void MainWindow::clickedSlot(){
 void MainWindow::on_homeButton_clicked()
 {
     cout << "Moving home"<< endl;
-    int res = klib->moveHome();
-    if(res!=SUCCESS){
-        QMessageBox* msgBox = new QMessageBox();
-        msgBox->setWindowTitle(tr("Send Command"));
-        msgBox->setText(tr("Couldn't go home"));
-        msgBox->exec();
+    if(KINOVA_LIB==1){
+        cout<<"before moving home" <<endl;
+        this->bot->MoveHome();
+        cout<<"ater moving home" <<endl;
+    }else{
+        int res = klib->moveHome();
+        if(res!=SUCCESS){
+            QMessageBox* msgBox = new QMessageBox();
+            msgBox->setWindowTitle(tr("Send Command"));
+            msgBox->setText(tr("Couldn't go home"));
+            msgBox->exec();
+        }
     }
+    cout<<"ending funcion" <<endl;
 }
 
 
@@ -234,7 +241,7 @@ void MainWindow::on_FingersControl_Widget_toggled(bool arg1)
 
 State convertDirectionToState(int direction, float speed){
     State res;
-    res.zeros(6);
+    res.zeros(9);
     switch (direction) {
     case Right:
         res[0] = -speed;
@@ -255,10 +262,14 @@ State convertDirectionToState(int direction, float speed){
         res[1] = speed;
         break;
     case Open:
-        cout << "not implemented yet " << endl;
+        res[6] = -30;
+        res[7] = -30;
+        res[8] = -30;
         break;
     case Close:
-        cout << "not implemented yet " << endl;
+        res[6] = 30;
+        res[7] = 30;
+        res[8] = 30;
         break;
     default:
         cout << "Wrong direction" << endl;
@@ -272,7 +283,8 @@ void MainWindow::loopSendVelocityCommad(int direction){
        cout << "en el loop --> enviar comandos de velocidad: "  << this->fixedStepsCounter[direction-1] <<endl;
        if(direction==Close || direction==Open){
            if(KINOVA_LIB == 1){
-               cout << "not implemented" << endl;
+               State cmd = convertDirectionToState(direction,30);
+               this->bot->SendCommand(cmd,27);
            }else{
                 this->klib->moveSingleStep(direction,30); //Fixed speed, the unit velocity of the fingers is not clear at all!
            }
@@ -280,7 +292,6 @@ void MainWindow::loopSendVelocityCommad(int direction){
            if(KINOVA_LIB == 1){
                State cmd = convertDirectionToState(direction,this->speed);
                this->bot->SendCommand(cmd,7);
-               cout << "not implemented" << endl;
             }else{
                this->klib->moveSingleStep(direction,this->speed);
            }
@@ -289,7 +300,7 @@ void MainWindow::loopSendVelocityCommad(int direction){
        //FIXME the code below should be ideally in other thread in charge of reading the status of the arm.
        //As the official sdf is not thread safe we cannot do it. If someday we start using a thread safe driver then
        //we can fix this issue.
-       if(this->isRecordingTrajecory){
+       if(this->isRecordingTrajecory && KINOVA_LIB!=1){
            RecordedCartesianInfo cartesianInfo;
            TrajectoryPoint point;
            this->klib->getTrajectoryInfo(point);
@@ -333,7 +344,7 @@ void MainWindow::on_rightButton_pressed()
     signalMapper -> setMapping (this->moveRightTimer, Right) ;
     connect (signalMapper, SIGNAL(mapped(int)), this, SLOT(loopSendVelocityCommad(int)));
 
-    this->moveRightTimer->start(LOOP_SPEED_SEND_VELOCITY_COMMAND);//TODO Este valor 1000 debería depender de la velociad.
+    this->moveRightTimer->start(LOOP_SPEED_SEND_VELOCITY_COMMAND);
 }
 
 
@@ -521,62 +532,86 @@ void MainWindow::on_closeHandButton_released()
 void MainWindow::on_pushButton_2_clicked()
 {
     cout << "Initilizating kinova" << endl;
+    int res = -1;
     if(KINOVA_LIB==1){
         // status reader
         Jaco* mdl = new Jaco();
-
         try{
             kinova_status_openapi * st= new kinova_status_openapi(mdl);
 
-        // controller
-        const double Pid_coef[] = {5,0,0}; // deg
-        std::vector<double> Pid(Pid_coef,End(Pid_coef));
-        const char * _namefiles[] = {"cart_pos.txt","joint_vel.txt"};
-        std::vector<std::string> namefile (_namefiles,End(_namefiles));
-        const char * _meas_val[] ={"j_pos","cart_pos"};
-        std::vector<std::string> meas_val(_meas_val,End(_meas_val));
-        int controltype = 8;
-        bool limitation = 0;
-        Jaco* md = new Jaco();
-        kinova_controller_openapi * ct = new kinova_controller_openapi(namefile,meas_val,Pid,controltype,limitation,md,st->arm); // very rough patch because i can have only one API handle
-        // checking module
-        // define bounding box
-        const double bb_point[] = {-0.6,-0.8,-0.4};
-        const double bb_dims[]  = {1.2,1.6,0.8};
-        std::vector<double> bb_p(bb_point,End(bb_point)),bb_d(bb_dims,End(bb_dims));
+            this->readType.push_back("comp_t");
+            this->readType.push_back("cart_pos");
+            this->readType.push_back("j_vel");
 
-        // define all the limit
-        const char *cl[] = {"j_pos","j_tau"};
-        std::vector<std::string> chekclist(cl,End(cl));
-        const double joint_min[] = {-10000,47,19,-10000,-10000,-10000}; // deg
-        const double joint_max[] = {10000,313,341,10000,10000,10000}; // deg
-        const double tau_min[] = {-15}; // Nm
-        const double tau_max[] = {15};  // nm
-        std::vector<double> j_min(joint_min,End(joint_min)),j_max(joint_max,End(joint_max));
-        std::vector<double> t_min(tau_min,End(tau_min)),t_max(tau_max,End(tau_max));
+            this->readTypeMap["comp_t"] = 0;
+            this->readTypeMap["cart_pos"] = 1;
+            this->readTypeMap["j_vel"] = 2;
 
-        std::vector<std::vector<double> > l_down_left_corner,l_dims,l_min,l_max;
-        l_down_left_corner.push_back(bb_p);l_dims.push_back(bb_d);
-        l_min.push_back(j_min);l_min.push_back(t_min);
-        l_max.push_back(j_max);l_max.push_back(t_max);
 
-        safetycheck checker(l_down_left_corner,l_dims,l_min,l_max,chekclist);
-        this->bot= new robot(st,ct,checker);
+            // controller
+            const double Pid_coef[] = {5,0,0}; // deg
+            std::vector<double> Pid(Pid_coef,End(Pid_coef));
+            const char * _namefiles[] = {"cart_pos.txt","joint_vel.txt"};
+            std::vector<std::string> namefile (_namefiles,End(_namefiles));
+            const char * _meas_val[] ={"j_pos","cart_pos","j_vel"};
+            std::vector<std::string> meas_val(_meas_val,End(_meas_val));
+            int controltype = 8;
+            bool limitation = 0;
+            Jaco* md = new Jaco();
+            kinova_controller_openapi * ct = new kinova_controller_openapi(namefile,meas_val,Pid,controltype,limitation,md,st->arm); // very rough patch because i can have only one API handle
+            // checking module
+            // define bounding box
+            const double bb_point[] = {-0.6,-0.8,-0.4};
+            const double bb_dims[]  = {1.2,1.6,0.8};
+            std::vector<double> bb_p(bb_point,End(bb_point)),bb_d(bb_dims,End(bb_dims));
 
+            // define all the limit
+            const char *cl[] = {"j_pos","j_tau"};
+            std::vector<std::string> chekclist(cl,End(cl));
+            const double joint_min[] = {-10000,47,19,-10000,-10000,-10000}; // deg
+            const double joint_max[] = {10000,313,341,10000,10000,10000}; // deg
+            const double tau_min[] = {-15}; // Nm
+            const double tau_max[] = {15};  // nm
+            std::vector<double> j_min(joint_min,End(joint_min)),j_max(joint_max,End(joint_max));
+            std::vector<double> t_min(tau_min,End(tau_min)),t_max(tau_max,End(tau_max));
+
+            std::vector<std::vector<double> > l_down_left_corner,l_dims,l_min,l_max;
+            l_down_left_corner.push_back(bb_p);l_dims.push_back(bb_d);
+            l_min.push_back(j_min);l_min.push_back(t_min);
+            l_max.push_back(j_max);l_max.push_back(t_max);
+
+            safetycheck checker(l_down_left_corner,l_dims,l_min,l_max,chekclist);
+            this->bot= new robot(st,ct,checker);
+
+            this->bot->MoveHome();
+            State moveFingers(9);
+            moveFingers[0] = 0;
+            moveFingers[1] = 0;
+            moveFingers[2] = 0;
+            moveFingers[3] = 0;
+            moveFingers[4] = 0;
+            moveFingers[5] = 0;
+            moveFingers[6] = 0;
+            moveFingers[7] = -30;
+            moveFingers[8] = -30;
+            moveFingers[9] = -30;
+            for(int i=0;i<10;i++){
+                this->bot->SendCommand(moveFingers,27);
+            }
+            res = SUCCESS;
         }catch(KinDrv::KinDrvException e){
             cout << "error initializing"<< endl;
         }
 
     }else{
-        int res = this->klib->kinovaInit();
-        if(res == SUCCESS){
-       //     this->ui->status_icon->setStyleSheet("image: url(:/imagenes/img/ok_icon.png);");
-            this->ui->status_icon->setVisible(false);
-            this->ui->status_label->setText(QString(tr("Success!")));
-            this->kinova_initialized = true;
-        }else{
-            this->ui->status_label->setText(QString(tr("Initialization wrong, try again")));
-        }
+        res = this->klib->kinovaInit();
+    }
+    if(res == SUCCESS){
+        this->ui->status_icon->setVisible(false);
+        this->ui->status_label->setText(QString(tr("Success!")));
+        this->kinova_initialized = true;
+    }else{
+        this->ui->status_label->setText(QString(tr("Initialization wrong, try again")));
     }
 }
 
@@ -650,24 +685,81 @@ void tarea1(){
     }
 }
 
+
+void  WriteFile(std::vector<State> log,std::string namefile)
+{
+    std::ofstream myfile(namefile.c_str());
+    for(unsigned int i =0;i<log.size();i++)
+    {
+        for(int j=0;j<log[i].size();j++)
+        {
+            myfile<<log[i][j]<<" ";
+        }
+        myfile<<"\n";
+    }
+
+    myfile.close();
+
+}
+
+
+void MainWindow::convertSampledTrajectories(vector<Log> recordedLogs){
+    //TODO convert from vector<Log> to vector<RecordedCartesianInfo> and store the result in this->sampledTrajectories.
+cout << "sklfnsdk" << endl;
+    cout << "cart_pos index = " << this->readTypeMap["cart_pos"] << endl;
+    cout << "comp_t index = " << this->readTypeMap["comp_t"] << endl;
+    cout << "j_vel index = " << this->readTypeMap["j_vel"] << endl;
+    Log cartPosLog = recordedLogs[this->readTypeMap["cart_pos"]];
+    Log timeLog = recordedLogs[this->readTypeMap["comp_t"]];
+    Log velLog = recordedLogs[this->readTypeMap["j_vel"]];
+
+    cout << "HHHHH" << endl;
+
+
+    WriteFile(cartPosLog,"cart_pos_openapi.mat");
+    WriteFile(timeLog,"index_openapi.mat");
+    WriteFile(velLog,"joint_vel_openapi.mat");
+   // for(vector<State>::iterator iter = cartPosLog.begin(); iter!=cartPosLog.end();++iter){
+    //    State st = *iter;
+
+    //}
+    //this->readTypeMap["cart_pos"]
+}
+
+void MainWindow::startRecording(){
+    this->isRecordingTrajecory=true;
+    this->ui->label_record_stop->setText(QString(tr("Stop")));
+    this->ui->record_Button->setIcon(QIcon(":/imagenes/img/stop.png"));
+    this->ui->recordingLabel->setVisible(true);
+    if(KINOVA_LIB == 1){
+        this->bot->StartLog(this->readType);
+    }
+}
+
+void MainWindow::stopRecording(){
+    this->ui->label_record_stop->setText(QString(tr("Record")));
+    this->ui->record_Button->setIcon(QIcon(":/imagenes/img/record.png"));
+    this->ui->recordingLabel->setVisible(false);
+    this->isRecordingTrajecory=false;
+    if(KINOVA_LIB==1){
+        vector<Log> recordedLogs;
+        recordedLogs = this->bot->StopLog(this->readType);
+        convertSampledTrajectories(recordedLogs);
+    }
+}
+
 void MainWindow::on_record_Button_toggled(bool checked)
 {
     if(checked){
-        this->ui->label_record_stop->setText(QString(tr("Stop")));
-        this->ui->record_Button->setIcon(QIcon(":/imagenes/img/stop.png"));
-        this->ui->recordingLabel->setVisible(true);
-        this->isRecordingTrajecory=true;
+        this->startRecording();
     }else{
-        this->ui->label_record_stop->setText(QString(tr("Record")));
-        this->ui->record_Button->setIcon(QIcon(":/imagenes/img/record.png"));
+        this->stopRecording();
 
         QMessageBox::StandardButton reply;
         reply = QMessageBox::question(this,tr("Save"),tr("Do you want to save the recorded trajectory?"), QMessageBox::Yes|QMessageBox::No);
         if(reply == QMessageBox::Yes){
             showSaveTrajectoryPanel();
         }
-        this->ui->recordingLabel->setVisible(false);
-        this->isRecordingTrajecory=false;
     }
 
 
@@ -689,35 +781,54 @@ void MainWindow::on_record_Button_toggled(bool checked)
 
 /*Save the actual position as a checkpoint. This allows the user to undo actions*/
 void MainWindow::saveCheckPoint(){
-   cout << "checkpoint saving not working. I need to call the bot->readCurrentState" << endl;
-    /*int res = this->klib->getActualCartesianPosition(this->actualPosition);
-    if(res==SUCCESS){
-        this->checkpoints.push_back(this->actualPosition);
-        this->ui->undoButton->setEnabled(true);
+    if(KINOVA_LIB==1){
+        //TODO call bot->readCurrentState
+        cout << "checkpoint saving not working. I need to call the bot->readCurrentState" << endl;
     }else{
-        QMessageBox* msgBox = new QMessageBox();
-        msgBox->setWindowTitle(tr("Send Command"));
-        msgBox->setText(tr("Something went wrong, couldn't get the actual position of the robot"));
-        msgBox->exec();
-    }*/
+        int res = this->klib->getActualCartesianPosition(this->actualPosition);
+        if(res==SUCCESS){
+            this->checkpoints.push_back(this->actualPosition);
+            this->ui->undoButton->setEnabled(true);
+        }else{
+            QMessageBox* msgBox = new QMessageBox();
+            msgBox->setWindowTitle(tr("Send Command"));
+            msgBox->setText(tr("Something went wrong, couldn't get the actual position of the robot"));
+            msgBox->exec();
+        }
+    }
 }
 
 void MainWindow::setActualPosition(){
     /*As the Kinova API does not provide any finger only command, then we simulate it by sending the actual coordinates of the arm.
     So, here we load the actual position and then send the command with the finger parameters*/
-    int res = this->klib->getActualCartesianPosition(this->actualPosition);
-    if(res==SUCCESS){
-        this->point.Position.CartesianPosition.X = actualPosition.Coordinates.X;
-        this->point.Position.CartesianPosition.Y = actualPosition.Coordinates.Y;
-        this->point.Position.CartesianPosition.Z = actualPosition.Coordinates.Z;
-        this->point.Position.CartesianPosition.ThetaX= actualPosition.Coordinates.ThetaX;
-        this->point.Position.CartesianPosition.ThetaY=actualPosition.Coordinates.ThetaY;
-        this->point.Position.CartesianPosition.ThetaZ=actualPosition.Coordinates.ThetaZ;
+    if(KINOVA_LIB){
+        vector<State> result;
+        this->bot->ReadCurrentState(result,this->readType);
+        int indice = this->readTypeMap["cart_pos"];
+        this->point.Position.CartesianPosition.X = result[indice][0];
+        this->point.Position.CartesianPosition.Y = result[indice][1];
+        this->point.Position.CartesianPosition.Z = result[indice][2];
+        this->point.Position.CartesianPosition.ThetaX = result[indice][3];
+        this->point.Position.CartesianPosition.ThetaY = result[indice][4];
+        this->point.Position.CartesianPosition.ThetaZ = result[indice][5];
+        this->point.Position.Fingers.Finger1 = result[indice][6];
+        this->point.Position.Fingers.Finger2 = result[indice][7];
+        this->point.Position.Fingers.Finger3 = result[indice][8];
     }else{
-        QMessageBox* msgBox = new QMessageBox();
-        msgBox->setWindowTitle(tr("Send Command"));
-        msgBox->setText(tr("Something went wrong, couldn't get the actual position of the robot"));
-        msgBox->exec();
+        int res = this->klib->getActualCartesianPosition(this->actualPosition);
+        if(res==SUCCESS){
+            this->point.Position.CartesianPosition.X = actualPosition.Coordinates.X;
+            this->point.Position.CartesianPosition.Y = actualPosition.Coordinates.Y;
+            this->point.Position.CartesianPosition.Z = actualPosition.Coordinates.Z;
+            this->point.Position.CartesianPosition.ThetaX= actualPosition.Coordinates.ThetaX;
+            this->point.Position.CartesianPosition.ThetaY=actualPosition.Coordinates.ThetaY;
+            this->point.Position.CartesianPosition.ThetaZ=actualPosition.Coordinates.ThetaZ;
+        }else{
+            QMessageBox* msgBox = new QMessageBox();
+            msgBox->setWindowTitle(tr("Send Command"));
+            msgBox->setText(tr("Something went wrong, couldn't get the actual position of the robot"));
+            msgBox->exec();
+        }
     }
 }
 
@@ -754,22 +865,51 @@ void MainWindow::setHandGrasp(){
     this->point.Position.Fingers.Finger3 = 25;
 }
 
+State convertOficialAPItoStatePoint(TrajectoryPoint p){
+    State s(9);
+    s[0] =  p.Position.CartesianPosition.X;
+    s[1] =  p.Position.CartesianPosition.Y;
+    s[2] =  p.Position.CartesianPosition.Z;
+    s[3] =  p.Position.CartesianPosition.ThetaX;
+    s[4] =  p.Position.CartesianPosition.ThetaY;
+    s[5] =  p.Position.CartesianPosition.ThetaZ;
+    s[6] =  p.Position.Fingers.Finger1;
+    s[7] =  p.Position.Fingers.Finger2;
+    s[8] =  p.Position.Fingers.Finger3;
+    return s;
+}
+
 void MainWindow::on_playPointPosition_clicked()
 {
     this->setHandPoint();
-    klib->sendCommand(CARTESIAN_POSITION,false,true,this->point);
+    if(KINOVA_LIB==1){
+        State s = convertOficialAPItoStatePoint(this->point);
+        this->bot->SendCommand(s,11); //move arm and hand using cartesian position
+    }else{
+        klib->sendCommand(CARTESIAN_POSITION,false,true,this->point);
+    }
 }
 
 void MainWindow::on_playPullPosition_clicked()
 {
     this->setHandPull();
-    klib->sendCommand(CARTESIAN_POSITION,true,true,this->point);
+    if(KINOVA_LIB==1){
+        State s = convertOficialAPItoStatePoint(this->point);
+        this->bot->SendCommand(s,11); //move arm and hand using cartesian position
+    }else{
+        klib->sendCommand(CARTESIAN_POSITION,true,true,this->point);
+    }
 }
 
 void MainWindow::on_playGraspPosition_clicked()
 {
     this->setHandGrasp();
-    klib->sendCommand(CARTESIAN_POSITION,true,true,this->point);
+    if(KINOVA_LIB==1){
+        State s = convertOficialAPItoStatePoint(this->point);
+        this->bot->SendCommand(s,11); //move arm and hand using cartesian position
+    }else{
+        klib->sendCommand(CARTESIAN_POSITION,true,true,this->point);
+    }
 }
 
 
@@ -792,4 +932,9 @@ void MainWindow::on_undoButton_clicked()
     this->ui->undoButton->setDisabled(this->checkpoints.empty());
 
     klib->sendCommand(CARTESIAN_POSITION,true,true,this->point);
+}
+
+void MainWindow::on_MainWindow_destroyed()
+{
+    delete this->bot;
 }
