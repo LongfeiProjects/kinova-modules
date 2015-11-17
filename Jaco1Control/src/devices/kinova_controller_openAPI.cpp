@@ -103,17 +103,21 @@ int kinova_controller_openapi::Move2Home()
 KinDrv::jaco_basic_traj_point_t  kinova_controller_openapi::ConvertControl(State & value,int type)
 {
 	KinDrv::jaco_basic_traj_point_t pointToSend;
+    KinDrv::jaco_position_type_t ty;
 	if(type == -1)
 	{
 		pointToSend.pos_type = this->controltype;
+        ty = this->controltype;
 	}
 	else
 	{
 		pointToSend.pos_type = this->InitPositionType(type);
+        ty = this->InitPositionType(type);
 	}
 	pointToSend.time_delay = 0;
 	pointToSend.hand_mode = KinDrv::NO_MOVEMENT;
-	if(controltype==KinDrv::POSITION_ANGULAR || controltype==KinDrv::SPEED_ANGULAR)
+
+    if(ty==KinDrv::POSITION_ANGULAR || ty==KinDrv::SPEED_ANGULAR)
 	{
 		value=value/DEG;
 		pointToSend.target.joints[0] = (float)value[0];
@@ -138,6 +142,8 @@ KinDrv::jaco_basic_traj_point_t  kinova_controller_openapi::ConvertControl(State
 		pointToSend.target.finger_position[0] = (float)0;
 		pointToSend.target.finger_position[1] = (float)0;
 		pointToSend.target.finger_position[2] = (float)0;
+
+        std::cout << value << std::endl;
 	}
 	return pointToSend;
 }

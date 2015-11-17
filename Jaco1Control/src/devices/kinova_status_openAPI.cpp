@@ -99,7 +99,7 @@ void kinova_status_openapi::Reading()
 			first_write.store(true,boost::memory_order_release);
 		}
 		reading_time = boost::chrono::duration_cast<boost::chrono::milliseconds>(boost::chrono::high_resolution_clock::now() - global_begin);
-		std::cout << "time spent Reading: " << reading_time.count() << " ms\n";
+    //	std::cout << "time spent Reading: " << reading_time.count() << " ms\n";
 		int test_time = boost::chrono::round<boost::chrono::milliseconds>(reading_time).count();
 		//if(test_time < 10)
 		//{
@@ -132,17 +132,31 @@ void kinova_status_openapi::Cleaning()
 		if(this->ds_ang_pos.size() > (unsigned int)(this->Max_DS_allowed) )
 		{
 			this->ds_ang_pos.pop_front();
-			this->ds_ang_vel.pop_front();
-			this->ds_ang_tau.pop_front();
-			this->ds_cart_f.pop_front();
-			this->ds_cart_pos.pop_front();
-			this->ds_comp_t.pop_front();
-			this->ds_mot_amp.pop_front();
-			this->ds_robot_t.pop_front();
-		}
+        }
+        if(this->ds_ang_vel.size() > (unsigned int)(this->Max_DS_allowed)){
+            this->ds_ang_vel.pop_front();
+        }
+        if(this->ds_ang_tau.size() > (unsigned int)(this->Max_DS_allowed)){
+           this->ds_ang_tau.pop_front();
+        }
+        if(this->ds_cart_f.size() > (unsigned int)(this->Max_DS_allowed)){
+           this->ds_cart_f.pop_front();
+        }
+        if(this->ds_cart_pos.size() > (unsigned int)(this->Max_DS_allowed)){
+           this->ds_cart_pos.pop_front();
+        }
+        if(this->ds_comp_t.size() > (unsigned int)(this->Max_DS_allowed)){
+           this->ds_comp_t.pop_front();
+        }
+        if(this->ds_mot_amp.size() > (unsigned int)(this->Max_DS_allowed)){
+           this->ds_mot_amp.pop_front();
+        }
+        if(this->ds_robot_t.size() > (unsigned int)(this->Max_DS_allowed)){
+           this->ds_robot_t.pop_front();
+        }
 
-		usleep(1000*((1)));
-	}
+    }
+
 	std::cout<<"im out of Cleaning thread"<<std::endl;
 
 }
