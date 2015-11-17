@@ -40,8 +40,6 @@ int main()
 
 	safetycheck checker(l_down_left_corner,l_dims,l_min,l_max,chekclist);
 	robot bot(st,ct,checker);
-	bot.ExecuteTrajectory();
-
 	/* // status reader
 	//Lwr* mdl = new Lwr();
 	Jaco* mdl = new Jaco();

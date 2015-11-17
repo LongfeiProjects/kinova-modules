@@ -57,6 +57,8 @@ int kinova_controller_openapi::Move2Home()
 	//boost::recursive_mutex::scoped_lock scoped_lock(api_mutex);
 	  // going to HOME position is possible from all positions. Only problem is,
 	  // if there is some kinfo of error
+	  arm->stop_api_ctrl();
+	  arm->start_api_ctrl();
 	  KinDrv::jaco_retract_mode_t mode = arm->get_status();
 	  switch( mode ) {
 	    case KinDrv::MODE_RETRACT_TO_READY:
@@ -67,10 +69,10 @@ int kinova_controller_openapi::Move2Home()
 	      arm->push_joystick_button(2);
 	      break;
 
-	    case KinDrv::MODE_NORMAL_TO_READY:
+	    /*case KinDrv::MODE_NORMAL_TO_READY:
 	    case KinDrv::MODE_READY_TO_RETRACT:
 	    case KinDrv::MODE_RETRACT_STANDBY:
-	    case KinDrv::MODE_NORMAL:
+	    case KinDrv::MODE_NORMAL:*/
 	    case KinDrv::MODE_NOINIT:
 	      // just 1 button press needed
 	      arm->push_joystick_button(2);
@@ -88,9 +90,35 @@ int kinova_controller_openapi::Move2Home()
 	  }
 
 	  while( mode != KinDrv::MODE_READY_STANDBY ) {
-	    usleep(1000*10); // 10 ms
 	    mode = arm->get_status();
-	    if( mode == KinDrv::MODE_READY_TO_RETRACT ) {
+	    switch( mode )
+	    {
+	        case KinDrv::MODE_NORMAL_TO_READY:
+	          std::cout<<"MODE_NORMAL_TO_READY"<<std::endl;
+	          break;
+	        case KinDrv::MODE_READY_TO_RETRACT:
+	           std::cout<<"MODE_READY_TO_RETRACT"<<std::endl;
+	          break;
+	        case KinDrv::MODE_RETRACT_STANDBY:
+	           std::cout<<"MODE_RETRACT_STANDBY"<<std::endl;
+	          break;
+	        case KinDrv::MODE_NORMAL:
+	           std::cout<<"MODE_NORMAL"<<std::endl;
+	          break;
+	        case KinDrv::MODE_NOINIT:
+	           std::cout<<"MODE_NOINIT"<<std::endl;
+	          break;
+	          // just 1 button press needed
+	          arm->push_joystick_button(2);
+	          break;
+	         case KinDrv::MODE_ERROR:
+	          printf("some error?! \n");
+	          return 0;
+	          break;
+	        }
+
+
+	    if(mode == KinDrv::MODE_READY_TO_RETRACT  || mode == KinDrv::MODE_NORMAL || mode == KinDrv::MODE_RETRACT_STANDBY ) {
 	      arm->release_joystick();
 	      arm->push_joystick_button(2);
 	    }
