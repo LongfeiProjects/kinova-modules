@@ -86,7 +86,7 @@ void kinova_status_openapi::Reading()
 		KinDrv::jaco_position_t cart_pos;
 		KinDrv::jaco_position_t position,velocity,force;
 		position = this->arm->get_ang_pos();
-		//velocity = this->arm->get_ang_vel();
+		velocity = this->arm->get_ang_vel();
 		//force = this->arm->get_ang_force();
 		//cart_pos = this->arm->get_cart_pos();
 		//this->ReadTimeStamp();

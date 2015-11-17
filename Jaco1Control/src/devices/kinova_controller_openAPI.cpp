@@ -104,6 +104,22 @@ KinDrv::jaco_basic_traj_point_t  kinova_controller_openapi::ConvertControl(State
 {
 	KinDrv::jaco_basic_traj_point_t pointToSend;
     KinDrv::jaco_position_type_t ty;
+    // set the hand control type
+    if(type > 10 && type < 20)
+	{
+		type = type - 10;
+		pointToSend.hand_mode = KinDrv::MODE_POSITION;
+	}
+	else if(type>20)
+	{
+		type = type - 20;
+		pointToSend.hand_mode = KinDrv::MODE_SPEED;
+	}
+	else
+	{
+		pointToSend.hand_mode = KinDrv::NO_MOVEMENT;
+	}
+    // set the robot control type
 	if(type == -1)
 	{
 		pointToSend.pos_type = this->controltype;
@@ -115,7 +131,9 @@ KinDrv::jaco_basic_traj_point_t  kinova_controller_openapi::ConvertControl(State
         ty = this->InitPositionType(type);
 	}
 	pointToSend.time_delay = 0;
-	pointToSend.hand_mode = KinDrv::NO_MOVEMENT;
+
+
+
 
     if(ty==KinDrv::POSITION_ANGULAR || ty==KinDrv::SPEED_ANGULAR)
 	{
@@ -130,7 +148,7 @@ KinDrv::jaco_basic_traj_point_t  kinova_controller_openapi::ConvertControl(State
 		pointToSend.target.finger_position[1] = (float)0;
 		pointToSend.target.finger_position[2] = (float)0;
 	}
-	else
+	else if(ty==KinDrv::POSITION_CARTESIAN || ty==KinDrv::SPEED_CARTESIAN)
 	{
 		pointToSend.target.position[0] = (float)value[0];
 		pointToSend.target.position[1] = (float)value[1];
