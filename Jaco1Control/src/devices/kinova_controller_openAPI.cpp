@@ -144,9 +144,9 @@ KinDrv::jaco_basic_traj_point_t  kinova_controller_openapi::ConvertControl(State
 		pointToSend.target.joints[3] = (float)value[3];
 		pointToSend.target.joints[4] = (float)value[4];
 		pointToSend.target.joints[5] = (float)value[5];
-		pointToSend.target.finger_position[0] = (float)0;
-		pointToSend.target.finger_position[1] = (float)0;
-		pointToSend.target.finger_position[2] = (float)0;
+		pointToSend.target.finger_position[0] = (float)value[6];
+		pointToSend.target.finger_position[1] = (float)value[7];
+		pointToSend.target.finger_position[2] = (float)value[8];
 	}
 	else if(ty==KinDrv::POSITION_CARTESIAN || ty==KinDrv::SPEED_CARTESIAN)
 	{
@@ -157,11 +157,9 @@ KinDrv::jaco_basic_traj_point_t  kinova_controller_openapi::ConvertControl(State
 		pointToSend.target.rotation[0]= (float)value[3];
 		pointToSend.target.rotation[1] = (float)value[4];
 		pointToSend.target.rotation[2] = (float)value[5];
-		pointToSend.target.finger_position[0] = (float)0;
-		pointToSend.target.finger_position[1] = (float)0;
-		pointToSend.target.finger_position[2] = (float)0;
-
-        std::cout << value << std::endl;
+		pointToSend.target.finger_position[0] = (float)value[6];
+		pointToSend.target.finger_position[1] = (float)value[7];
+		pointToSend.target.finger_position[2] = (float)value[8];
 	}
 	return pointToSend;
 }

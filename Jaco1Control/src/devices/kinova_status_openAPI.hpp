@@ -35,7 +35,7 @@ class kinova_status_openapi : public stats
 		boost::thread* reader_stats;
 		boost::thread* log_stats;
 		boost::thread* garbage_collection;
-		clock_t tStart;
+		boost::chrono::high_resolution_clock::time_point tStart;
 		// for logging          for visualizing      for control
 		DataStore ds_ang_pos;	DataFlow ang_pos;    DataLast dl_ang_pos;
 		DataStore ds_ang_vel;					     DataLast dl_ang_vel;
