@@ -15,9 +15,14 @@
 #include <QGraphicsProxyWidget>
 #include <thread>
 
+#include <kinovalib_openapi_global.h>
+#include "robot.hpp"
+#include "devices/kinova_controller_openAPI.hpp"
+#include "devices/kinova_status_openAPI.hpp"
 
 
 #define  MAX_COLUMNS_PLAY_PANEL  5
+#define KINOVA_LIB 1    // 0: Oficial API , 1: Open API through vmodugno package
 namespace Ui {
 class MainWindow;
 }
@@ -40,8 +45,13 @@ private:
     Ui::MainWindow *ui;
   //  QDialogButtonBox* save_Trajectory_Panel_Button;
 
+    //Kinova libraries. Oficial API and vmodugno package
     Kinovalib* klib ;
+    robot* bot;
+
+    //Databasea manager
     SqlManager* sqlManager;
+
     /*Kinova API stuff*/
     TrajectoryPoint point;
     int opType;

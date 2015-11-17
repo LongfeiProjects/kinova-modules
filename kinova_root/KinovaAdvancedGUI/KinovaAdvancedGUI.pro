@@ -49,3 +49,25 @@ RESOURCES += \
 
 TRANSLATIONS = kinovaGUI_en.ts \n
                 kinovaGUI_fr.ts
+
+
+DEPENDPATH += /usr/lib/x86_64-linux-gnu
+DEPENDPATH += $$PWD/../kinovalib_openAPI
+
+LIBS += -lusb-1.0 -lsfml-graphics -lsfml-system -lsfml-window -lboost_system -lboost_thread -lpthread -ldl -llapack -larmadillo -lplplotcxxd -lboost_filesystem -lboost_timer -lboost_chrono
+#-lkindrv
+
+
+win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../kinovalib_openAPI/release/ -lkinovalib_openAPI
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../kinovalib_openAPI/debug/ -lkinovalib_openAPI
+else:unix: LIBS += -L$$OUT_PWD/../kinovalib_openAPI/ -lkinovalib_openAPI
+
+INCLUDEPATH += $$PWD/../kinovalib_openAPI
+INCLUDEPATH += $$PWD/../../Jaco1Control/src
+INCLUDEPATH += $$PWD/../../Jaco1Control/src/devices
+INCLUDEPATH += $$PWD/../../Jaco1Control/src/Interface
+INCLUDEPATH += $$PWD/../../Jaco1Control/src/robot
+
+
+
+

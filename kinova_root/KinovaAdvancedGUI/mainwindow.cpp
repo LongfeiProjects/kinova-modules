@@ -232,15 +232,59 @@ void MainWindow::on_FingersControl_Widget_toggled(bool arg1)
     this->fingerCommand=arg1;
 }
 
-
+State convertDirectionToState(int direction, float speed){
+    State res;
+    res.zeros(6);
+    switch (direction) {
+    case Right:
+        res[0] = -speed;
+        break;
+    case Down:
+        res[2] = -speed;
+        break;
+    case Left:
+        res[0] = speed;
+        break;
+    case Up:
+        res[2] = speed;
+        break;
+    case Push:
+        res[1] = -speed;
+        break;
+    case Pull:
+        res[1] = speed;
+        break;
+    case Open:
+        cout << "not implemented yet " << endl;
+        break;
+    case Close:
+        cout << "not implemented yet " << endl;
+        break;
+    default:
+        cout << "Wrong direction" << endl;
+        break;
+    }
+    return res;
+}
 
 void MainWindow::loopSendVelocityCommad(int direction){
     if(!this->stopedTimers[direction-1]){ //we have to use a bool to know I we stopped the timer  because the timer->stop() is not immediate
        cout << "en el loop --> enviar comandos de velocidad: "  << this->fixedStepsCounter[direction-1] <<endl;
        if(direction==Close || direction==Open){
-           this->klib->moveSingleStep(direction,30); //Fixed speed, the unit velocity of the fingers is not clear at all!
+           if(KINOVA_LIB == 1){
+               cout << "not implemented" << endl;
+           }else{
+                this->klib->moveSingleStep(direction,30); //Fixed speed, the unit velocity of the fingers is not clear at all!
+           }
        }else{
-            this->klib->moveSingleStep(direction,this->speed);
+           if(KINOVA_LIB == 1){
+               State cmd = convertDirectionToState(direction,this->speed);
+               this->bot->SendCommand(cmd,7);
+               cout << "not implemented" << endl;
+            }else{
+               this->klib->moveSingleStep(direction,this->speed);
+           }
+
        }
        //FIXME the code below should be ideally in other thread in charge of reading the status of the arm.
        //As the official sdf is not thread safe we cannot do it. If someday we start using a thread safe driver then
@@ -477,14 +521,62 @@ void MainWindow::on_closeHandButton_released()
 void MainWindow::on_pushButton_2_clicked()
 {
     cout << "Initilizating kinova" << endl;
-    int res = this->klib->kinovaInit();
-    if(res == SUCCESS){
-   //     this->ui->status_icon->setStyleSheet("image: url(:/imagenes/img/ok_icon.png);");
-        this->ui->status_icon->setVisible(false);
-        this->ui->status_label->setText(QString(tr("Success!")));
-        this->kinova_initialized = true;
+    if(KINOVA_LIB==1){
+        // status reader
+        Jaco* mdl = new Jaco();
+
+        try{
+            kinova_status_openapi * st= new kinova_status_openapi(mdl);
+
+        // controller
+        const double Pid_coef[] = {5,0,0}; // deg
+        std::vector<double> Pid(Pid_coef,End(Pid_coef));
+        const char * _namefiles[] = {"cart_pos.txt","joint_vel.txt"};
+        std::vector<std::string> namefile (_namefiles,End(_namefiles));
+        const char * _meas_val[] ={"j_pos","cart_pos"};
+        std::vector<std::string> meas_val(_meas_val,End(_meas_val));
+        int controltype = 8;
+        bool limitation = 0;
+        Jaco* md = new Jaco();
+        kinova_controller_openapi * ct = new kinova_controller_openapi(namefile,meas_val,Pid,controltype,limitation,md,st->arm); // very rough patch because i can have only one API handle
+        // checking module
+        // define bounding box
+        const double bb_point[] = {-0.6,-0.8,-0.4};
+        const double bb_dims[]  = {1.2,1.6,0.8};
+        std::vector<double> bb_p(bb_point,End(bb_point)),bb_d(bb_dims,End(bb_dims));
+
+        // define all the limit
+        const char *cl[] = {"j_pos","j_tau"};
+        std::vector<std::string> chekclist(cl,End(cl));
+        const double joint_min[] = {-10000,47,19,-10000,-10000,-10000}; // deg
+        const double joint_max[] = {10000,313,341,10000,10000,10000}; // deg
+        const double tau_min[] = {-15}; // Nm
+        const double tau_max[] = {15};  // nm
+        std::vector<double> j_min(joint_min,End(joint_min)),j_max(joint_max,End(joint_max));
+        std::vector<double> t_min(tau_min,End(tau_min)),t_max(tau_max,End(tau_max));
+
+        std::vector<std::vector<double> > l_down_left_corner,l_dims,l_min,l_max;
+        l_down_left_corner.push_back(bb_p);l_dims.push_back(bb_d);
+        l_min.push_back(j_min);l_min.push_back(t_min);
+        l_max.push_back(j_max);l_max.push_back(t_max);
+
+        safetycheck checker(l_down_left_corner,l_dims,l_min,l_max,chekclist);
+        this->bot= new robot(st,ct,checker);
+
+        }catch(KinDrv::KinDrvException e){
+            cout << "error initializing"<< endl;
+        }
+
     }else{
-        this->ui->status_label->setText(QString(tr("Initialization wrong, try again")));
+        int res = this->klib->kinovaInit();
+        if(res == SUCCESS){
+       //     this->ui->status_icon->setStyleSheet("image: url(:/imagenes/img/ok_icon.png);");
+            this->ui->status_icon->setVisible(false);
+            this->ui->status_label->setText(QString(tr("Success!")));
+            this->kinova_initialized = true;
+        }else{
+            this->ui->status_label->setText(QString(tr("Initialization wrong, try again")));
+        }
     }
 }
 
@@ -597,7 +689,8 @@ void MainWindow::on_record_Button_toggled(bool checked)
 
 /*Save the actual position as a checkpoint. This allows the user to undo actions*/
 void MainWindow::saveCheckPoint(){
-    int res = this->klib->getActualCartesianPosition(this->actualPosition);
+   cout << "checkpoint saving not working. I need to call the bot->readCurrentState" << endl;
+    /*int res = this->klib->getActualCartesianPosition(this->actualPosition);
     if(res==SUCCESS){
         this->checkpoints.push_back(this->actualPosition);
         this->ui->undoButton->setEnabled(true);
@@ -606,7 +699,7 @@ void MainWindow::saveCheckPoint(){
         msgBox->setWindowTitle(tr("Send Command"));
         msgBox->setText(tr("Something went wrong, couldn't get the actual position of the robot"));
         msgBox->exec();
-    }
+    }*/
 }
 
 void MainWindow::setActualPosition(){
