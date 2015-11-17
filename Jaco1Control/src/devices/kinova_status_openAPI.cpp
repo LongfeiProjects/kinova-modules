@@ -280,17 +280,20 @@ void kinova_status_openapi::ReadTimeStamp()
 void kinova_status_openapi::ReadJoints(KinDrv::jaco_position_t &position,KinDrv::jaco_position_t & velocity,KinDrv::jaco_position_t & force)
 {
 	// joint position
-	State app(6);
+	State app(9);
 	app[0]=position.joints[0];
 	app[1]=position.joints[1];
 	app[2]=position.joints[2];
 	app[3]=position.joints[3];
 	app[4]=position.joints[4];
 	app[5]=position.joints[5];
-
-
 	// convert angle from deg to rad
 	app=app*DEG;
+	app[6]=position.finger_position[1];
+	app[7]=position.finger_position[2];
+	app[8]=position.finger_position[3];
+
+
 
 	//DEBUG
 	//for(int i=0;i<6;i++)
@@ -304,7 +307,7 @@ void kinova_status_openapi::ReadJoints(KinDrv::jaco_position_t &position,KinDrv:
 	this->ang_pos.push( &(ds_ang_pos.back()) );
 
 	// joint velocity
-	/*app[0]=velocity.joints[0];
+	app[0]=velocity.joints[0];
 	app[1]=velocity.joints[1];
 	app[2]=velocity.joints[2];
 	app[3]=velocity.joints[3];
@@ -319,10 +322,10 @@ void kinova_status_openapi::ReadJoints(KinDrv::jaco_position_t &position,KinDrv:
 	//---
 
 	this->ds_ang_vel.push_back(app);
-	this->dl_ang_vel.store(&(ds_ang_vel.back()),boost::memory_order_release);*/
+	this->dl_ang_vel.store(&(ds_ang_vel.back()),boost::memory_order_release);
 
 	// joint torques
-	app[0]=force.joints[0];
+	/*app[0]=force.joints[0];
 	app[1]=force.joints[1];
 	app[2]=force.joints[2];
 	app[3]=force.joints[3];
@@ -332,7 +335,7 @@ void kinova_status_openapi::ReadJoints(KinDrv::jaco_position_t &position,KinDrv:
 	this->ds_ang_tau.push_back(app);
 	this->dl_ang_tau.store( &(ds_ang_tau.back()),boost::memory_order_release);
 	// i can write for the vis less often then the other op
-	this->ang_tau.push( &(ds_ang_tau.back()) );
+	this->ang_tau.push( &(ds_ang_tau.back()) );*/
 
 }
 
