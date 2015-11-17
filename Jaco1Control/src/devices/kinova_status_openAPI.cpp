@@ -74,22 +74,19 @@ void kinova_status_openapi::Stop()
 // KINOVA API DEPENDANT // // in reading i update the value for control
 void kinova_status_openapi::Reading()
 {
-	this->tStart = clock();
+	// start the global time for logging
+	this->tStart = boost::chrono::high_resolution_clock::now();
 	boost::chrono::milliseconds reading_time;
 	while(this->running.load(boost::memory_order_acquire))
 	{
-
 		boost::chrono::high_resolution_clock::time_point global_begin = boost::chrono::high_resolution_clock::now();
-		//DEBUG
-		//std::cout<<"reading new value"<<std::endl;
-		//---
 		KinDrv::jaco_position_t cart_pos;
 		KinDrv::jaco_position_t position,velocity,force;
 		position = this->arm->get_ang_pos();
 		velocity = this->arm->get_ang_vel();
 		//force = this->arm->get_ang_force();
 		//cart_pos = this->arm->get_cart_pos();
-		//this->ReadTimeStamp();
+		this->ReadTimeStamp();
 		this->ReadJoints(position,velocity,force);
 		this->ReadCartesian(position);
 		//this->ReadCurrents(cur);
@@ -247,9 +244,10 @@ std::vector<Log> kinova_status_openapi::StopSaving(std::vector<std::string>  & t
 
 void kinova_status_openapi::ReadTimeStamp()
 {
-    State t_rob(1),t_cur(1);
-
-    t_cur[0] = (double)((clock() - tStart)/CLOCKS_PER_SEC);
+    State t_cur(1);
+    boost::chrono::milliseconds reading_time;
+    boost::chrono::duration_cast<boost::chrono::milliseconds>(boost::chrono::high_resolution_clock::now() - this->tStart);
+    t_cur[0] =  boost::chrono::round<boost::chrono::milliseconds>(reading_time).count();
     //t_rob[0] = info.TimeFromStartup;
 
 	this->ds_comp_t.push_back(t_cur);
