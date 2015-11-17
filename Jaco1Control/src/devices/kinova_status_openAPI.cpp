@@ -257,6 +257,11 @@ std::vector<Log> kinova_status_openapi::StopSaving(std::vector<std::string>  & t
 
 // FROM THIS POINT ALL THE FUNCTIONS are KINOVA API DEPENDANT //
 
+void kinova_status_openapi::ClearCommands()
+{
+	this->arm->erase_trajectories();
+}
+
 void kinova_status_openapi::ReadTimeStamp()
 {
     State t_cur(1);

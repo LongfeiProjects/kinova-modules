@@ -23,6 +23,7 @@ class stats
       virtual void Reading() = 0;
       virtual void StartSaving(std::vector<std::string>  & type) = 0;
       virtual std::vector<Log> StopSaving(std::vector<std::string>  & type) = 0;
+      virtual void ClearCommands() = 0;
       virtual ~stats(){};
 };
 

@@ -21,6 +21,8 @@ void robot::ExecuteTrajectory()
 	boost::chrono::high_resolution_clock::time_point time_reference;
 	boost::chrono::milliseconds cur_time,control_time;
 	boost::chrono::high_resolution_clock::time_point begin;
+	// i have to grant access to the execution of the task
+	this->stop.store(false,boost::memory_order_release);
 	try
 	{
 		contr->index = -1; // in this way i define the initialization of the controller contr->index = -1
@@ -140,6 +142,7 @@ void robot::EmergencyStop()
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::C))
 		{
 			std::cout<< "---------------------------------------------------------"<<std::endl;
+			this->st->ClearCommands();
 			this->stop.store(true,boost::memory_order_release);
 		}
 	}
