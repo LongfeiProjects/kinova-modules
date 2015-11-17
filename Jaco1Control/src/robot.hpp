@@ -49,6 +49,7 @@ class robot
 		std::vector<Log> StopLog(std::vector<std::string>  & type);
 		void ExecuteTrajectory();
 		void SendCommand(State cmd,int type);
+		void MoveHome();
 	private:
 		void StartAllThread();
 		void StopAllThread();

@@ -81,6 +81,10 @@ void robot::SendCommand(State cmd,int type)
 	this->contr->SendSingleCommand(cmd,type);
 }
 
+void robot::MoveHome()
+{
+	this->contr->Move2Home();
+}
 
 void robot::StartAllThread()
 {
@@ -125,7 +129,7 @@ void robot::Cheking()
 				}
 
 			}
-			usleep(1000*((5)));
+			usleep(1000*((3)));
 		}
 		std::cout<< "im out the the Cheking thread"<<std::endl;
 	}

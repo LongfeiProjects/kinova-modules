@@ -292,20 +292,10 @@ void kinova_status_openapi::ReadJoints(KinDrv::jaco_position_t &position,KinDrv:
 	app[6]=position.finger_position[1];
 	app[7]=position.finger_position[2];
 	app[8]=position.finger_position[3];
-
-
-
-	//DEBUG
-	//for(int i=0;i<6;i++)
-	//	std::cout<<app[i]<<" ";
-	//std::cout<<std::endl;
-	//---
-
 	this->ds_ang_pos.push_back(app);
 	this->dl_ang_pos.store( &(ds_ang_pos.back()),boost::memory_order_release);
 	// i can write for the vis less often then the other op
 	this->ang_pos.push( &(ds_ang_pos.back()) );
-
 	// joint velocity
 	app[0]=velocity.joints[0];
 	app[1]=velocity.joints[1];
@@ -313,17 +303,8 @@ void kinova_status_openapi::ReadJoints(KinDrv::jaco_position_t &position,KinDrv:
 	app[3]=velocity.joints[3];
 	app[4]=velocity.joints[4];
 	app[5]=velocity.joints[5];
-
-	//DEBUG
-	std::cout<<"velocity"<<std::endl;
-	for(int i=0;i<6;i++)
-		std::cout<<app[i]<<" ";
-	std::cout<<std::endl;
-	//---
-
 	this->ds_ang_vel.push_back(app);
 	this->dl_ang_vel.store(&(ds_ang_vel.back()),boost::memory_order_release);
-
 	// joint torques
 	/*app[0]=force.joints[0];
 	app[1]=force.joints[1];
@@ -331,12 +312,10 @@ void kinova_status_openapi::ReadJoints(KinDrv::jaco_position_t &position,KinDrv:
 	app[3]=force.joints[3];
 	app[4]=force.joints[4];
 	app[5]=force.joints[5];
-
 	this->ds_ang_tau.push_back(app);
 	this->dl_ang_tau.store( &(ds_ang_tau.back()),boost::memory_order_release);
 	// i can write for the vis less often then the other op
 	this->ang_tau.push( &(ds_ang_tau.back()) );*/
-
 }
 
 // TO DO: SPLIT CARTESIAN POSITION FROM ORIENTATION INTO DIFFERENT VARIABLE
