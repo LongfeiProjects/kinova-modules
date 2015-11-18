@@ -16,13 +16,21 @@ std::vector<Log> robot::StopLog(std::vector<std::string>  & type)
 }
 
 
-void robot::ExecuteTrajectory()
+void robot::ExecuteTrajectory(State starting_joint_position)
 {
 	boost::chrono::high_resolution_clock::time_point time_reference;
 	boost::chrono::milliseconds cur_time,control_time;
 	boost::chrono::high_resolution_clock::time_point begin;
-	// i have to grant access to the execution of the task
+    // i have to grant access to the execution of the task
 	this->stop.store(false,boost::memory_order_release);
+    if(!this->contr->timestamp_file.empty())
+    {
+        std::vector<State> timestamps;
+        this->contr->ReadFile(this->contr->timestamp_file,timestamps);
+        this->contr->ComputeTimeMap(timestamps);
+
+    }
+
 	try
 	{
 		contr->index = -1; // in this way i define the initialization of the controller contr->index = -1
@@ -31,7 +39,7 @@ void robot::ExecuteTrajectory()
 		{
 			std::vector<State> cur_val;
 			begin = boost::chrono::high_resolution_clock::now();
-			read_data = st->GetLastValue(cur_val,contr->measured_value);
+            read_data =st->GetLastValue(cur_val,contr->measured_value);
 			// control block
 			if(read_data)
 			{
@@ -41,7 +49,7 @@ void robot::ExecuteTrajectory()
 					//DEBUG
 					std::cout<<"before move2home"<<std::endl;
 					//---
-					//contr->Move2Home();
+                    SendAndWait(starting_joint_position);
 					std::vector<State> start;
 					start = st->FirstRead(contr->measured_value);
 					//DEBUG
@@ -60,10 +68,10 @@ void robot::ExecuteTrajectory()
 					int test_time = boost::chrono::round<boost::chrono::milliseconds>(control_time).count();
 					if(test_time < 10)
 					{
-						usleep(1000*((3)));
+                        boost::this_thread::sleep(boost::posix_time::milliseconds(10-test_time));
 					}
 					cur_time = boost::chrono::duration_cast<boost::chrono::milliseconds>(boost::chrono::high_resolution_clock::now() - time_reference);
-					contr->index = boost::chrono::round<boost::chrono::milliseconds>(cur_time).count();
+                    contr->index = this->contr->time_map[boost::chrono::round<boost::chrono::milliseconds>(cur_time).count()];
 				}
 			}
 		}
@@ -81,8 +89,34 @@ void robot::SendCommand(State cmd,int type)
 	this->contr->SendSingleCommand(cmd,type);
 }
 
+void robot::SendAndWait(State starting_joint_position)
+{
+    // GO TO initial position
+    double sos;
+    std::vector<State> cur_val_1;
+    std::string app = "j_vel";
+    std::vector<std::string> read;
+    read.push_back(app);
+    this->SendCommand(starting_joint_position,1);
+    usleep(1000*300);
+    st->GetLastValue(cur_val_1,read);
+    sos =arma::dot(cur_val_1[0],cur_val_1[0]);
+    std::cout<< "curval" << cur_val_1[0] << std::endl;
+    std::cout<< sos << std::endl;
+   while(sos > 0.000001)
+    {
+        usleep(10*1000);
+        std::vector<State> cur_val_1;
+        st->GetLastValue(cur_val_1,read);
+        sos =arma::dot(cur_val_1[0],cur_val_1[0]);
+        std::cout<< "curval" << cur_val_1[0] << std::endl;
+        std::cout<< sos << std::endl;
+    }
+}
+
 void robot::MoveHome()
 {
+    this->st->RestartAPI();
 	this->contr->Move2Home();
 }
 

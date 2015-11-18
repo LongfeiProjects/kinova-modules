@@ -28,7 +28,7 @@ KinDrv::jaco_position_type_t kinova_controller_openapi::InitPositionType(int val
 // public function//
 kinova_controller_openapi::kinova_controller_openapi()
 {}
-kinova_controller_openapi::kinova_controller_openapi(std::vector<std::string> namefile,std::vector<std::string> list_meas_value,
+kinova_controller_openapi::kinova_controller_openapi(std::vector<std::string> namefile,std::string timestamp_namefile,std::vector<std::string> list_meas_value,
 										  std::vector<double> Pid,int _controltype,bool _limitation,model* mdl,KinDrv::JacoArm *arm_)
 {
 	arm = arm_;
@@ -47,8 +47,7 @@ kinova_controller_openapi::kinova_controller_openapi(std::vector<std::string> na
 		this->ReadFile(namefile[i],app);
 		ff.push_back(app);
 	}
-
-
+    this->timestamp_file = timestamp_namefile;
 }
 kinova_controller_openapi::~kinova_controller_openapi()
 {}
@@ -57,8 +56,6 @@ int kinova_controller_openapi::Move2Home()
 	//boost::recursive_mutex::scoped_lock scoped_lock(api_mutex);
 	  // going to HOME position is possible from all positions. Only problem is,
 	  // if there is some kinfo of error
-	  arm->stop_api_ctrl();
-	  arm->start_api_ctrl();
 	  KinDrv::jaco_retract_mode_t mode = arm->get_status();
 	  switch( mode ) {
 	    case KinDrv::MODE_RETRACT_TO_READY:
@@ -94,19 +91,14 @@ int kinova_controller_openapi::Move2Home()
 	    switch( mode )
 	    {
 	        case KinDrv::MODE_NORMAL_TO_READY:
-	          std::cout<<"MODE_NORMAL_TO_READY"<<std::endl;
 	          break;
 	        case KinDrv::MODE_READY_TO_RETRACT:
-	           std::cout<<"MODE_READY_TO_RETRACT"<<std::endl;
 	          break;
 	        case KinDrv::MODE_RETRACT_STANDBY:
-	           std::cout<<"MODE_RETRACT_STANDBY"<<std::endl;
 	          break;
 	        case KinDrv::MODE_NORMAL:
-	           std::cout<<"MODE_NORMAL"<<std::endl;
 	          break;
 	        case KinDrv::MODE_NOINIT:
-	           std::cout<<"MODE_NOINIT"<<std::endl;
 	          break;
 	          // just 1 button press needed
 	          arm->push_joystick_button(2);
@@ -212,6 +204,7 @@ void kinova_controller_openapi::SendSingleCommand(State cmd,int type)
 	std::cout << "time spent MySendAdvanceTrajectory: " << boost::chrono::duration_cast<boost::chrono::milliseconds>(boost::chrono::high_resolution_clock::now() - begin).count() << " ms\n";
 	//----
 }
+
 bool kinova_controller_openapi::InitController(std::vector<State> initial_state)
 {
 	 //DEBUG
@@ -244,7 +237,7 @@ bool kinova_controller_openapi::ExecController(std::vector<State> current_state,
 
 	begin = boost::chrono::high_resolution_clock::now();;
 	this->SendSingleCommand(result,type);
-	std::cout << "time spent SendSingleCommand: " << boost::chrono::duration_cast<boost::chrono::milliseconds>(boost::chrono::high_resolution_clock::now() - begin).count() << " ms\n";
+    std::cout << "time spresultent SendSingleCommand: " << boost::chrono::duration_cast<boost::chrono::milliseconds>(boost::chrono::high_resolution_clock::now() - begin).count() << " ms\n";
 
 
 	std::cout << "time spent overall Controlling: " << boost::chrono::duration_cast<boost::chrono::milliseconds>(boost::chrono::high_resolution_clock::now() - global_begin).count() << " ms\n";

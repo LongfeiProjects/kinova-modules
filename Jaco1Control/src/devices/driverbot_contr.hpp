@@ -17,8 +17,8 @@ class   driverbot_contr : public controller
 public:
 	int controltype;
 	int clientID;
-	std::vector<int> joint_handle;
-	driverbot_contr(){};
+    std::vector<int> joint_handle;
+    driverbot_contr(){};
 	driverbot_contr(std::vector<std::string> namefile,std::vector<std::string> list_meas_value,std::vector<double> Pid,
 					  int _controltype,model* md,int clientID,std::vector<int> joint_handle);
 	~driverbot_contr(){};

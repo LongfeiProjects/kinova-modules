@@ -150,6 +150,7 @@ private slots:
     void on_playGraspPosition_clicked();
     void on_undoButton_clicked();
     void on_MainWindow_destroyed();
+    void on_pushButton_clicked();
 };
 
 #endif // MAINWINDOW_H

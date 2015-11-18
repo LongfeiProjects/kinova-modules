@@ -551,14 +551,15 @@ void MainWindow::on_pushButton_2_clicked()
             // controller
             const double Pid_coef[] = {5,0,0}; // deg
             std::vector<double> Pid(Pid_coef,End(Pid_coef));
-            const char * _namefiles[] = {"cart_pos.txt","joint_vel.txt"};
+            const char * _namefiles[] = {"cart_pos_openapi.mat","joint_vel_openapi.mat"};
             std::vector<std::string> namefile (_namefiles,End(_namefiles));
             const char * _meas_val[] ={"j_pos","cart_pos","j_vel"};
             std::vector<std::string> meas_val(_meas_val,End(_meas_val));
             int controltype = 8;
             bool limitation = 0;
             Jaco* md = new Jaco();
-            kinova_controller_openapi * ct = new kinova_controller_openapi(namefile,meas_val,Pid,controltype,limitation,md,st->arm); // very rough patch because i can have only one API handle
+            string namefileindex = "index_openapi.mat";
+            kinova_controller_openapi * ct = new kinova_controller_openapi(namefile,namefileindex,meas_val,Pid,controltype,limitation,md,st->arm); // very rough patch because i can have only one API handle
             // checking module
             // define bounding box
             const double bb_point[] = {-0.6,-0.8,-0.4};
@@ -689,6 +690,7 @@ void tarea1(){
 void  WriteFile(std::vector<State> log,std::string namefile)
 {
     std::ofstream myfile(namefile.c_str());
+    myfile << log[0].size() << "\n";
     for(unsigned int i =0;i<log.size();i++)
     {
         for(int j=0;j<log[i].size();j++)
@@ -705,16 +707,10 @@ void  WriteFile(std::vector<State> log,std::string namefile)
 
 void MainWindow::convertSampledTrajectories(vector<Log> recordedLogs){
     //TODO convert from vector<Log> to vector<RecordedCartesianInfo> and store the result in this->sampledTrajectories.
-cout << "sklfnsdk" << endl;
-    cout << "cart_pos index = " << this->readTypeMap["cart_pos"] << endl;
-    cout << "comp_t index = " << this->readTypeMap["comp_t"] << endl;
-    cout << "j_vel index = " << this->readTypeMap["j_vel"] << endl;
+
     Log cartPosLog = recordedLogs[this->readTypeMap["cart_pos"]];
     Log timeLog = recordedLogs[this->readTypeMap["comp_t"]];
     Log velLog = recordedLogs[this->readTypeMap["j_vel"]];
-
-    cout << "HHHHH" << endl;
-
 
     WriteFile(cartPosLog,"cart_pos_openapi.mat");
     WriteFile(timeLog,"index_openapi.mat");
@@ -937,4 +933,21 @@ void MainWindow::on_undoButton_clicked()
 void MainWindow::on_MainWindow_destroyed()
 {
     delete this->bot;
+}
+
+void MainWindow::on_pushButton_clicked()
+{
+    State s(9);
+    s[0] = -0.05;
+    s[1] = -0.46;
+    s[2] = 0.45;
+    s[3] = 1.5;
+    s[4] = 0.2;
+    s[5] = 0.0;
+    s[6] = 0.0;
+    s[7] = 0.0;
+    s[8] = 0.0;
+    cout << "before sending" << endl;
+     this->bot->SendAndWait(s);
+    cout << "after sending sendAndWait" << endl;
 }

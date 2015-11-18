@@ -24,6 +24,7 @@ class stats
       virtual void StartSaving(std::vector<std::string>  & type) = 0;
       virtual std::vector<Log> StopSaving(std::vector<std::string>  & type) = 0;
       virtual void ClearCommands() = 0;
+      virtual void RestartAPI(){};
       virtual ~stats(){};
 };
 

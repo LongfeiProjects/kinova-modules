@@ -42,13 +42,14 @@ class robot
 			this->action_thread = NULL;
 			this->StartAllThread();
 		};
-		~robot(){this->StopAllThread();};
+        ~robot(){this->StopAllThread();}
 		// method
 		void ReadCurrentState(std::vector<State>& , std::vector<std::string> & type );
 		void StartLog(std::vector<std::string>  & type);
 		std::vector<Log> StopLog(std::vector<std::string>  & type);
-		void ExecuteTrajectory();
+        void ExecuteTrajectory(State starting_joint_position);
 		void SendCommand(State cmd,int type);
+        void SendAndWait(State starting_joint_position);
 		void MoveHome();
 	private:
 		void StartAllThread();

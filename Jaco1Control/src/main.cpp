@@ -16,7 +16,7 @@ int main()
 	int controltype = 8;
 	bool limitation = 0;
 	Jaco* md = new Jaco();
-	kinova_controller_openapi * ct = new kinova_controller_openapi(namefile,meas_val,Pid,controltype,limitation,md,st->arm); // very rough patch because i can have only one API handle
+    kinova_controller_openapi * ct = new kinova_controller_openapi(namefile,"index_openapi.mat",meas_val,Pid,controltype,limitation,md,st->arm); // very rough patch because i can have only one API handle
 	// checking module
 	// define bounding box
 	const double bb_point[] = {-0.6,-0.8,-0.4};

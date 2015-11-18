@@ -13,7 +13,6 @@
 #include "model.hpp"
 class controller
 {
-	private:
 
 	public:
 		double P;
@@ -21,10 +20,12 @@ class controller
 		double D;
 		double time_interval; // controller frequency
 		int index;  // current value
+        std::vector<int> time_map;    // this vector represent the mapping between the timestamp and a sampling time of 1 ms
 		std::vector<std::vector<State> > ff;
 		std::vector<State> desired_values; // variable to storage desired value plus other things;
 		std::vector<std::string> measured_value; // vector of string that describe the value that want to measure and in which order we want them
-		model * bot;
+        std::string timestamp_file;
+        model * bot;
 		/*the empty constructor inhibit the use of the constructor that never initialize in
 		  this way because of this loc measured_value.size() for(unsigned int i = 0;i<contr->measured_value.size();i++)
 		  contr->measured_value.size() is empty */
@@ -78,6 +79,28 @@ class controller
 			}
 			return task_space_dim;
 		}
+
+
+        void ComputeTimeMap(std::vector<State> timestamps ){
+            int ind = 0;
+            int diff;int diff_prev;
+            for(int i=0; i< timestamps.back()[0];i++){
+                diff = timestamps[ind][0]-i;
+                if( diff == 0 || ind == 0)
+                {
+                    this->time_map.push_back(ind);
+                    ind++;
+                }else
+                {
+                     diff_prev = abs(timestamps[ind-1][0]-i);
+                    if(diff_prev<= diff)
+                        this->time_map.push_back(ind-1);
+                    else
+                        this->time_map.push_back(ind);
+                }
+
+            }
+        }
 };
 
 #endif /* CONTROLLER_HPP_ */

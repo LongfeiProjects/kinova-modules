@@ -17,13 +17,15 @@ SOURCES += main.cpp\
         mainwindow.cpp \
     sqlmanager.cpp \
     dialog.cpp \
-    flowlayout.cpp
+    flowlayout.cpp \
+    qpushbuttonextended.cpp
 
 HEADERS  += mainwindow.h \
     sqlmanager.h \
     dialog.h \
     types.h \
-    flowlayout.h
+    flowlayout.h \
+    qpushbuttonextended.h
 
 FORMS    += mainwindow.ui \
     dialog.ui

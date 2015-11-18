@@ -75,8 +75,8 @@ void kinova_status_openapi::Stop()
 // KINOVA API DEPENDANT // // in reading i update the value for control
 void kinova_status_openapi::Reading()
 {
-	// start the global time for logging
-	this->tStart = boost::chrono::high_resolution_clock::now();
+    // start the global time for logging
+    this->tStart = boost::chrono::high_resolution_clock::now();
 	boost::chrono::milliseconds reading_time;
 	while(this->running.load(boost::memory_order_acquire))
 	{
@@ -97,11 +97,11 @@ void kinova_status_openapi::Reading()
 		}
 		reading_time = boost::chrono::duration_cast<boost::chrono::milliseconds>(boost::chrono::high_resolution_clock::now() - global_begin);
     	//std::cout << "time spent Reading: " << reading_time.count() << " ms\n";
-		//int test_time = boost::chrono::round<boost::chrono::milliseconds>(reading_time).count();
-		//if(test_time < 10)
-		//{
-			//usleep(1000*(()));
-		//}
+        int test_time = boost::chrono::round<boost::chrono::milliseconds>(reading_time).count();
+        if(test_time < 10)
+        {
+            boost::this_thread::sleep(boost::posix_time::milliseconds(10-test_time));
+        }
 	}
 	std::cout<<"im out of Reading thread"<<std::endl;
 }
@@ -124,6 +124,7 @@ void kinova_status_openapi::Logging()
 
 void kinova_status_openapi::Cleaning()
 {
+    std::cout<<"start cleaning thread"<<std::endl;
 	while(this->running_cleaner.load(boost::memory_order_acquire))
 	{
 		if(this->ds_ang_pos.size() > (unsigned int)(this->Max_DS_allowed) ){
@@ -162,18 +163,22 @@ void kinova_status_openapi::StartSaving(std::vector<std::string>  & type)
 	// first i have to stop the garbage collector process
 	this->running_cleaner.store(false,boost::memory_order_release);
 	this->garbage_collection->join();
+    // start the global time for logging
+    this->tStart = boost::chrono::high_resolution_clock::now();
+
 	if(first_write.load(boost::memory_order_acquire))
-	{
+    {
 		for(unsigned int i =0;i<type.size();i++)
 		{
 			DataStoreIt app;
 			if(type[i].compare("comp_t")==0)
 			{
-				app = this->ds_comp_t.end();
+                app = this->ds_comp_t.end();
+                app--;
 			}
 			if(type[i].compare("j_pos") == 0)
 			{
-				app = this->ds_ang_pos.end();
+                app = this->ds_ang_pos.end();
 				app--;
 			}
 			else if(type[i].compare("j_vel") == 0)
@@ -212,6 +217,7 @@ std::vector<Log> kinova_status_openapi::StopSaving(std::vector<std::string>  & t
 		{
 			Log app(this->bookmarks[i],this->ds_comp_t.end());
 
+           std::cout<< "app size = " << app.size() << std::endl;
 			for(unsigned int i =0;i<app.size();i++)
 			{
 				app[i]=app[i]-app[0];
@@ -262,14 +268,22 @@ void kinova_status_openapi::ClearCommands()
 	this->arm->erase_trajectories();
 }
 
+void kinova_status_openapi::RestartAPI(){
+    this->running.store(false,boost::memory_order_release);
+    this->running_cleaner.store(false,boost::memory_order_release);
+    arm->stop_api_ctrl();
+    arm->start_api_ctrl();
+    this->running.store(true,boost::memory_order_release);
+    this->running_cleaner.store(true,boost::memory_order_release);
+}
+
 void kinova_status_openapi::ReadTimeStamp()
 {
     State t_cur(1);
     boost::chrono::milliseconds reading_time;
-    boost::chrono::duration_cast<boost::chrono::milliseconds>(boost::chrono::high_resolution_clock::now() - this->tStart);
+    reading_time = boost::chrono::duration_cast<boost::chrono::milliseconds>(boost::chrono::high_resolution_clock::now() - this->tStart);
     t_cur[0] =  boost::chrono::round<boost::chrono::milliseconds>(reading_time).count();
 
-    //std::cout<< t_cur << std::endl;
 	this->ds_comp_t.push_back(t_cur);
 	// i can write for the vis less often then the other op
 	this->comp_t.push( &(ds_comp_t.back()) );
@@ -304,7 +318,7 @@ void kinova_status_openapi::ReadJoints(KinDrv::jaco_position_t &position,KinDrv:
     app_short[3]=velocity.joints[3];
     app_short[4]=velocity.joints[4];
     app_short[5]=velocity.joints[5];
-    std::cout<<app_short << std::endl;
+    //std::cout<<app_short << std::endl;
     this->ds_ang_vel.push_back(app_short);
 	this->dl_ang_vel.store(&(ds_ang_vel.back()),boost::memory_order_release);
 	// joint torques
@@ -413,10 +427,11 @@ bool kinova_status_openapi::GetLastValue(std::vector<State>& res, std::vector<st
 	{
 		for(unsigned int i =0;i<type.size();i++)
 		{
+            std::cout<<"reading succed"<<std::endl;
 			State app;
 			if(type[i].compare("j_pos") == 0)
 			{	//DEBUG
-				//std::cout<<"reading last joints"<<std::endl;
+                //std::cout<<"reading last joints"<<std::endl;
 				//---
 				app = *(this->dl_ang_pos.load(boost::memory_order_acquire));
 			}

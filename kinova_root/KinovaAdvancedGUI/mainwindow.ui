@@ -257,7 +257,7 @@ color: rgb(247, 247, 246);
               <set>Qt::AlignCenter</set>
              </property>
             </widget>
-            <widget class="QPushButton" name="rightButton">
+            <widget class="QPushButtonExtended" name="rightButton">
              <property name="geometry">
               <rect>
                <x>5</x>
@@ -1188,6 +1188,19 @@ color: rgb(247, 247, 246);
         </item>
        </layout>
       </widget>
+      <widget class="QPushButton" name="pushButton">
+       <property name="geometry">
+        <rect>
+         <x>210</x>
+         <y>20</y>
+         <width>99</width>
+         <height>27</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>PushButton</string>
+       </property>
+      </widget>
      </widget>
     </widget>
     <widget class="QWidget" name="tab">
@@ -1347,6 +1360,13 @@ color: rgb(247, 247, 246);
   </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
+ <customwidgets>
+  <customwidget>
+   <class>QPushButtonExtended</class>
+   <extends>QPushButton</extends>
+   <header>qpushbuttonextended.h</header>
+  </customwidget>
+ </customwidgets>
  <resources>
   <include location="resources.qrc"/>
  </resources>
