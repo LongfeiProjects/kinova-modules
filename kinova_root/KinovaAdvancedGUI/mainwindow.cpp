@@ -618,11 +618,13 @@ void MainWindow::on_pushButton_2_clicked()
             this->readType.push_back("comp_t");
             this->readType.push_back("cart_pos");
             this->readType.push_back("j_vel");
+            this->readType.push_back("j_pos");
+
 
             this->readTypeMap["comp_t"] = 0;
             this->readTypeMap["cart_pos"] = 1;
             this->readTypeMap["j_vel"] = 2;
-
+            this->readTypeMap["j_pos"] = 3;
 
             // controller
             const double Pid_coef[] = {5,0,0}; // deg
@@ -766,6 +768,8 @@ void tarea1(){
 void  WriteFile(std::vector<State> log,std::string namefile)
 {
     std::ofstream myfile(namefile.c_str());
+    cout << log.empty() << endl;
+    cout << "file size " << log[0].size() << endl;
     myfile << log[0].size() << "\n";
     for(unsigned int i =0;i<log.size();i++)
     {
@@ -788,9 +792,20 @@ void MainWindow::convertSampledTrajectories(vector<Log> recordedLogs){
     Log timeLog = recordedLogs[this->readTypeMap["comp_t"]];
     Log velLog = recordedLogs[this->readTypeMap["j_vel"]];
 
+    cout << "before write file" <<endl;
+    Log jointLog = recordedLogs[this->readTypeMap["j_pos"]];//delete it
+
     WriteFile(cartPosLog,"cart_pos_openapi.mat");
+    cout << "after write file 1" <<endl;
     WriteFile(timeLog,"index_openapi.mat");
+    cout << "after write file 2" <<endl;
     WriteFile(velLog,"joint_vel_openapi.mat");
+    cout << "after write file 3" <<endl;
+    WriteFile(jointLog,"joint_pos_openapi.mat");
+
+    cout << "after write file 4" <<endl;
+
+
    // for(vector<State>::iterator iter = cartPosLog.begin(); iter!=cartPosLog.end();++iter){
     //    State st = *iter;
 
@@ -815,7 +830,9 @@ void MainWindow::stopRecording(){
     this->ui->recordingLabel->setVisible(false);
     this->isRecordingTrajecory=false;
     if(KINOVA_LIB==1){
+        cout << "before stoping" << endl;
         recordedLogs = this->bot->StopLog(this->readType);
+        cout << "after stoping" << endl;
         convertSampledTrajectories(recordedLogs);
 
         this->recordedLogs = recordedLogs;

@@ -81,14 +81,14 @@ void kinova_status_openapi::Reading()
 	while(this->running.load(boost::memory_order_acquire))
 	{
 		boost::chrono::high_resolution_clock::time_point global_begin = boost::chrono::high_resolution_clock::now();
-		KinDrv::jaco_position_t position,velocity,force;
+        KinDrv::jaco_position_t position,velocity,force,cart_pos;
         velocity = this->arm->get_ang_vel();
 		position = this->arm->get_ang_pos();
 		//force = this->arm->get_ang_force();
-		//cart_pos = this->arm->get_cart_pos();
+        cart_pos = this->arm->get_cart_pos();
 		this->ReadTimeStamp();
 		this->ReadJoints(position,velocity,force);
-		this->ReadCartesian(position);
+        this->ReadCartesian(cart_pos);
 		//this->ReadCurrents(cur);
 		if(!first_write.load(boost::memory_order_acquire))
 		{
@@ -375,7 +375,7 @@ void kinova_status_openapi::ReadJoints(KinDrv::jaco_position_t &position,KinDrv:
 }
 
 // TO DO: SPLIT CARTESIAN POSITION FROM ORIENTATION INTO DIFFERENT VARIABLE
-void kinova_status_openapi::ReadCartesian(KinDrv::jaco_position_t & position)
+/*void kinova_status_openapi::ReadCartesian(KinDrv::jaco_position_t & position)
 {
 	// cartesian position
 	State q(6);
@@ -395,17 +395,21 @@ void kinova_status_openapi::ReadCartesian(KinDrv::jaco_position_t & position)
     bot->DK(q,cart_pos,R);
 	this->ds_cart_pos.push_back(cart_pos);
 	this->dl_cart_pos.store( &(ds_cart_pos.back()),boost::memory_order_release);
+}*/
+void kinova_status_openapi::ReadCartesian(KinDrv::jaco_position_t & position)
+{
+    // cartesian position
+    State q(6);
+    q[0]=position.position[0];
+    q[1]=position.position[1];
+    q[2]=position.position[2];
+    q[3]=position.rotation[0];
+    q[4]=position.rotation[1];
+    q[5]=position.rotation[2];
 
-	// cartesian forces
-	/*State force(6);
-	force[0]=info.Force.CartesianPosition.X;
-	force[1]=info.Force.CartesianPosition.Y;
-	force[2]=info.Force.CartesianPosition.Z;
-	force[3]=info.Force.CartesianPosition.ThetaX;
-	force[4]=info.Force.CartesianPosition.ThetaY;
-	force[5]=info.Force.CartesianPosition.ThetaZ;
-	this->ds_cart_f.push_back(app);
-	this->dl_cart_f.store( &(ds_cart_f.back()),boost::memory_order_release);*/
+
+    this->ds_cart_pos.push_back(q);
+    this->dl_cart_pos.store( &(ds_cart_pos.back()),boost::memory_order_release);
 }
 
 /*void kinova_status::ReadCurrents(GeneralInformations & info)
