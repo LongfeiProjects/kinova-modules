@@ -41,12 +41,7 @@ kinova_controller_openapi::kinova_controller_openapi(std::vector<std::string> na
 	controltype = this->InitPositionType(_controltype);
 	limitation = _limitation;
 	bot=mdl;
-	for(unsigned int i =0;i<namefile.size();i++)
-	{
-		std::vector<State> app;
-		this->ReadFile(namefile[i],app);
-		ff.push_back(app);
-	}
+    this->ff_files= namefile;
     this->timestamp_file = timestamp_namefile;
 }
 kinova_controller_openapi::~kinova_controller_openapi()
@@ -187,6 +182,13 @@ KinDrv::jaco_basic_traj_point_t  kinova_controller_openapi::ConvertControl(State
 	}
 	return pointToSend;
 }
+
+void kinova_controller_openapi::SetNewFF(std::vector< std::vector<State> > new_ff)
+{
+    this->ff.clear();
+    this->ff = new_ff;
+}
+
 void kinova_controller_openapi::SendSingleCommand(State cmd,int type)
 {
 

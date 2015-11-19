@@ -11,9 +11,11 @@ public:
 
 signals:
     void onPressRightClick(void);
+    void onReleaseRightClick(void);
 
 protected:
     void mousePressEvent(QMouseEvent *event);
+    void mouseReleaseEvent(QMouseEvent *event);
 
 
 public slots:

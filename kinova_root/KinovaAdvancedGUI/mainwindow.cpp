@@ -46,6 +46,8 @@ void MainWindow::initGUI(){
     this->ui->speedComboBox->addItem(tr("high"), HIGH_SPEED);
     this->ui->speedComboBox->setCurrentIndex(1);
     this->speed= LOW_SPEED;
+    this->isMoving = false;
+    this->isSpeedIncremented = false;
 
     /*********************************** Recorded Trajectories panel ******************/
     this->recordedTrajectories = this->sqlManager->getTrajectoriesInfo();
@@ -79,8 +81,70 @@ void MainWindow::initGUI(){
     /*Disable Undo button*/
     this->ui->undoButton->setEnabled(false);
 
+    /*Connect right click signals with slots*/
+    QObject::connect(this->ui->rightButton, SIGNAL(onPressRightClick(void)),this, SLOT(on_button_rightClick_IncreaseSpeed()));
+    QObject::connect(this->ui->downButton, SIGNAL(onPressRightClick(void)),this, SLOT(on_button_rightClick_IncreaseSpeed()));
+    QObject::connect(this->ui->leftButton, SIGNAL(onPressRightClick(void)),this, SLOT(on_button_rightClick_IncreaseSpeed()));
+    QObject::connect(this->ui->upButton, SIGNAL(onPressRightClick(void)),this, SLOT(on_button_rightClick_IncreaseSpeed()));
+    QObject::connect(this->ui->pullButton_Y, SIGNAL(onPressRightClick(void)),this, SLOT(on_button_rightClick_IncreaseSpeed()));
+    QObject::connect(this->ui->pushButton_Y, SIGNAL(onPressRightClick(void)),this, SLOT(on_button_rightClick_IncreaseSpeed()));
+
+    QObject::connect(this->ui->rightButton, SIGNAL(onReleaseRightClick(void)),this, SLOT(on_button_rightClick_DecreaseSpeed()));
+    QObject::connect(this->ui->downButton, SIGNAL(onReleaseRightClick(void)),this, SLOT(on_button_rightClick_DecreaseSpeed()));
+    QObject::connect(this->ui->leftButton, SIGNAL(onReleaseRightClick(void)),this, SLOT(on_button_rightClick_DecreaseSpeed()));
+    QObject::connect(this->ui->upButton, SIGNAL(onReleaseRightClick(void)),this, SLOT(on_button_rightClick_DecreaseSpeed()));
+    QObject::connect(this->ui->pullButton_Y, SIGNAL(onReleaseRightClick(void)),this, SLOT(on_button_rightClick_DecreaseSpeed()));
+    QObject::connect(this->ui->pushButton_Y, SIGNAL(onReleaseRightClick(void)),this, SLOT(on_button_rightClick_DecreaseSpeed()));
+
 }
 
+void MainWindow::on_button_rightClick_IncreaseSpeed(){
+    if(this->isMoving){
+       switch (this->ui->speedComboBox->currentIndex()) {
+       case 0:
+           this->speed = LOW_SPEED;
+           this->ui->speedComboBox->setCurrentIndex(1);
+           this->isSpeedIncremented = true;
+           break;
+       case 1:
+           this->speed = MEDIUM_SPEED;
+           this->ui->speedComboBox->setCurrentIndex(2);
+           this->isSpeedIncremented = true;
+           break;
+       case 2:
+           this->speed = HIGH_SPEED;
+           this->ui->speedComboBox->setCurrentIndex(3);
+           this->isSpeedIncremented = true;
+           break;
+       default:
+           break;
+       }
+    }
+}
+
+void MainWindow::on_button_rightClick_DecreaseSpeed(){
+    if(this->isSpeedIncremented){
+       switch (this->ui->speedComboBox->currentIndex()) {
+       case 1:
+           this->speed = PRECISION_SPEED;
+           this->ui->speedComboBox->setCurrentIndex(0);
+           this->isSpeedIncremented=false;
+           break;
+       case 2:
+           this->speed = LOW_SPEED;
+           this->ui->speedComboBox->setCurrentIndex(1);
+           this->isSpeedIncremented=false;
+           break;
+       case 3:
+           this->speed = MEDIUM_SPEED;
+           this->ui->speedComboBox->setCurrentIndex(2);
+           this->isSpeedIncremented=false;
+           break;
+       default:
+           break;
+       }
+    }
+}
 
 QLatin1String getLabelStyle(){
     return QLatin1String("background-color: rgb(51, 51, 51);\n"
@@ -345,6 +409,7 @@ void MainWindow::on_rightButton_pressed()
     connect (signalMapper, SIGNAL(mapped(int)), this, SLOT(loopSendVelocityCommad(int)));
 
     this->moveRightTimer->start(LOOP_SPEED_SEND_VELOCITY_COMMAND);
+     this->isMoving = true;
 }
 
 
@@ -354,6 +419,7 @@ void MainWindow::on_rightButton_released()
     this->moveRightTimer->stop();
     cout<<"right timer stopped"<<endl;
     this->stopedTimers[Right-1] = true;
+     this->isMoving = false;
 }
 
 void MainWindow::on_upButton_pressed()
@@ -368,12 +434,14 @@ void MainWindow::on_upButton_pressed()
     signalMapper->setMapping (this->moveUpTimer, Up) ;
     connect (signalMapper, SIGNAL(mapped(int)), this, SLOT(loopSendVelocityCommad(int)));
     this->moveUpTimer->start(LOOP_SPEED_SEND_VELOCITY_COMMAND);
+     this->isMoving = true;
 }
 
 void MainWindow::on_upButton_released()
 {
     this->moveUpTimer->stop();
     this->stopedTimers[Up-1] = true;
+     this->isMoving = false;
 
 }
 
@@ -391,12 +459,14 @@ void MainWindow::on_leftButton_pressed()
     signalMapper -> setMapping (this->moveLeftTimer, Left) ;
     connect (signalMapper, SIGNAL(mapped(int)), this, SLOT(loopSendVelocityCommad(int)));
     this->moveLeftTimer->start(LOOP_SPEED_SEND_VELOCITY_COMMAND);
+     this->isMoving = true;
 }
 
 void MainWindow::on_leftButton_released()
 {
     this->moveLeftTimer->stop();
     this->stopedTimers[Left-1] = true;
+    this->isMoving = false;
 
 }
 
@@ -416,12 +486,14 @@ void MainWindow::on_downButton_pressed()
     signalMapper -> setMapping (this->moveDownTimer, Down) ;
     connect (signalMapper, SIGNAL(mapped(int)), this, SLOT(loopSendVelocityCommad(int)));
     this->moveDownTimer->start(LOOP_SPEED_SEND_VELOCITY_COMMAND);
+    this->isMoving = true;
 }
 
 void MainWindow::on_downButton_released()
 {
    this->moveDownTimer->stop();
    this->stopedTimers[Down-1] = true;
+    this->isMoving = false;
 }
 
 
@@ -443,12 +515,14 @@ void MainWindow::on_pushButton_Y_pressed()
     signalMapper -> setMapping (this->movePushTimer, Push) ;
     connect (signalMapper, SIGNAL(mapped(int)), this, SLOT(loopSendVelocityCommad(int)));
     this->movePushTimer->start(LOOP_SPEED_SEND_VELOCITY_COMMAND);
+     this->isMoving = true;
 }
 
 void MainWindow::on_pushButton_Y_released()
 {
     this->movePushTimer->stop();
     this->stopedTimers[Push-1] = true;
+     this->isMoving = false;
 
 }
 
@@ -469,12 +543,14 @@ void MainWindow::on_pullButton_Y_pressed()
     signalMapper -> setMapping (this->movePullTimer, Pull) ;
     connect (signalMapper, SIGNAL(mapped(int)), this, SLOT(loopSendVelocityCommad(int)));
     this->movePullTimer->start(LOOP_SPEED_SEND_VELOCITY_COMMAND);
+     this->isMoving = true;
 }
 
 void MainWindow::on_pullButton_Y_released()
 {
     this->movePullTimer->stop();
     this->stopedTimers[Pull-1] = true;
+     this->isMoving = false;
 
 }
 
@@ -727,6 +803,7 @@ void MainWindow::startRecording(){
     this->ui->label_record_stop->setText(QString(tr("Stop")));
     this->ui->record_Button->setIcon(QIcon(":/imagenes/img/stop.png"));
     this->ui->recordingLabel->setVisible(true);
+    //this->setActualPosition();
     if(KINOVA_LIB == 1){
         this->bot->StartLog(this->readType);
     }
@@ -738,9 +815,10 @@ void MainWindow::stopRecording(){
     this->ui->recordingLabel->setVisible(false);
     this->isRecordingTrajecory=false;
     if(KINOVA_LIB==1){
-        vector<Log> recordedLogs;
         recordedLogs = this->bot->StopLog(this->readType);
         convertSampledTrajectories(recordedLogs);
+
+        this->recordedLogs = recordedLogs;
     }
 }
 
@@ -950,4 +1028,28 @@ void MainWindow::on_pushButton_clicked()
     cout << "before sending" << endl;
      this->bot->SendAndWait(s);
     cout << "after sending sendAndWait" << endl;
+}
+
+void MainWindow::on_pushButton_3_clicked()
+{
+    State starting(9);
+    starting[0] = -0.05;
+    starting[1] = -0.46;
+    starting[2] = 0.45;
+    starting[3] = 1.5;
+    starting[4] = 0.2;
+    starting[5] = 0.0;
+    starting[6] = 0.0;
+    starting[7] = 0.0;
+    starting[8] = 0.0;
+    Log cartPosLog = recordedLogs[this->readTypeMap["cart_pos"]];
+    Log timeLog = recordedLogs[this->readTypeMap["comp_t"]];
+    Log velLog = recordedLogs[this->readTypeMap["j_vel"]];
+    vector<Log> values;
+    values.push_back(cartPosLog);
+    values.push_back(velLog);
+
+
+    this->bot->ExecuteUpdatedTrajectory(timeLog,starting,values);
+    cout << "after executing the traj" << endl;
 }

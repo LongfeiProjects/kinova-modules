@@ -15,12 +15,11 @@ void controller::InitCartesianKinematicController(std::vector<State> initial_sta
 
 }
 State controller::CartesianKinematicController(std::vector<State> current_state)
-{
-
-	//desired_values[0] = ff[0][index];
-	//desired_values[1] = ff[1][index];
+{   
 	State result;
 	double lambda = 0.001; // bring outside
+
+    // reduce the state_vector to the right dimension
 
 	// controllo nei giunti (velocita)
 	arma::mat J = bot->J0(current_state[0],"trasl");

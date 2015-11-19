@@ -25,6 +25,7 @@ class controller
 		std::vector<State> desired_values; // variable to storage desired value plus other things;
 		std::vector<std::string> measured_value; // vector of string that describe the value that want to measure and in which order we want them
         std::string timestamp_file;
+        std::vector<std::string> ff_files;
         model * bot;
 		/*the empty constructor inhibit the use of the constructor that never initialize in
 		  this way because of this loc measured_value.size() for(unsigned int i = 0;i<contr->measured_value.size();i++)
@@ -34,7 +35,9 @@ class controller
 		virtual bool ExecController(std::vector<State> current_state,int type) = 0;
 		// if a set int type = -1 it means that I'm going to use the control type specified inside the controller
 		virtual void SendSingleCommand(State cmd, int type) = 0;
-		virtual ~controller(){};
+        virtual void SetNewFF(std::vector< std::vector<State> > new_ff){}
+
+        virtual ~controller(){}
 		void  InitCartesianKinematicController(std::vector<State> initial_state);
 		State CartesianKinematicController(std::vector<State> current_state);
 		inline int ReadFile(std::string namefile,std::vector< State > & value)
@@ -84,6 +87,7 @@ class controller
         void ComputeTimeMap(std::vector<State> timestamps ){
             int ind = 0;
             int diff;int diff_prev;
+            this->time_map.clear();
             for(int i=0; i< timestamps.back()[0];i++){
                 diff = timestamps[ind][0]-i;
                 if( diff == 0 || ind == 0)

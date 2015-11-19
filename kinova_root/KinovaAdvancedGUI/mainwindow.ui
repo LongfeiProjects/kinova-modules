@@ -188,7 +188,7 @@ color: rgb(247, 247, 246);
               <set>Qt::AlignCenter</set>
              </property>
             </widget>
-            <widget class="QPushButton" name="upButton">
+            <widget class="QPushButtonExtended" name="upButton">
              <property name="geometry">
               <rect>
                <x>5</x>
@@ -326,7 +326,7 @@ color: rgb(247, 247, 246);
               <set>Qt::AlignCenter</set>
              </property>
             </widget>
-            <widget class="QPushButton" name="leftButton">
+            <widget class="QPushButtonExtended" name="leftButton">
              <property name="geometry">
               <rect>
                <x>9</x>
@@ -395,7 +395,7 @@ color: rgb(247, 247, 246);
               <set>Qt::AlignCenter</set>
              </property>
             </widget>
-            <widget class="QPushButton" name="downButton">
+            <widget class="QPushButtonExtended" name="downButton">
              <property name="geometry">
               <rect>
                <x>7</x>
@@ -452,7 +452,7 @@ color: rgb(247, 247, 246);
             <property name="lineWidth">
              <number>0</number>
             </property>
-            <widget class="QPushButton" name="pullButton_Y">
+            <widget class="QPushButtonExtended" name="pullButton_Y">
              <property name="geometry">
               <rect>
                <x>12</x>
@@ -521,7 +521,7 @@ color: rgb(247, 247, 246);
             <property name="lineWidth">
              <number>0</number>
             </property>
-            <widget class="QPushButton" name="pushButton_Y">
+            <widget class="QPushButtonExtended" name="pushButton_Y">
              <property name="geometry">
               <rect>
                <x>11</x>
@@ -1198,7 +1198,20 @@ color: rgb(247, 247, 246);
         </rect>
        </property>
        <property name="text">
-        <string>PushButton</string>
+        <string>Go to fixed</string>
+       </property>
+      </widget>
+      <widget class="QPushButton" name="pushButton_3">
+       <property name="geometry">
+        <rect>
+         <x>340</x>
+         <y>6</y>
+         <width>221</width>
+         <height>41</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Execute Last Trajectory</string>
        </property>
       </widget>
      </widget>

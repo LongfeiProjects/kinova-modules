@@ -41,6 +41,7 @@ public:
     void setHandPoint();
     void setHandGrasp();
     void saveCheckPoint();
+
 private:
     Ui::MainWindow *ui;
   //  QDialogButtonBox* save_Trajectory_Panel_Button;
@@ -94,9 +95,15 @@ private:
 
 
     bool isRecordingTrajecory;
+    bool isMoving;
+    bool isSpeedIncremented;
+
     vector<Trajectory> recordedTrajectories;
     vector<CartesianPosition> checkpoints;
     vector<RecordedCartesianInfo> sampledTrajectoryInfo;
+
+    //delete it
+    vector<Log> recordedLogs;
 
     //GUI auxiliar fields
     QGridLayout* gridPlayPanel;
@@ -134,6 +141,8 @@ private slots:
     void on_downButton_released();
     void on_rightButton_pressed();
     void on_rightButton_released();
+    void on_button_rightClick_IncreaseSpeed();
+    void on_button_rightClick_DecreaseSpeed();
     void on_pushButton_2_clicked();
     void on_pushButton_Y_pressed();
     void on_pushButton_Y_released();
@@ -151,6 +160,7 @@ private slots:
     void on_undoButton_clicked();
     void on_MainWindow_destroyed();
     void on_pushButton_clicked();
+    void on_pushButton_3_clicked();
 };
 
 #endif // MAINWINDOW_H

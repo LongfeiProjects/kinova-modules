@@ -47,7 +47,12 @@ class robot
 		void ReadCurrentState(std::vector<State>& , std::vector<std::string> & type );
 		void StartLog(std::vector<std::string>  & type);
 		std::vector<Log> StopLog(std::vector<std::string>  & type);
-        void ExecuteTrajectory(State starting_joint_position);
+
+        void ExecuteTrajectory(std::vector<State> timestamps, State starting_cartesian_position);
+        void ExecuteUpdatedTrajectory(std::vector<State> timestamps, State starting_cartesian_position, std::vector< std::vector<State> > new_ff);
+        void ExecuteTrajectoryFile(State starting_cartesian_position);
+
+
 		void SendCommand(State cmd,int type);
         void SendAndWait(State starting_joint_position);
 		void MoveHome();
@@ -56,6 +61,7 @@ class robot
 		void StopAllThread();
 		void Cheking();
 		void EmergencyStop();
+        void UpdateFF(std::vector< std::vector<State> > new_ff);
 };
 
 

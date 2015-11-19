@@ -24,6 +24,7 @@ typedef struct{
     float angvel_j5;
     float angvel_j6;
 
+    int timestamp;
 }RecordedCartesianInfo;
 
 typedef struct{

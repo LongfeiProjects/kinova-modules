@@ -38,7 +38,9 @@ class kinova_status_openapi : public stats
 		boost::chrono::high_resolution_clock::time_point tStart;
 		// for logging          for visualizing      for control
 		DataStore ds_ang_pos;	DataFlow ang_pos;    DataLast dl_ang_pos;
+        DataStore ds_hand_pos;              		 DataLast dl_hand_pos;
 		DataStore ds_ang_vel;					     DataLast dl_ang_vel;
+        DataStore ds_hand_vel;              		 DataLast dl_hand_vel;
 		DataStore ds_ang_tau;	DataFlow ang_tau;    DataLast dl_ang_tau;
 		DataStore ds_cart_f;	DataFlow cart_f;	 DataLast dl_cart_f;
 		DataStore ds_mot_amp;	DataFlow mot_amp;

@@ -130,8 +130,14 @@ void kinova_status_openapi::Cleaning()
 		if(this->ds_ang_pos.size() > (unsigned int)(this->Max_DS_allowed) ){
 			this->ds_ang_pos.pop_front();
         }
+        if(this->ds_hand_pos.size() > (unsigned int)(this->Max_DS_allowed) ){
+            this->ds_hand_pos.pop_front();
+        }
         if(this->ds_ang_vel.size() > (unsigned int)(this->Max_DS_allowed)){
             this->ds_ang_vel.pop_front();
+        }
+        if(this->ds_hand_vel.size() > (unsigned int)(this->Max_DS_allowed)){
+            this->ds_hand_vel.pop_front();
         }
         if(this->ds_ang_tau.size() > (unsigned int)(this->Max_DS_allowed)){
            this->ds_ang_tau.pop_front();
@@ -181,11 +187,21 @@ void kinova_status_openapi::StartSaving(std::vector<std::string>  & type)
                 app = this->ds_ang_pos.end();
 				app--;
 			}
+            if(type[i].compare("hand_pos") == 0)
+            {
+                app = this->ds_hand_pos.end();
+                app--;
+            }
 			else if(type[i].compare("j_vel") == 0)
 			{
 				app = this->ds_ang_vel.end();
 				app--;
 			}
+            else if(type[i].compare("hand_vel") == 0)
+            {
+                app = this->ds_hand_vel.end();
+                app--;
+            }
 			else if(type[i].compare("j_tau") == 0)
 			{
 				app = this->ds_ang_tau.end();
@@ -225,17 +241,28 @@ std::vector<Log> kinova_status_openapi::StopSaving(std::vector<std::string>  & t
 		    result.push_back(app);
 
 		}
-		if(type[i].compare("j_pos") == 0)
+        else if(type[i].compare("j_pos") == 0)
 		{   // here i construct the log by assigning to the vec of state Log
 			// the sublist
 			Log app(this->bookmarks[i],this->ds_ang_pos.end());
 			result.push_back(app);
 		}
+        else if(type[i].compare("hand_pos") == 0)
+        {   // here i construct the log by assigning to the vec of state Log
+            // the sublist
+            Log app(this->bookmarks[i],this->ds_hand_pos.end());
+            result.push_back(app);
+        }
 		else if(type[i].compare("j_vel") == 0)
 		{
 			Log app(this->bookmarks[i],this->ds_ang_vel.end());
 			result.push_back(app);
 		}
+        else if(type[i].compare("hand_vel") == 0)
+        {
+            Log app(this->bookmarks[i],this->ds_hand_vel.end());
+            result.push_back(app);
+        }
 		else if(type[i].compare("j_tau") == 0)
 		{
 			Log app(this->bookmarks[i],this->ds_ang_tau.end());
@@ -294,7 +321,7 @@ void kinova_status_openapi::ReadTimeStamp()
 void kinova_status_openapi::ReadJoints(KinDrv::jaco_position_t &position,KinDrv::jaco_position_t & velocity,KinDrv::jaco_position_t & force)
 {
 	// joint position
-	State app(9);
+    State app(6);
 	app[0]=position.joints[0];
 	app[1]=position.joints[1];
 	app[2]=position.joints[2];
@@ -303,14 +330,18 @@ void kinova_status_openapi::ReadJoints(KinDrv::jaco_position_t &position,KinDrv:
 	app[5]=position.joints[5];
 	// convert angle from deg to rad
 	app=app*DEG;
-	app[6]=position.finger_position[1];
-	app[7]=position.finger_position[2];
-	app[8]=position.finger_position[3];
 	this->ds_ang_pos.push_back(app);
 	this->dl_ang_pos.store( &(ds_ang_pos.back()),boost::memory_order_release);
 	// i can write for the vis less often then the other op
 	this->ang_pos.push( &(ds_ang_pos.back()) );
-	// joint velocity
+    // finger position
+    State app_fing(3);
+    app_fing[0]=position.finger_position[1];
+    app_fing[1]=position.finger_position[2];
+    app_fing[2]=position.finger_position[3];
+    this->ds_hand_pos.push_back(app_fing);
+    this->dl_hand_pos.store(&(ds_hand_pos.back()),boost::memory_order_release);
+    // joint velocity
     State app_short(6);
     app_short[0]=velocity.joints[0];
     app_short[1]=velocity.joints[1];
@@ -318,9 +349,18 @@ void kinova_status_openapi::ReadJoints(KinDrv::jaco_position_t &position,KinDrv:
     app_short[3]=velocity.joints[3];
     app_short[4]=velocity.joints[4];
     app_short[5]=velocity.joints[5];
+    // convert angle from deg to rad
+    app_short=app_short*DEG;
     //std::cout<<app_short << std::endl;
     this->ds_ang_vel.push_back(app_short);
 	this->dl_ang_vel.store(&(ds_ang_vel.back()),boost::memory_order_release);
+    // finger velocity
+    State app_short_fing(3);
+    app_short_fing[0]=velocity.finger_position[1];
+    app_short_fing[1]=velocity.finger_position[2];
+    app_short_fing[2]=velocity.finger_position[3];
+    this->ds_hand_vel.push_back(app_short_fing);
+    this->dl_hand_vel.store(&(ds_hand_vel.back()),boost::memory_order_release);
 	// joint torques
 	/*app[0]=force.joints[0];
 	app[1]=force.joints[1];
@@ -430,15 +470,21 @@ bool kinova_status_openapi::GetLastValue(std::vector<State>& res, std::vector<st
             std::cout<<"reading succed"<<std::endl;
 			State app;
 			if(type[i].compare("j_pos") == 0)
-			{	//DEBUG
-                //std::cout<<"reading last joints"<<std::endl;
-				//---
+            {
 				app = *(this->dl_ang_pos.load(boost::memory_order_acquire));
 			}
+            else if(type[i].compare("hand_pos") == 0)
+            {
+                app = *(this->dl_hand_pos.load(boost::memory_order_acquire));
+            }
 			else if(type[i].compare("j_vel") == 0)
 			{
 				app = *(this->dl_ang_vel.load(boost::memory_order_acquire));
 			}
+            else if(type[i].compare("hand_vel") == 0)
+            {
+                app = *(this->dl_hand_vel.load(boost::memory_order_acquire));
+            }
 			else if(type[i].compare("j_tau") == 0)
 			{
 				app = *(this->dl_ang_tau.load(boost::memory_order_acquire));
