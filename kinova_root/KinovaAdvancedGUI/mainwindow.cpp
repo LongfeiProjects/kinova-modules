@@ -161,6 +161,10 @@ QFont getLabelFont(){
     return font2;
 }
 
+void MainWindow::playTrajectoryButtonClicked(){
+    //TODO recivir el id y ejecutar la trajectoria
+}
+
 void MainWindow::addTrajectory(Trajectory t, int col, int row){
     //Add push button
     QPushButton* pushButton = new QPushButton(this->gridLayoutWidget_6);
@@ -172,6 +176,9 @@ void MainWindow::addTrajectory(Trajectory t, int col, int row){
     sizePolicy.setHeightForWidth(pushButton->sizePolicy().hasHeightForWidth());
     pushButton->setSizePolicy(sizePolicy);
 
+
+    //TODO hay que pasar un parametro que sea el id de la trajectoria
+    // QObject::connect(pushButton, SIGNAL(clicked()),this, SLOT(playTrajectoryButtonClicked()));
     QIcon icon8;
     icon8.addFile(QStringLiteral(":/imagenes/img/play.png"), QSize(), QIcon::Normal, QIcon::Off);
     pushButton->setIcon(icon8);
@@ -1094,6 +1101,7 @@ void MainWindow::on_MainWindow_destroyed()
 
 void MainWindow::on_pushButton_clicked()
 {
+    //State s = State(9);
     State s(9);
     s[0] = -0.05;
     s[1] = -0.46;

@@ -42,6 +42,8 @@ public:
     void setHandGrasp();
     void saveCheckPoint();
 
+public slots:
+    void playTrajectoryButtonClicked();
 private:
     Ui::MainWindow *ui;
   //  QDialogButtonBox* save_Trajectory_Panel_Button;
