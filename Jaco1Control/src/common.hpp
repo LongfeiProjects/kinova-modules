@@ -96,7 +96,12 @@ extern boost::recursive_mutex api_mutex;
 extern boost::atomic<bool>  _first;
 extern boost::atomic<bool>  _second;
 
-// CONSTANT
+// Constant
 
 extern double DEG;
+
+// Mathematical routine
+arma::vec Mat2RPY(arma::mat R);
+
 #endif /* COMMON_HPP_ */
+
