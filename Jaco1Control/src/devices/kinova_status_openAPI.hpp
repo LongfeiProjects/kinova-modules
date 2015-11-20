@@ -36,8 +36,8 @@ class kinova_status_openapi : public stats
 		boost::thread* log_stats;
 		boost::thread* garbage_collection;
 		boost::chrono::high_resolution_clock::time_point tStart;
-		// for logging          for visualizing      for control
-		DataStore ds_ang_pos;	DataFlow ang_pos;    DataLast dl_ang_pos;
+        // for logging          for visualizing      for control                   list size
+        DataStore ds_ang_pos;	DataFlow ang_pos;    DataLast dl_ang_pos;          boost::atomic<int> size_ang_pos;
         DataStore ds_hand_pos;              		 DataLast dl_hand_pos;
 		DataStore ds_ang_vel;					     DataLast dl_ang_vel;
         DataStore ds_hand_vel;              		 DataLast dl_hand_vel;
@@ -64,7 +64,8 @@ class kinova_status_openapi : public stats
         // kinova specific functions
 		void ReadTimeStamp();
 		void ReadJoints(KinDrv::jaco_position_t &position,KinDrv::jaco_position_t & velocity,KinDrv::jaco_position_t & force);
-		void ReadCartesian(KinDrv::jaco_position_t & position);
+        void ReadCartesian1(KinDrv::jaco_position_t & position);
+        void ReadCartesian(KinDrv::jaco_position_t & position);
 		//FIXME exist this in the open driver? void ReadCurrents(GeneralInformations & info);
 		int Read4Vis(std::vector<State_ptr > & lastval);
 		std::vector<State> FirstRead(std::vector<std::string>);

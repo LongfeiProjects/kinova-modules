@@ -43,6 +43,8 @@ kinova_status_openapi::kinova_status_openapi(model * mdl)
 	  }
 	this->arm->start_api_ctrl();
 
+    std::cout<<this->running_cleaner.load(boost::memory_order_acquire)<< std::endl;
+
 }
 
 kinova_status_openapi::~kinova_status_openapi()
@@ -89,6 +91,7 @@ void kinova_status_openapi::Reading()
 		this->ReadTimeStamp();
 		this->ReadJoints(position,velocity,force);
         this->ReadCartesian(cart_pos);
+        //this->ReadCartesian1(position);
 		//this->ReadCurrents(cur);
 		if(!first_write.load(boost::memory_order_acquire))
 		{
@@ -125,6 +128,7 @@ void kinova_status_openapi::Logging()
 void kinova_status_openapi::Cleaning()
 {
     std::cout<<"start cleaning thread"<<std::endl;
+    std::cout<<this->running_cleaner.load(boost::memory_order_acquire)<< std::endl;
 	while(this->running_cleaner.load(boost::memory_order_acquire))
 	{
 		if(this->ds_ang_pos.size() > (unsigned int)(this->Max_DS_allowed) ){
@@ -157,11 +161,8 @@ void kinova_status_openapi::Cleaning()
         if(this->ds_robot_t.size() > (unsigned int)(this->Max_DS_allowed)){
            this->ds_robot_t.pop_front();
         }
-
     }
-
 	std::cout<<"im out of Cleaning thread"<<std::endl;
-
 }
 
 void kinova_status_openapi::StartSaving(std::vector<std::string>  & type)
@@ -171,7 +172,7 @@ void kinova_status_openapi::StartSaving(std::vector<std::string>  & type)
 	this->garbage_collection->join();
     // start the global time for logging
     this->tStart = boost::chrono::high_resolution_clock::now();
-
+    std::cout<<"starting saving"<<std::endl;
 	if(first_write.load(boost::memory_order_acquire))
     {
 		for(unsigned int i =0;i<type.size();i++)
@@ -375,12 +376,12 @@ void kinova_status_openapi::ReadJoints(KinDrv::jaco_position_t &position,KinDrv:
 }
 
 // TO DO: SPLIT CARTESIAN POSITION FROM ORIENTATION INTO DIFFERENT VARIABLE
-/*void kinova_status_openapi::ReadCartesian(KinDrv::jaco_position_t & position)
+void kinova_status_openapi::ReadCartesian1(KinDrv::jaco_position_t & position)
 {
 	// cartesian position
 	State q(6);
-	State cart_pos;
-	arma::mat R;
+    State cart_pos,rpy;
+    arma::mat R;
     q[0]=position.joints[0];
     q[1]=position.joints[1];
     q[2]=position.joints[2];
@@ -390,12 +391,13 @@ void kinova_status_openapi::ReadJoints(KinDrv::jaco_position_t &position,KinDrv:
 
 	// convert angle from deg to rad
 	q=q*DEG;
-
-
     bot->DK(q,cart_pos,R);
-	this->ds_cart_pos.push_back(cart_pos);
-	this->dl_cart_pos.store( &(ds_cart_pos.back()),boost::memory_order_release);
-}*/
+    std::cout<<"ciao  "<<R<< std::endl;
+    //rpy=Mat2RPY(R);
+    std::cout<< rpy << std::endl;
+    //this->ds_cart_pos.push_back(cart_pos);
+    //this->dl_cart_pos.store( &(ds_cart_pos.back()),boost::memory_order_release);
+}
 void kinova_status_openapi::ReadCartesian(KinDrv::jaco_position_t & position)
 {
     // cartesian position

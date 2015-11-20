@@ -742,10 +742,16 @@ void MainWindow::addRecordedTrajectory(Trajectory t){
 void MainWindow::showSaveTrajectoryPanel(){
    Dialog* dialog2 = new Dialog();
    dialog2->init(this->sqlManager);
+   if(KINOVA_LIB ==1){
+       cout << "before convert" << endl;
+       this->sampledTrajectoryInfo = convertLog2Trajectory(this->recordedLogs);
+       cout << "after convert" << endl;
+   }
    Trajectory saved =  dialog2->execAndReturnSavedTrajectory(this->sampledTrajectoryInfo);
 
    this->addRecordedTrajectory(saved);
    this->sampledTrajectoryInfo.clear();
+   this->recordedLogs.clear();
    delete dialog2;
 }
 
@@ -785,7 +791,7 @@ void  WriteFile(std::vector<State> log,std::string namefile)
 }
 
 
-void MainWindow::convertSampledTrajectories(vector<Log> recordedLogs){
+void MainWindow::writeLogFiles(vector<Log> recordedLogs){
     //TODO convert from vector<Log> to vector<RecordedCartesianInfo> and store the result in this->sampledTrajectories.
 
     Log cartPosLog = recordedLogs[this->readTypeMap["cart_pos"]];
@@ -805,21 +811,92 @@ void MainWindow::convertSampledTrajectories(vector<Log> recordedLogs){
 
     cout << "after write file 4" <<endl;
 
+}
 
-   // for(vector<State>::iterator iter = cartPosLog.begin(); iter!=cartPosLog.end();++iter){
-    //    State st = *iter;
+vector<RecordedCartesianInfo> MainWindow::convertLog2Trajectory(vector<Log> logs){
+    Log cartPosLog = logs[this->readTypeMap["cart_pos"]];
+    Log timeLog = logs[this->readTypeMap["comp_t"]];
+    Log velLog = logs[this->readTypeMap["j_vel"]];
+    vector<RecordedCartesianInfo> res;
+    for(unsigned int i =0;i<cartPosLog.size();i++)
+    {
+            RecordedCartesianInfo cartInfo;
+            //Cartesian Position
+            cartInfo.pos_x = cartPosLog[i][0];
+            cartInfo.pos_y = cartPosLog[i][1];
+            cartInfo.pos_z = cartPosLog[i][2];
+            cartInfo.theta_x = cartPosLog[i][3];
+            cartInfo.theta_y = cartPosLog[i][4];
+            cartInfo.theta_z = cartPosLog[i][5];
 
-    //}
-    //this->readTypeMap["cart_pos"]
+            //TODO missing finger position
+
+            //Joint Velocity
+            cartInfo.angvel_j1 = velLog[i][0];
+            cartInfo.angvel_j2 = velLog[i][1];
+            cartInfo.angvel_j3 = velLog[i][2];
+            cartInfo.angvel_j4 = velLog[i][3];
+            cartInfo.angvel_j5 = velLog[i][4];
+            cartInfo.angvel_j6 = velLog[i][5];
+
+            //Timestamp
+            cartInfo.timestamp = timeLog[i][0];
+
+            res.push_back(cartInfo);
+    }
+    return res;
+}
+
+vector<Log> MainWindow::convertTrajectory2Log(Trajectory traj){
+
+    vector<Log> res;
+
+    Log cartPosLog(traj.trajectoryInfo.size());
+    Log timeLog(traj.trajectoryInfo.size());
+    Log velLog(traj.trajectoryInfo.size());
+
+    for(unsigned int i =0;i<traj.trajectoryInfo.size();i++)
+    {
+            RecordedCartesianInfo cartInfo = traj.trajectoryInfo[i];
+            //Cartesian Position
+            cartPosLog[i](6);
+            cartPosLog[i][0] = cartInfo.pos_x;
+            cartPosLog[i][1] = cartInfo.pos_y;
+            cartPosLog[i][2] = cartInfo.pos_z ;
+            cartPosLog[i][3] = cartInfo.theta_x;
+            cartPosLog[i][4] = cartInfo.theta_y;
+            cartPosLog[i][5] = cartInfo.theta_z;
+
+            //TODO missing finger position
+
+            //Joint Velocity
+            velLog[i](6);
+            velLog[i][0] = cartInfo.angvel_j1;
+            velLog[i][1] = cartInfo.angvel_j2;
+            velLog[i][2] = cartInfo.angvel_j3;
+            velLog[i][3] = cartInfo.angvel_j4;
+            velLog[i][4] = cartInfo.angvel_j5;
+            velLog[i][5] = cartInfo.angvel_j6;
+
+            //Timestamp
+            timeLog[i][0] = cartInfo.timestamp;
+    }
+
+    res.insert(res.begin()+ this->readTypeMap["cart_pos"], cartPosLog);
+    res.insert(res.begin()+ this->readTypeMap["compt_t"], timeLog);
+    res.insert(res.begin()+ this->readTypeMap["j_vel"], velLog);
+    return res;
 }
 
 void MainWindow::startRecording(){
+    this->sampledTrajectoryInfo.clear();
     this->isRecordingTrajecory=true;
     this->ui->label_record_stop->setText(QString(tr("Stop")));
     this->ui->record_Button->setIcon(QIcon(":/imagenes/img/stop.png"));
     this->ui->recordingLabel->setVisible(true);
     //this->setActualPosition();
     if(KINOVA_LIB == 1){
+        this->recordedLogs.clear();
         this->bot->StartLog(this->readType);
     }
 }
@@ -833,7 +910,7 @@ void MainWindow::stopRecording(){
         cout << "before stoping" << endl;
         recordedLogs = this->bot->StopLog(this->readType);
         cout << "after stoping" << endl;
-        convertSampledTrajectories(recordedLogs);
+        writeLogFiles(recordedLogs);
 
         this->recordedLogs = recordedLogs;
     }
@@ -853,21 +930,6 @@ void MainWindow::on_record_Button_toggled(bool checked)
         }
     }
 
-
-    //TODO launch a status-read thread. This has to be implemented after integrate the openAPI
-    //pthread_create()
-  /*  if(checked){
-        cout << "antes"<<endl;
-        std::thread t1(tarea, "Hello");
-        cout << "dsps"<<endl;
-        t1.detach();
-        t1.join();
-    }
-
-
-
-    std::future<void> result(std::async(tarea1));
-*/
 }
 
 /*Save the actual position as a checkpoint. This allows the user to undo actions*/

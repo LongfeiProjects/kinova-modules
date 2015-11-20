@@ -114,9 +114,12 @@ private:
     void showSaveTrajectoryPanel();
     void error_kinova_not_initialized();
 
-    void convertSampledTrajectories(vector<Log> recordedLogs);
+
+    vector<Log> convertTrajectory2Log(Trajectory traj);
     void startRecording();
     void stopRecording();
+    void writeLogFiles(vector<Log> recordedLogs);
+    vector<RecordedCartesianInfo> convertLog2Trajectory(vector<Log> logs);
 private slots:
      void clickedSlot();
     void on_homeButton_clicked();
