@@ -110,7 +110,7 @@ void robot::ExecuteTrajectoryFile(State starting_cartesian_position)
     this->ExecuteTrajectory(timestamps, starting_cartesian_position);
 }
 
-void robot::SendCommand(State cmd,int type)
+void robot::SendCommand(State & cmd,int type)
 {
 	this->contr->SendSingleCommand(cmd,type);
 }
@@ -150,19 +150,19 @@ void robot::StartAllThread()
 {
 	// start the thread in the object robot_status object
 	st->Start();
-	this->emergency_stop = new boost::thread(boost::bind(&robot::EmergencyStop,this));
+    this->emergency_stop = new boost::thread(boost::bind(&robot::EmergencyStop,this));
 	// start the thread in the robot object
-	if(check.launch_tread)
-		this->safety_check = new boost::thread(boost::bind(&robot::Cheking,this));
+    if(check.launch_tread)
+        this->safety_check = new boost::thread(boost::bind(&robot::Cheking,this));
 }
 
 void robot::StopAllThread()
 {
 	st->Stop();
 	this->stop_auxiliary_thread.store(true,boost::memory_order_release);
-	emergency_stop->join();
-	if(check.launch_tread)
-		safety_check->join();
+    emergency_stop->join();
+    if(check.launch_tread)
+        safety_check->join();
 }
 
 void robot::Cheking()

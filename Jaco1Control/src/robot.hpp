@@ -53,7 +53,7 @@ class robot
         void ExecuteTrajectoryFile(State starting_cartesian_position);
 
 
-		void SendCommand(State cmd,int type);
+        void SendCommand(State & cmd,int type);
         void SendAndWait(State starting_joint_position);
 		void MoveHome();
 	private:

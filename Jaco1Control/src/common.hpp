@@ -101,7 +101,7 @@ extern boost::atomic<bool>  _second;
 extern double DEG;
 
 // Mathematical routine
-arma::vec Mat2RPY(arma::mat R);
+void Mat2RPY(arma::mat m,arma::vec & rpy);
 
 #endif /* COMMON_HPP_ */
 

@@ -8,13 +8,11 @@ double DEG = arma::datum::pi/180;
 
 
 // Mathematical routine
-arma::vec Mat2RPY(arma::mat m)
+void Mat2RPY(arma::mat m,arma::vec & rpy)
 {
     double sr,cr;
-    arma::vec rpy(3);
-
     //XYZ order
-    if (abs(m.at(2,2)) < arma::datum::eps && abs(m.at(1,2)) < arma::datum::eps)
+    if (fabs(m.at(2,2)) < arma::datum::eps && fabs(m.at(1,2)) < arma::datum::eps)
     {
         //singularity
         rpy[0] = 0;  // roll is zero

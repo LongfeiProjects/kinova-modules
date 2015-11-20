@@ -42,9 +42,6 @@ kinova_status_openapi::kinova_status_openapi(model * mdl)
 	    printf("error %i: %s \n", e.error(), e.what());
 	  }
 	this->arm->start_api_ctrl();
-
-    std::cout<<this->running_cleaner.load(boost::memory_order_acquire)<< std::endl;
-
 }
 
 kinova_status_openapi::~kinova_status_openapi()
@@ -52,9 +49,9 @@ kinova_status_openapi::~kinova_status_openapi()
 
 void kinova_status_openapi::Start()
 {
-	this->reader_stats = new boost::thread(boost::bind(&kinova_status_openapi::Reading,this));
+    this->reader_stats = new boost::thread(boost::bind(&kinova_status_openapi::Reading,this));
 	//this->log_stats = new boost::thread(boost::bind(&kinova_status::Logging,this));
-	this->garbage_collection = new boost::thread(boost::bind(&kinova_status_openapi::Cleaning,this));
+    this->garbage_collection = new boost::thread(boost::bind(&kinova_status_openapi::Cleaning,this));
 }
 
 void kinova_status_openapi::Stop()
@@ -65,9 +62,9 @@ void kinova_status_openapi::Stop()
 	this->arm->erase_trajectories();
 	this->running.store(false,boost::memory_order_release);
 	this->running_cleaner.store(false,boost::memory_order_release);
-	this->reader_stats->join();
+    this->reader_stats->join();
 	//this->log_stats->join();
-	this->garbage_collection->join();
+    this->garbage_collection->join();
 	// close open api kinova
 	this->arm->stop_api_ctrl();
 	KinDrv::close_usb();
@@ -77,6 +74,7 @@ void kinova_status_openapi::Stop()
 // KINOVA API DEPENDANT // // in reading i update the value for control
 void kinova_status_openapi::Reading()
 {
+    std::cout<<"starting reading thread"<< std::endl;
     // start the global time for logging
     this->tStart = boost::chrono::high_resolution_clock::now();
 	boost::chrono::milliseconds reading_time;
@@ -87,12 +85,12 @@ void kinova_status_openapi::Reading()
         velocity = this->arm->get_ang_vel();
 		position = this->arm->get_ang_pos();
 		//force = this->arm->get_ang_force();
-        cart_pos = this->arm->get_cart_pos();
-		this->ReadTimeStamp();
-		this->ReadJoints(position,velocity,force);
-        this->ReadCartesian(cart_pos);
-        //this->ReadCartesian1(position);
-		//this->ReadCurrents(cur);
+        //cart_pos = this->arm->get_cart_pos();
+        this->ReadTimeStamp();
+        this->ReadJoints(position,velocity,force);
+        this->ReadCartesian(position);
+        //this->ReadCartesian1(cart_pos);
+        //this->ReadCurrents(cur);
 		if(!first_write.load(boost::memory_order_acquire))
 		{
 			std::cout<<"first write"<<std::endl;
@@ -127,8 +125,7 @@ void kinova_status_openapi::Logging()
 
 void kinova_status_openapi::Cleaning()
 {
-    std::cout<<"start cleaning thread"<<std::endl;
-    std::cout<<this->running_cleaner.load(boost::memory_order_acquire)<< std::endl;
+    std::cout<<"start cleaning thread "<<std::endl;
 	while(this->running_cleaner.load(boost::memory_order_acquire))
 	{
 		if(this->ds_ang_pos.size() > (unsigned int)(this->Max_DS_allowed) ){
@@ -299,10 +296,16 @@ void kinova_status_openapi::ClearCommands()
 void kinova_status_openapi::RestartAPI(){
     this->running.store(false,boost::memory_order_release);
     this->running_cleaner.store(false,boost::memory_order_release);
+    this->reader_stats->join();
+    this->garbage_collection->join();
+    //add log_stats!!!!!!
     arm->stop_api_ctrl();
     arm->start_api_ctrl();
     this->running.store(true,boost::memory_order_release);
     this->running_cleaner.store(true,boost::memory_order_release);
+    this->reader_stats = new boost::thread(boost::bind(&kinova_status_openapi::Reading,this));
+    this->garbage_collection = new boost::thread(boost::bind(&kinova_status_openapi::Cleaning,this));
+    //add log_stats!!!!!!
 }
 
 void kinova_status_openapi::ReadTimeStamp()
@@ -376,11 +379,11 @@ void kinova_status_openapi::ReadJoints(KinDrv::jaco_position_t &position,KinDrv:
 }
 
 // TO DO: SPLIT CARTESIAN POSITION FROM ORIENTATION INTO DIFFERENT VARIABLE
-void kinova_status_openapi::ReadCartesian1(KinDrv::jaco_position_t & position)
+void kinova_status_openapi::ReadCartesian(KinDrv::jaco_position_t & position)
 {
 	// cartesian position
-	State q(6);
-    State cart_pos,rpy;
+    State q(6),cart_pos(6);
+    State pos,rpy(3);
     arma::mat R;
     q[0]=position.joints[0];
     q[1]=position.joints[1];
@@ -391,14 +394,20 @@ void kinova_status_openapi::ReadCartesian1(KinDrv::jaco_position_t & position)
 
 	// convert angle from deg to rad
 	q=q*DEG;
-    bot->DK(q,cart_pos,R);
-    std::cout<<"ciao  "<<R<< std::endl;
-    //rpy=Mat2RPY(R);
-    std::cout<< rpy << std::endl;
-    //this->ds_cart_pos.push_back(cart_pos);
-    //this->dl_cart_pos.store( &(ds_cart_pos.back()),boost::memory_order_release);
+    bot->DK(q,pos,R);
+    Mat2RPY(R,rpy);
+
+    cart_pos[0]=pos[0];
+    cart_pos[1]=pos[1];
+    cart_pos[2]=pos[2];
+    cart_pos[3]=rpy[0];
+    cart_pos[4]=rpy[1];
+    cart_pos[5]=rpy[2];
+
+    this->ds_cart_pos.push_back(cart_pos);
+    this->dl_cart_pos.store( &(ds_cart_pos.back()),boost::memory_order_release);
 }
-void kinova_status_openapi::ReadCartesian(KinDrv::jaco_position_t & position)
+void kinova_status_openapi::ReadCartesian1(KinDrv::jaco_position_t & position)
 {
     // cartesian position
     State q(6);
@@ -408,10 +417,10 @@ void kinova_status_openapi::ReadCartesian(KinDrv::jaco_position_t & position)
     q[3]=position.rotation[0];
     q[4]=position.rotation[1];
     q[5]=position.rotation[2];
-
-
-    this->ds_cart_pos.push_back(q);
-    this->dl_cart_pos.store( &(ds_cart_pos.back()),boost::memory_order_release);
+    std::cout<<"measured rotation"<<std::endl;
+    std::cout << position.rotation[0] << " " << position.rotation[1] << " "<<position.rotation[2]<<std::endl;
+    //this->ds_cart_pos.push_back(q);
+    //this->dl_cart_pos.store( &(ds_cart_pos.back()),boost::memory_order_release);
 }
 
 /*void kinova_status::ReadCurrents(GeneralInformations & info)

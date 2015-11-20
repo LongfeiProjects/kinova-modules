@@ -16,17 +16,24 @@ void controller::InitCartesianKinematicController(std::vector<State> initial_sta
 }
 State controller::CartesianKinematicController(std::vector<State> current_state)
 {   
-	State result;
+    State result,des_pos(3),cur_pos(3);
 	double lambda = 0.001; // bring outside
 
-    // reduce the state_vector to the right dimension
+    // reduce the position vector to the right dimension
+    des_pos(0)= ff[0][index](0);
+    des_pos(1)= ff[0][index](1);
+    des_pos(2)= ff[0][index](2);
+
+    cur_pos(0)= current_state[1](0);
+    cur_pos(1)= current_state[1](1);
+    cur_pos(2)= current_state[1](2);
 
 	// controllo nei giunti (velocita)
-	arma::mat J = bot->J0(current_state[0],"trasl");
+    arma::mat J = bot->J0(current_state[0],"trasl");
 	arma::mat I=arma::eye(J.n_rows,J.n_rows);
 	arma::mat J_brack = arma::inv(J*J.t() + I*lambda);
 	arma::mat J_damp = J.t()*(J_brack);
-	result = J_damp*(P*(ff[0][index] - current_state[1]));// + desired_values[1]);
+    result = J_damp*(P*(des_pos - cur_pos));// + desired_values[1]);
 	result[0] = -result[0];
 	//arma::mat J_sub_inv = arma::pinv(J_sub);
 	//result = J_sub_inv*(P*(desired_values[0] - cart) + desired_values[1]);
