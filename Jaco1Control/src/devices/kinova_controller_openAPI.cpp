@@ -115,7 +115,7 @@ int kinova_controller_openapi::Move2Home()
 	  return 0;
 }
 
-KinDrv::jaco_basic_traj_point_t  kinova_controller_openapi::ConvertControl(State & value,int type)
+KinDrv::jaco_basic_traj_point_t  kinova_controller_openapi::ConvertControl(State value,int type)
 {
 	KinDrv::jaco_basic_traj_point_t pointToSend;
     KinDrv::jaco_position_type_t ty;
@@ -149,10 +149,6 @@ KinDrv::jaco_basic_traj_point_t  kinova_controller_openapi::ConvertControl(State
         ty = this->InitPositionType(type);
 	}
 	pointToSend.time_delay = 0;
-
-
-
-
     if(ty==KinDrv::POSITION_ANGULAR || ty==KinDrv::SPEED_ANGULAR)
 	{
         value=value/DEG;
@@ -166,11 +162,10 @@ KinDrv::jaco_basic_traj_point_t  kinova_controller_openapi::ConvertControl(State
         pointToSend.target.finger_position[1] = (float)value[7]*DEG;
         pointToSend.target.finger_position[2] = (float)value[8]*DEG;
 	}
-	else if(ty==KinDrv::POSITION_CARTESIAN || ty==KinDrv::SPEED_CARTESIAN)
+    else if(ty==KinDrv::POSITION_CARTESIAN || ty==KinDrv::SPEED_CARTESIAN)
 	{
-        std::cout << value << std::endl;
-		pointToSend.target.position[0] = (float)value[0];
-		pointToSend.target.position[1] = (float)value[1];
+        pointToSend.target.position[0] = (float)value[0];
+        pointToSend.target.position[1] = (float)value[1];
 		pointToSend.target.position[2] = (float)value[2];
 		//We set the orientation part of the position (unit is RAD)
 		pointToSend.target.rotation[0]= (float)value[3];
