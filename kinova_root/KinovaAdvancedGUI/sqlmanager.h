@@ -20,15 +20,16 @@ public:
     SqlManager();
 
     void getRecordedTrajectories();
+
     int init();
 
     /*Return the full trajectory including the cartesian positions*/
     vector<Trajectory> getCompleteTrajectories();
-
+    Trajectory getCompleteTrajectorie(int trajectoryId);
     /*Just return the name and description of the trajectories*/
     vector<Trajectory> getTrajectoriesInfo();
-
-    bool saveRecordedTrajectory(Trajectory trajectory);
+    /*Save the complete trajectory in the database and also updates the id of the trajectory parameter*/
+    bool saveRecordedTrajectory(Trajectory &trajectory);
 private:
     QSqlDatabase database;
 public slots:

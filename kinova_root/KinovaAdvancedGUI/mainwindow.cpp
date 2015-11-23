@@ -161,11 +161,68 @@ QFont getLabelFont(){
     return font2;
 }
 
-void MainWindow::playTrajectoryButtonClicked(){
-    //TODO recivir el id y ejecutar la trajectoria
+//TEST it!!!
+void MainWindow::playTrajectoryButtonClicked(int trajectoryId){
+    cout<< "entro en play" << endl;
+    cout << trajectoryId << endl;
+    for(int i = 0;i<this->recordedTrajectories.size();i++){
+        Trajectory t = this->recordedTrajectories[i];
+        if(t.id==trajectoryId){
+            cout << "find the trajectory. Name = " << t.name << endl;
+            vector<Log> logs = this->convertTrajectory2Log(t);
+            cout << "after converting" << endl;
+
+          /*  this->readTypeMap["comp_t"] = 0;
+            this->readTypeMap["cart_pos"] = 1;
+            this->readTypeMap["j_vel"] = 2;
+            this->readTypeMap["j_pos"] = 3;
+            */
+
+            vector<Log> new_ff;
+
+            Log cartPosLog = logs[this->readTypeMap["cart_pos"]];
+            Log velLog = logs[this->readTypeMap["j_vel"]];
+            new_ff.push_back(cartPosLog);
+            new_ff.push_back(velLog);
+
+
+            cout << "after converting 2" << endl;
+
+            State initial(9);
+            cout << "logs.size = " << logs.size()<< endl;
+            cout << "logs[0].size = " << logs[0].size()<<endl;
+
+
+
+            initial[0] = cartPosLog[0][0];
+            initial[1] = cartPosLog[0][1];
+            initial[2] = cartPosLog[0][2];
+            initial[3] = cartPosLog[0][3];
+            initial[4] = cartPosLog[0][4];
+            initial[5] = cartPosLog[0][5];
+
+
+            //FIXME TODO When the finger position was ready, read it from cart_pos
+            initial[6] = 0;
+            initial[7] = 0;
+            initial[8] = 0;
+            //initial[6] = cartPosLog[0][6];
+            //initial[7] = cartPosLog[0][7];
+            //initial[8] = cartPosLog[0][8];
+
+            int logTimestampIndex = this->readTypeMap["compt_t"];
+            cout << "before access to time log" << endl;
+            Log timeLog = logs[logTimestampIndex];
+            cout<< "before executing trajectory" << endl;
+            this->bot->ExecuteUpdatedTrajectory(timeLog,initial,new_ff);
+            cout<< "after executing trajectory" << endl;
+            break;
+        }
+    }
 }
 
 void MainWindow::addTrajectory(Trajectory t, int col, int row){
+    cout << "adding t = " << t.id<< endl;
     //Add push button
     QPushButton* pushButton = new QPushButton(this->gridLayoutWidget_6);
     pushButton->setMaximumSize(QSize(120, 120));
@@ -176,13 +233,16 @@ void MainWindow::addTrajectory(Trajectory t, int col, int row){
     sizePolicy.setHeightForWidth(pushButton->sizePolicy().hasHeightForWidth());
     pushButton->setSizePolicy(sizePolicy);
 
-
-    //TODO hay que pasar un parametro que sea el id de la trajectoria
-    // QObject::connect(pushButton, SIGNAL(clicked()),this, SLOT(playTrajectoryButtonClicked()));
     QIcon icon8;
     icon8.addFile(QStringLiteral(":/imagenes/img/play.png"), QSize(), QIcon::Normal, QIcon::Off);
     pushButton->setIcon(icon8);
     pushButton->setIconSize(QSize(75, 75));
+
+    QSignalMapper* signalMapper = new QSignalMapper (this) ;
+    connect (pushButton, SIGNAL(clicked()), signalMapper, SLOT(map())) ;
+
+    signalMapper -> setMapping (pushButton, t.id) ;
+    connect (signalMapper, SIGNAL(mapped(int)), this, SLOT(playTrajectoryButtonClicked(int)));
 
 
     this->gridPlayPanel->addWidget(pushButton, row, col);
@@ -754,9 +814,12 @@ void MainWindow::showSaveTrajectoryPanel(){
        this->sampledTrajectoryInfo = convertLog2Trajectory(this->recordedLogs);
        cout << "after convert" << endl;
    }
+   cout << "will show save panel" << endl;
    Trajectory saved =  dialog2->execAndReturnSavedTrajectory(this->sampledTrajectoryInfo);
 
-   this->addRecordedTrajectory(saved);
+   if(saved.id>-1){
+        this->addRecordedTrajectory(saved);
+   }
    this->sampledTrajectoryInfo.clear();
    this->recordedLogs.clear();
    delete dialog2;
@@ -856,17 +919,22 @@ vector<RecordedCartesianInfo> MainWindow::convertLog2Trajectory(vector<Log> logs
 
 vector<Log> MainWindow::convertTrajectory2Log(Trajectory traj){
 
-    vector<Log> res;
-
+    vector<Log> res(4);
+cout << "res.size = " << res.size() <<endl;
+    cout << "trajInfo size = " << traj.trajectoryInfo.size() << endl;
     Log cartPosLog(traj.trajectoryInfo.size());
     Log timeLog(traj.trajectoryInfo.size());
     Log velLog(traj.trajectoryInfo.size());
 
+    cout << "*** 1 ***" << endl;
     for(unsigned int i =0;i<traj.trajectoryInfo.size();i++)
     {
+            cout << "*** 2 ***" << endl;
             RecordedCartesianInfo cartInfo = traj.trajectoryInfo[i];
+
+            cout << "*** 3 ***" << endl;
             //Cartesian Position
-            cartPosLog[i](6);
+            cartPosLog[i] = State(6);
             cartPosLog[i][0] = cartInfo.pos_x;
             cartPosLog[i][1] = cartInfo.pos_y;
             cartPosLog[i][2] = cartInfo.pos_z ;
@@ -876,8 +944,10 @@ vector<Log> MainWindow::convertTrajectory2Log(Trajectory traj){
 
             //TODO missing finger position
 
+
+            cout << "*** 4 ***" << endl;
             //Joint Velocity
-            velLog[i](6);
+            velLog[i] = State(6);
             velLog[i][0] = cartInfo.angvel_j1;
             velLog[i][1] = cartInfo.angvel_j2;
             velLog[i][2] = cartInfo.angvel_j3;
@@ -885,13 +955,21 @@ vector<Log> MainWindow::convertTrajectory2Log(Trajectory traj){
             velLog[i][4] = cartInfo.angvel_j5;
             velLog[i][5] = cartInfo.angvel_j6;
 
+            cout << "*** 5 ***" << endl;
             //Timestamp
+            timeLog[i]= State(1);
             timeLog[i][0] = cartInfo.timestamp;
     }
 
-    res.insert(res.begin()+ this->readTypeMap["cart_pos"], cartPosLog);
-    res.insert(res.begin()+ this->readTypeMap["compt_t"], timeLog);
-    res.insert(res.begin()+ this->readTypeMap["j_vel"], velLog);
+    cout << "before inserting in the vector" << endl;
+    cout << "res.size = " << res.size() <<endl;
+    res[this->readTypeMap["cart_pos"]] = cartPosLog;
+    cout << "res.size = " << res.size() <<endl;
+    res[this->readTypeMap["compt_t"]] = timeLog;
+    cout << "res.size = " << res.size() <<endl;
+    res[this->readTypeMap["j_vel"]] =  velLog;
+    cout << "res.size = " << res.size() <<endl;
+    cout << "after inserting in the vector" << endl;
     return res;
 }
 

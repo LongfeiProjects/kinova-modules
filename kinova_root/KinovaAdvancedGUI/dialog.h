@@ -42,6 +42,7 @@ private slots:
 
     void on_save_Trajectory_Panel_Button_accepted();
 
+    void on_save_Trajectory_Panel_Button_rejected();
 };
 
 #endif // DIALOG_H
