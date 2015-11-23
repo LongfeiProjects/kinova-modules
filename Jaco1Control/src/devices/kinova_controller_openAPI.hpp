@@ -26,10 +26,6 @@ public:
     KinDrv::jaco_basic_traj_point_t  ConvertControl(State value,int type);
     void SetNewFF(std::vector< std::vector<State> > new_ff);
     void SendSingleCommand(State cmd,int type);
-	bool InitController(std::vector<State> initial_state);
-	bool ExecController(std::vector<State> current_state, int type);
-
-
 };
 
 

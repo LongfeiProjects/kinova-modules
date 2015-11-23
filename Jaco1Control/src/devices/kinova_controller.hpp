@@ -32,10 +32,7 @@ public:
 	int Move2Home();
 	TrajectoryPoint ConvertControl( State & value, int type);
 	void SendSingleCommand(State cmd, int type);
-	//State PID(std::vector<State> ff,std::vector<State> current_state);
-	bool InitController(std::vector<State> initial_state);
-	bool ExecController(std::vector<State> current_state,int type);
-
+    bool ExecController(std::vector<State> current_state,int type);
 };
 
 

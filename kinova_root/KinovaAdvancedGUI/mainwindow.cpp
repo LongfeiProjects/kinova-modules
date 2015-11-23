@@ -694,17 +694,16 @@ void MainWindow::on_pushButton_2_clicked()
             this->readTypeMap["j_pos"] = 3;
 
             // controller
+            Option opt;
+            opt.type_of_controller = "CartesianKinematic";
+            opt.control_action = 28;
             const double Pid_coef[] = {5,0,0}; // deg
             std::vector<double> Pid(Pid_coef,End(Pid_coef));
             const char * _namefiles[] = {"cart_pos_openapi.mat","joint_vel_openapi.mat"};
             std::vector<std::string> namefile (_namefiles,End(_namefiles));
-            const char * _meas_val[] ={"j_pos","cart_pos","j_vel"};
-            std::vector<std::string> meas_val(_meas_val,End(_meas_val));
-            int controltype = 8;
-            bool limitation = 0;
             Jaco* md = new Jaco();
             string namefileindex = "index_openapi.mat";
-            kinova_controller_openapi * ct = new kinova_controller_openapi(namefile,namefileindex,meas_val,Pid,controltype,limitation,md,st->arm); // very rough patch because i can have only one API handle
+            kinova_controller_openapi * ct = new kinova_controller_openapi(namefile,namefileindex,opt,Pid,md,st->arm); // very rough patch because i can have only one API handle
             // checking module
             // define bounding box
             const double bb_point[] = {-0.6,-0.8,-0.4};
