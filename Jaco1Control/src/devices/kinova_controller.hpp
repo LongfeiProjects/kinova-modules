@@ -25,8 +25,7 @@ public:
 	POSITION_TYPE controltype;
 	bool limitation;
 	kinova_controller();
-	kinova_controller(std::vector<std::string> namefile,std::vector<std::string> list_meas_value,
-						std::vector<double> Pid,int _controltype,bool _limitation,model* md,void * APIhandle);
+    kinova_controller(std::vector<std::string> namefile,Option options,std::vector<double> Pid,bool _limitation,model* mdl,void * _APIhandle);
 	~kinova_controller();
 
 	POSITION_TYPE InitPositionType(int value);

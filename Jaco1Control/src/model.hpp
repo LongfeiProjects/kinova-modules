@@ -25,6 +25,4 @@ class model
 };
 
 
-
-
 #endif /* MODEL_HPP_ */

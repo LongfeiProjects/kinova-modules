@@ -17,11 +17,8 @@ class kinova_controller_openapi : public controller
 	KinDrv::JacoArm *arm;
 
 public:
-	KinDrv::jaco_position_type_t controltype;
-	bool limitation;
 	kinova_controller_openapi();
-    kinova_controller_openapi(std::vector<std::string> namefile,std::string timestamp_namefile,std::vector<std::string> list_meas_value,
-						std::vector<double> Pid,int _controltype,bool _limitation,model* md,KinDrv::JacoArm *arm_);
+    kinova_controller_openapi(std::vector<std::string> namefile,std::string timestamp_namefile,Option options,std::vector<double> Pid,model* md,KinDrv::JacoArm *arm_);
 	~kinova_controller_openapi();
 
 	KinDrv::jaco_position_type_t InitPositionType(int value);

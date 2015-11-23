@@ -11,6 +11,7 @@
 
 #include "common.hpp"
 #include "model.hpp"
+// TO DO add a function to convert control_action from a general scheme of definition to the specific value for the current driver
 class controller
 {
 
@@ -20,10 +21,11 @@ class controller
 		double D;
 		double time_interval; // controller frequency
 		int index;  // current value
+        Option opt; // structure that is defined to control the behaviour of each controller (for now only the kinematic controller)
         std::vector<int> time_map;    // this vector represent the mapping between the timestamp and a sampling time of 1 ms
-		std::vector<std::vector<State> > ff;
+        std::vector<std::vector<State> > ff; // vector that contains the value of thr desired trajectory to reproduce
 		std::vector<State> desired_values; // variable to storage desired value plus other things;
-		std::vector<std::string> measured_value; // vector of string that describe the value that want to measure and in which order we want them
+        //std::vector<std::string> measured_value; // vector of string that describe the value that want to measure and in which order we want them
         std::string timestamp_file;
         std::vector<std::string> ff_files;
         model * bot;
@@ -31,14 +33,15 @@ class controller
 		  this way because of this loc measured_value.size() for(unsigned int i = 0;i<contr->measured_value.size();i++)
 		  contr->measured_value.size() is empty */
     	virtual int Move2Home() = 0;
-    	virtual bool InitController(std::vector<State> initial_state) = 0;
-		virtual bool ExecController(std::vector<State> current_state,int type) = 0;
+        // init controller HAS TO BE CALLED INSIDE THE CONSTRUCTOR of each instance of the virtual controller class
+        virtual bool InitController();
+        virtual bool ExecController(std::vector<State> current_state,int type);
 		// if a set int type = -1 it means that I'm going to use the control type specified inside the controller
 		virtual void SendSingleCommand(State cmd, int type) = 0;
         virtual void SetNewFF(std::vector< std::vector<State> > new_ff){}
-
         virtual ~controller(){}
-		void  InitCartesianKinematicController(std::vector<State> initial_state);
+        // implemented methods
+        void  InitCartesianKinematicController(std::vector<State> initial_state){}
 		State CartesianKinematicController(std::vector<State> current_state);
 		inline int ReadFile(std::string namefile,std::vector< State > & value)
 		{

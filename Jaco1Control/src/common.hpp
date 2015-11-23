@@ -41,12 +41,18 @@ typedef boost::atomic<State_ptr>                       DataLast;
 #define SSTR( x ) dynamic_cast< std::ostringstream & >( \
         ( std::ostringstream() << std::dec << x ) ).str();
 
+// variable
+struct Option{
+   std::string type_of_controller;               // CartesianKinematic
+   std::vector<std::string> meas_val;
+   int  control_action;
+};
+
 // template function
 template<typename T, size_t N>
  T * End(T (&ra)[N]) {
     return ra + N;
-};
-
+}
 
 template <typename T>
 std::vector<T> operator+(const std::vector<T>& a, const std::vector<T>& b)
