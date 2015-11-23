@@ -23,7 +23,6 @@ Dialog::~Dialog()
 void Dialog::on_save_Trajectory_Panel_Button_accepted()
 {
     cout << "saving trajectory" << endl;
-    //TODO Here we have to include the collection of CartesianInfo
     this->savedTrajectory.name = this->ui->nameEdit->text().toStdString();
     this->savedTrajectory.description = this->ui->descriptionEdit->toPlainText().toStdString();
     this->success = this->sqlManager->saveRecordedTrajectory(this->savedTrajectory);
@@ -35,8 +34,12 @@ void Dialog::setSqlManager(SqlManager* sqlManager){
 }
 
 Trajectory Dialog::execAndReturnSavedTrajectory(vector<RecordedCartesianInfo> sampledTrajectoryInfo){
+    cout << "Entering save panel" << endl;
     this->savedTrajectory.trajectoryInfo = sampledTrajectoryInfo;
-    this->exec();
+    cout << "before execute save panel" << endl;
+    bool result = this->exec();
+    cout << "after execute save panel" << endl;
+
     if(this->success){
          return this->savedTrajectory;
     }else{
@@ -56,4 +59,9 @@ void Dialog::loadTrajectoryList(){
        Trajectory t = *iter;
        //this->ui->listWidget->addItem(QString::fromStdString(t.name));
     }
+}
+
+void Dialog::on_save_Trajectory_Panel_Button_rejected()
+{
+    this->success=false;
 }

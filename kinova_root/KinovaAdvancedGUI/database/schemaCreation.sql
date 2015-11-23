@@ -26,6 +26,6 @@ create table trajectory_cartesianInfo(
 trajectory_id int not null,
 cartesianInfo_id int not null,
 seq int not null,
-timestamp real,
+timestamp int,
 foreign key(trajectory_id) references Trajectory(id),
 foreign key(cartesianInfo_id) references CartesianInfo(id));
