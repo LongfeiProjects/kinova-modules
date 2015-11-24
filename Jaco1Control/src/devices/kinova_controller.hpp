@@ -25,18 +25,14 @@ public:
 	POSITION_TYPE controltype;
 	bool limitation;
 	kinova_controller();
-	kinova_controller(std::vector<std::string> namefile,std::vector<std::string> list_meas_value,
-						std::vector<double> Pid,int _controltype,bool _limitation,model* md,void * APIhandle);
+    kinova_controller(std::vector<std::string> namefile,Option options,std::vector<double> Pid,bool _limitation,model* mdl,void * _APIhandle);
 	~kinova_controller();
 
 	POSITION_TYPE InitPositionType(int value);
 	int Move2Home();
 	TrajectoryPoint ConvertControl( State & value, int type);
 	void SendSingleCommand(State cmd, int type);
-	//State PID(std::vector<State> ff,std::vector<State> current_state);
-	bool InitController(std::vector<State> initial_state);
-	bool ExecController(std::vector<State> current_state,int type);
-
+    bool ExecController(std::vector<State> current_state,int type);
 };
 
 

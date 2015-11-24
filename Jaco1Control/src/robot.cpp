@@ -26,8 +26,7 @@ void robot::ExecuteTrajectory(std::vector<State> timestamps, State starting_cart
     int internal_clock = 0;
     // i have to grant access to the execution of the task
     this->stop.store(false,boost::memory_order_release);
-    const char * _meas_val[] ={"j_pos","cart_pos"};
-    std::vector<std::string> meas_val(_meas_val,End(_meas_val));
+    // i create the time map for each trajectory that i want to reproduce
     this->contr->ComputeTimeMap(timestamps);
     try
     {
@@ -37,7 +36,7 @@ void robot::ExecuteTrajectory(std::vector<State> timestamps, State starting_cart
         {
             std::vector<State> cur_val;
             begin = boost::chrono::high_resolution_clock::now();
-            read_data =st->GetLastValue(cur_val,meas_val);
+            read_data =st->GetLastValue(cur_val,this->contr->opt.meas_val);
             // control block
             if(read_data)
             {
@@ -45,15 +44,14 @@ void robot::ExecuteTrajectory(std::vector<State> timestamps, State starting_cart
                 {
 
                     //DEBUG
-                    std::cout<<"before move2home"<<std::endl;
+                    std::cout<<"before move2startingposition"<<std::endl;
                     //---
                     //SendAndWait(starting_cartesian_position);
                     std::vector<State> start;
-                    start = st->FirstRead(meas_val);
+                    start = st->FirstRead(this->contr->opt.meas_val);
                     //DEBUG
                     std::cout<<"after move2home"<<std::endl;
                     //---
-                    contr->InitController(start);
                     // Initialization of current value after after move2home
                     cur_val = start;
                     contr->index = 0;
@@ -61,7 +59,7 @@ void robot::ExecuteTrajectory(std::vector<State> timestamps, State starting_cart
                 }
                 else if(contr->index >= 0)
                 {
-                    contr->ExecController(cur_val,-1);
+                    contr->ExecController(cur_val,this->contr->opt.control_action);
                     control_time = boost::chrono::duration_cast<boost::chrono::milliseconds>(boost::chrono::high_resolution_clock::now() - begin);
                     std::cout << "time spent in main cycle: " << control_time.count()  << " ms\n";
                     int test_time = boost::chrono::round<boost::chrono::milliseconds>(control_time).count();

@@ -25,8 +25,7 @@ POSITION_TYPE kinova_controller::InitPositionType(int value)
 // public function//
 kinova_controller::kinova_controller()
 {}
-kinova_controller::kinova_controller(std::vector<std::string> namefile,std::vector<std::string> list_meas_value,
-										  std::vector<double> Pid,int _controltype,bool _limitation,model* mdl,void * _APIhandle)
+kinova_controller::kinova_controller(std::vector<std::string> namefile,Option options,std::vector<double> Pid,bool _limitation,model* mdl,void * _APIhandle)
 {
 	APIhandle = _APIhandle;
 	if(APIhandle != NULL)
@@ -47,8 +46,6 @@ kinova_controller::kinova_controller(std::vector<std::string> namefile,std::vect
 		this->D = Pid[2];
 		index = -2; // for accessing inizialization procedure
 		this->time_interval = 0.01; // second TO CHANGE
-		this->measured_value = list_meas_value;
-		controltype = this->InitPositionType(_controltype);
 		limitation = _limitation;
 		bot=mdl;
 		for(unsigned int i =0;i<namefile.size();i++)
@@ -57,6 +54,8 @@ kinova_controller::kinova_controller(std::vector<std::string> namefile,std::vect
 			this->ReadFile(namefile[i],app);
 			ff.push_back(app);
 		}
+        this->opt = options;
+        this->InitController();
 
 	}
 }
@@ -117,22 +116,9 @@ void kinova_controller::SendSingleCommand(State cmd,int type)
 	std::cout << "time spent MySendAdvanceTrajectory: " << boost::chrono::duration_cast<boost::chrono::milliseconds>(boost::chrono::high_resolution_clock::now() - begin).count() << " ms\n";
 
 }
-bool kinova_controller::InitController(std::vector<State> initial_state)
-{
-	 //DEBUG
-	std::cout<<"0.1"<<std::endl;
-	//----
-	//DEBUG
-	std::cout<<"0.2"<<std::endl;
-	//----
-     this->InitCartesianKinematicController(initial_state);
 
-	 //DEBUG
-	std::cout<<"0.3"<<std::endl;
-	//----
-	 // this is really important! because in this way i can exit from initialization and start the execution of controller
-	 return true;
-}
+// in this case i have to everwrite the ExecController provided by the controller class because i need to
+// serialize the reading thread and the control thread
 bool kinova_controller::ExecController(std::vector<State> current_state,int type)
 {
 	if(_second.load(boost::memory_order_acquire))
@@ -163,4 +149,3 @@ bool kinova_controller::ExecController(std::vector<State> current_state,int type
 	}
 	return false;
 }
-

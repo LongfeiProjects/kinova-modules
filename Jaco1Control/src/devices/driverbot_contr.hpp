@@ -19,15 +19,11 @@ public:
 	int clientID;
     std::vector<int> joint_handle;
     driverbot_contr(){};
-	driverbot_contr(std::vector<std::string> namefile,std::vector<std::string> list_meas_value,std::vector<double> Pid,
-					  int _controltype,model* md,int clientID,std::vector<int> joint_handle);
+    driverbot_contr(std::vector<std::string> namefile,Option options,std::vector<double> Pid,model* md,int _clientID,std::vector<int> _joint_handle);
 	~driverbot_contr(){};
 
 	int Move2Home();
 	void SendSingleCommand(State cmd,int type);
-	bool InitController(std::vector<State> initial_state);
-	bool ExecController(std::vector<State> current_state, int type);
-
 };
 
 

@@ -28,21 +28,20 @@ KinDrv::jaco_position_type_t kinova_controller_openapi::InitPositionType(int val
 // public function//
 kinova_controller_openapi::kinova_controller_openapi()
 {}
-kinova_controller_openapi::kinova_controller_openapi(std::vector<std::string> namefile,std::string timestamp_namefile,std::vector<std::string> list_meas_value,
-										  std::vector<double> Pid,int _controltype,bool _limitation,model* mdl,KinDrv::JacoArm *arm_)
+kinova_controller_openapi::kinova_controller_openapi(std::vector<std::string> namefile,std::string timestamp_namefile,Option options,std::vector<double> Pid,model* mdl,KinDrv::JacoArm *arm_)
 {
 	arm = arm_;
 	this->P = Pid[0];
 	this->I = Pid[1];
 	this->D = Pid[2];
-	index = -2; // for accessing inizialization procedure
+    index = -1; // for accessing inizialization procedure
 	this->time_interval = 0.01; // second TO CHANGE
-	this->measured_value = list_meas_value;
-	controltype = this->InitPositionType(_controltype);
-	limitation = _limitation;
 	bot=mdl;
     this->ff_files= namefile;
     this->timestamp_file = timestamp_namefile;
+    this->opt = options;
+    //init internal value of the selected controller
+    this->InitController();
 }
 kinova_controller_openapi::~kinova_controller_openapi()
 {}
@@ -138,16 +137,9 @@ KinDrv::jaco_basic_traj_point_t  kinova_controller_openapi::ConvertControl(State
 		pointToSend.hand_mode = KinDrv::NO_MOVEMENT;
 	}
     // set the robot control type
-	if(type == -1)
-	{
-		pointToSend.pos_type = this->controltype;
-        ty = this->controltype;
-	}
-	else
-	{
-		pointToSend.pos_type = this->InitPositionType(type);
-        ty = this->InitPositionType(type);
-	}
+    pointToSend.pos_type = this->InitPositionType(type);
+    ty = this->InitPositionType(type);
+    // set delay for executing the command
 	pointToSend.time_delay = 0;
     if(ty==KinDrv::POSITION_ANGULAR || ty==KinDrv::SPEED_ANGULAR)
 	{
@@ -202,43 +194,5 @@ void kinova_controller_openapi::SendSingleCommand(State cmd,int type)
 	//----
 }
 
-bool kinova_controller_openapi::InitController(std::vector<State> initial_state)
-{
-	 //DEBUG
-	std::cout<<"0.1"<<std::endl;
-	//----
-	//DEBUG
-	std::cout<<"0.2"<<std::endl;
-	//----
-     this->InitCartesianKinematicController(initial_state);
 
-	 //DEBUG
-	std::cout<<"0.3"<<std::endl;
-	//----
-	 // this is really important! because in this way i can exit from initialization and start the execution of controller
-	 return true;
-}
-bool kinova_controller_openapi::ExecController(std::vector<State> current_state,int type)
-{
-
-	//DEBUG
-	//std::cout<<"executing controller"<<std::endl;
-	//---
-	// inibhit the repetition of this action
-	boost::chrono::high_resolution_clock::time_point global_begin = boost::chrono::high_resolution_clock::now();
-
-
-	boost::chrono::high_resolution_clock::time_point begin = boost::chrono::high_resolution_clock::now();;
-	State result = this->CartesianKinematicController(current_state);
-	std::cout << "time spent CartesianKinematicController: " << boost::chrono::duration_cast<boost::chrono::milliseconds>(boost::chrono::high_resolution_clock::now() - begin).count() << " ms\n";
-
-	begin = boost::chrono::high_resolution_clock::now();;
-	this->SendSingleCommand(result,type);
-    std::cout << "time spresultent SendSingleCommand: " << boost::chrono::duration_cast<boost::chrono::milliseconds>(boost::chrono::high_resolution_clock::now() - begin).count() << " ms\n";
-
-
-	std::cout << "time spent overall Controlling: " << boost::chrono::duration_cast<boost::chrono::milliseconds>(boost::chrono::high_resolution_clock::now() - global_begin).count() << " ms\n";
-	return true;
-
-}
 
