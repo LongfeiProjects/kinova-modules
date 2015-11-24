@@ -6,6 +6,8 @@
 #include <QHBoxLayout>
 #include <iostream>
 #include <future>
+#include <map>
+#include <utility>
 
 using namespace std;
 MainWindow::MainWindow(QWidget *parent) :
@@ -50,8 +52,8 @@ void MainWindow::initGUI(){
     this->isSpeedIncremented = false;
 
     /*********************************** Recorded Trajectories panel ******************/
-    this->recordedTrajectories = this->sqlManager->getTrajectoriesInfo();
-
+    //this->recordedTrajectories = this->sqlManager->getTrajectoriesInfo();
+    this->recordedTrajectories = this->sqlManager->getCompleteTrajectories();
 
     int row = 0;
     int col = 0;
@@ -171,17 +173,20 @@ void MainWindow::playTrajectoryButtonClicked(int trajectoryId){
             cout << "find the trajectory. Name = " << t.name << endl;
             vector<Log> logs = this->convertTrajectory2Log(t);
             cout << "after converting" << endl;
-
-          /*  this->readTypeMap["comp_t"] = 0;
-            this->readTypeMap["cart_pos"] = 1;
-            this->readTypeMap["j_vel"] = 2;
-            this->readTypeMap["j_pos"] = 3;
-            */
-
             vector<Log> new_ff;
 
             Log cartPosLog = logs[this->readTypeMap["cart_pos"]];
             Log velLog = logs[this->readTypeMap["j_vel"]];
+
+           /* for(int j=0;j<velLog.size();j++){
+                 cout << "joints vel :" << velLog[j][0] << velLog[j][1] << velLog[j][2] << velLog[j][3] << velLog[j][4] << velLog[j][5] <<endl;
+            }
+
+            for(int j=0;j<cartPosLog.size();j++){
+                 cout << "cartPos :" << cartPosLog[j][0] << cartPosLog[j][1] << cartPosLog[j][2] << cartPosLog[j][3] << cartPosLog[j][4] << cartPosLog[j][5] <<endl;
+            }*/
+
+
             new_ff.push_back(cartPosLog);
             new_ff.push_back(velLog);
 
@@ -210,9 +215,13 @@ void MainWindow::playTrajectoryButtonClicked(int trajectoryId){
             //initial[7] = cartPosLog[0][7];
             //initial[8] = cartPosLog[0][8];
 
-            int logTimestampIndex = this->readTypeMap["compt_t"];
+            int logTimestampIndex = this->readTypeMap["comp_t"];
             cout << "before access to time log" << endl;
             Log timeLog = logs[logTimestampIndex];
+
+            for(int j=0;j<cartPosLog.size();j++){
+                 cout << "timeLog :" << timeLog[j][0] <<endl;
+            }
             cout<< "before executing trajectory" << endl;
             this->bot->ExecuteUpdatedTrajectory(timeLog,initial,new_ff);
             cout<< "after executing trajectory" << endl;
@@ -688,10 +697,21 @@ void MainWindow::on_pushButton_2_clicked()
             this->readType.push_back("j_pos");
 
 
-            this->readTypeMap["comp_t"] = 0;
+
+
+            this->readTypeMap.insert(make_pair("comp_t",0));
+            this->readTypeMap.insert(make_pair("cart_pos",1));
+            this->readTypeMap.insert(make_pair("j_vel",2));
+            this->readTypeMap.insert(make_pair("j_pos",3));
+
+            cout << "time index = " << this->readTypeMap["comp_t"] <<endl;
+            cout << "vel index = " << this->readTypeMap["j_vel"] <<endl;
+            cout << "cartpos index = " << this->readTypeMap["cart_pos"] <<endl;
+
+            /*this->readTypeMap["comp_t"] = 0;
             this->readTypeMap["cart_pos"] = 1;
             this->readTypeMap["j_vel"] = 2;
-            this->readTypeMap["j_pos"] = 3;
+            this->readTypeMap["j_pos"] = 3;*/
 
             // controller
             const double Pid_coef[] = {5,0,0}; // deg
@@ -908,7 +928,7 @@ vector<RecordedCartesianInfo> MainWindow::convertLog2Trajectory(vector<Log> logs
             cartInfo.angvel_j4 = velLog[i][3];
             cartInfo.angvel_j5 = velLog[i][4];
             cartInfo.angvel_j6 = velLog[i][5];
-
+            cout << "joints vel :" << velLog[i][0] << velLog[i][1] << velLog[i][2] << velLog[i][3] << velLog[i][4] << velLog[i][5] <<endl;
             //Timestamp
             cartInfo.timestamp = timeLog[i][0];
 
@@ -958,18 +978,31 @@ cout << "res.size = " << res.size() <<endl;
             cout << "*** 5 ***" << endl;
             //Timestamp
             timeLog[i]= State(1);
+            cout << "time before asign :" << cartInfo.timestamp<<endl;
             timeLog[i][0] = cartInfo.timestamp;
+            cout << "time after asign :" << timeLog[i][0] << endl;
     }
 
     cout << "before inserting in the vector" << endl;
     cout << "res.size = " << res.size() <<endl;
     res[this->readTypeMap["cart_pos"]] = cartPosLog;
     cout << "res.size = " << res.size() <<endl;
-    res[this->readTypeMap["compt_t"]] = timeLog;
+
+    cout << "time index = " << this->readTypeMap["comp_t"] <<endl;
+    cout << "vel index = " << this->readTypeMap["j_vel"] <<endl;
+    cout << "cartpos index = " << this->readTypeMap["cart_pos"] <<endl;
+
+    res[this->readTypeMap["comp_t"]] = timeLog;
     cout << "res.size = " << res.size() <<endl;
     res[this->readTypeMap["j_vel"]] =  velLog;
     cout << "res.size = " << res.size() <<endl;
     cout << "after inserting in the vector" << endl;
+
+  /*  for(int i=0;i< res[this->readTypeMap["comp_t"]].size() ;i++){
+        cout << "time before resturn : " << res[this->readTypeMap["comp_t"]][i][0] << endl;
+        cout << "time before resturn velLog: " << timeLog[i][0] << endl;
+    }
+    */
     return res;
 }
 

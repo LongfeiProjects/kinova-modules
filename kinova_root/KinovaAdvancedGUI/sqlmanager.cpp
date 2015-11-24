@@ -82,7 +82,51 @@ bool SqlManager::saveRecordedTrajectory(Trajectory &trajectory){
 
 /*Return the full trajectory including the cartesian positions*/
 vector<Trajectory> SqlManager::getCompleteTrajectories(){
+    vector<Trajectory> result;
+    QSqlQuery query(this->database);
+     QSqlQuery query2(this->database);
+    QString strQuery = "SELECT * from Trajectory";
+    if(query.exec(strQuery)){
+        while(query.next()){
+            cout << "loading.-.-" <<endl;
+            Trajectory t;
+            t.id = query.value(0).toInt();
+            t.name = query.value(1).toString().toStdString();
+            t.description = query.value(2).toString().toStdString();
 
+            QString strQueryCartInfo = "select c.pos_x,c.pos_y,c.pos_z,c.theta_x,c.theta_y,c.theta_z,c.finger1,c.finger2,c.finger3,c.angvel_j1,c.angvel_j2,c.angvel_j3,c.angvel_j4,c.angvel_j5,c.angvel_j6,map.timestamp from CartesianInfo c, trajectory_cartesianInfo map  where map.trajectory_id="+ QString::number(t.id) +" and c.id=map.cartesianInfo_id";
+            if(query2.exec(strQueryCartInfo)){
+                while (query2.next()) {
+                    RecordedCartesianInfo cartInfo;
+                    cartInfo.pos_x = query2.value(0).toFloat();
+                    cartInfo.pos_y = query2.value(1).toFloat();
+                    cartInfo.pos_z = query2.value(2).toFloat();
+                    cartInfo.theta_x = query2.value(3).toFloat();
+                    cartInfo.theta_y= query2.value(4).toFloat();
+                    cartInfo.theta_z = query2.value(5).toFloat();
+                    cartInfo.finger1 = query2.value(6).toFloat();
+                    cartInfo.finger2 = query2.value(7).toFloat();
+                    cartInfo.finger3 = query2.value(8).toFloat();
+                    cartInfo.angvel_j1 = query2.value(9).toFloat();
+                    cartInfo.angvel_j2 = query2.value(10).toFloat();
+                    cartInfo.angvel_j3 = query2.value(11).toFloat();
+                    cartInfo.angvel_j4 = query2.value(12).toFloat();
+                    cartInfo.angvel_j5 = query2.value(13).toFloat();
+                    cartInfo.angvel_j6 = query2.value(14).toFloat();
+                    cartInfo.timestamp = query2.value(15).toInt();
+                  //  cout << "time from db: " <<  cartInfo.timestamp << endl;
+                    t.trajectoryInfo.push_back(cartInfo);
+                }
+            }else{
+                qDebug() << "Error loading cartesian info for trajectories! " <<endl;
+            }
+
+            result.push_back(t);
+        }
+    }else{
+        qDebug() << "Error loading trajectories! " <<endl;
+    }
+    return result;
 }
 
 
