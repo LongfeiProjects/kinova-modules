@@ -12,15 +12,20 @@ KinDrv::jaco_position_type_t kinova_controller_openapi::InitPositionType(int val
 {
 	KinDrv::jaco_position_type_t p;
 	if(value == 1)
+    {
 		p = KinDrv::POSITION_CARTESIAN;
+    }
 	else if(value == 2)
+    {
 		p = KinDrv::POSITION_ANGULAR;
+    }
 	else if(value == 7)
+    {
 		p = KinDrv::SPEED_CARTESIAN;
+    }
 	else if(value == 8)
 	{
 		p = KinDrv::SPEED_ANGULAR;
-		std::cout<<"speed_angular"<<std::endl;
 	}
 
 	return p;
@@ -125,7 +130,7 @@ KinDrv::jaco_basic_traj_point_t  kinova_controller_openapi::ConvertControl(State
 		type = type - 10;
 		pointToSend.hand_mode = KinDrv::MODE_POSITION;
 	}
-	else if(type>20)
+    else if(type>=20)
 	{
         std::cout<<"MODE_SPEED" <<  std::endl;
 		type = type - 20;
@@ -136,9 +141,9 @@ KinDrv::jaco_basic_traj_point_t  kinova_controller_openapi::ConvertControl(State
         std::cout<<"NO_MOVEMENT" <<  std::endl;
 		pointToSend.hand_mode = KinDrv::NO_MOVEMENT;
 	}
-    // set the robot control type
-    pointToSend.pos_type = this->InitPositionType(type);
     ty = this->InitPositionType(type);
+    // set the robot control type
+    pointToSend.pos_type = ty;
     // set delay for executing the command
 	pointToSend.time_delay = 0;
     if(ty==KinDrv::POSITION_ANGULAR || ty==KinDrv::SPEED_ANGULAR)
@@ -150,9 +155,9 @@ KinDrv::jaco_basic_traj_point_t  kinova_controller_openapi::ConvertControl(State
 		pointToSend.target.joints[3] = (float)value[3];
 		pointToSend.target.joints[4] = (float)value[4];
 		pointToSend.target.joints[5] = (float)value[5];
-        pointToSend.target.finger_position[0] = (float)value[6]*DEG;
-        pointToSend.target.finger_position[1] = (float)value[7]*DEG;
-        pointToSend.target.finger_position[2] = (float)value[8]*DEG;
+        pointToSend.target.finger_position[0] = (float)(value[6]*DEG);
+        pointToSend.target.finger_position[1] = (float)(value[7]*DEG);
+        pointToSend.target.finger_position[2] = (float)(value[8]*DEG);
 	}
     else if(ty==KinDrv::POSITION_CARTESIAN || ty==KinDrv::SPEED_CARTESIAN)
 	{
@@ -180,17 +185,17 @@ void kinova_controller_openapi::SendSingleCommand(State cmd,int type)
 {
 
     //DEBUG
-	boost::chrono::high_resolution_clock::time_point begin = boost::chrono::high_resolution_clock::now();
+    //boost::chrono::high_resolution_clock::time_point begin = boost::chrono::high_resolution_clock::now();
 	//---
 	KinDrv::jaco_basic_traj_point_t  p = this->ConvertControl(cmd,type);
 	//DEBUG
-	std::cout << "time spent ConvertControl: " << boost::chrono::duration_cast<boost::chrono::milliseconds>(boost::chrono::high_resolution_clock::now() - begin).count() << " ms\n";
-	begin = boost::chrono::high_resolution_clock::now();
+    //std::cout << "time spent ConvertControl: " << boost::chrono::duration_cast<boost::chrono::milliseconds>(boost::chrono::high_resolution_clock::now() - begin).count() << " ms\n";
+    //begin = boost::chrono::high_resolution_clock::now();
 	//---
 	this->arm->erase_trajectories();
 	this->arm->set_target(p);
 	//DEBUG
-	std::cout << "time spent MySendAdvanceTrajectory: " << boost::chrono::duration_cast<boost::chrono::milliseconds>(boost::chrono::high_resolution_clock::now() - begin).count() << " ms\n";
+    //std::cout << "time spent MySendAdvanceTrajectory: " << boost::chrono::duration_cast<boost::chrono::milliseconds>(boost::chrono::high_resolution_clock::now() - begin).count() << " ms\n";
 	//----
 }
 

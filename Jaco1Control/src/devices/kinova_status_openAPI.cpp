@@ -45,13 +45,20 @@ kinova_status_openapi::kinova_status_openapi(model * mdl)
 }
 
 kinova_status_openapi::~kinova_status_openapi()
-{}
+{
+    // close open api kinova
+    this->arm->stop_api_ctrl();
+    KinDrv::close_usb();
+}
 
 void kinova_status_openapi::Start()
 {
+    this->running.store(true,boost::memory_order_release);
+    this->running_cleaner.store(true,boost::memory_order_release);
     this->reader_stats = new boost::thread(boost::bind(&kinova_status_openapi::Reading,this));
 	//this->log_stats = new boost::thread(boost::bind(&kinova_status::Logging,this));
     this->garbage_collection = new boost::thread(boost::bind(&kinova_status_openapi::Cleaning,this));
+    std::cout<<"start all threads"<<std::endl;
 }
 
 void kinova_status_openapi::Stop()
@@ -65,9 +72,6 @@ void kinova_status_openapi::Stop()
     this->reader_stats->join();
 	//this->log_stats->join();
     this->garbage_collection->join();
-	// close open api kinova
-	this->arm->stop_api_ctrl();
-	KinDrv::close_usb();
 	std::cout<<"close all thread"<<std::endl;
 }
 
@@ -294,17 +298,17 @@ void kinova_status_openapi::ClearCommands()
 }
 
 void kinova_status_openapi::RestartAPI(){
-    this->running.store(false,boost::memory_order_release);
+    /*this->running.store(false,boost::memory_order_release);
     this->running_cleaner.store(false,boost::memory_order_release);
     this->reader_stats->join();
-    this->garbage_collection->join();
+    this->garbage_collection->join();*/
     //add log_stats!!!!!!
     arm->stop_api_ctrl();
     arm->start_api_ctrl();
-    this->running.store(true,boost::memory_order_release);
+    /*this->running.store(true,boost::memory_order_release);
     this->running_cleaner.store(true,boost::memory_order_release);
     this->reader_stats = new boost::thread(boost::bind(&kinova_status_openapi::Reading,this));
-    this->garbage_collection = new boost::thread(boost::bind(&kinova_status_openapi::Cleaning,this));
+    this->garbage_collection = new boost::thread(boost::bind(&kinova_status_openapi::Cleaning,this));*/
     //add log_stats!!!!!!
 }
 
@@ -340,9 +344,10 @@ void kinova_status_openapi::ReadJoints(KinDrv::jaco_position_t &position,KinDrv:
 	this->ang_pos.push( &(ds_ang_pos.back()) );
     // finger position
     State app_fing(3);
-    app_fing[0]=position.finger_position[1];
-    app_fing[1]=position.finger_position[2];
-    app_fing[2]=position.finger_position[3];
+    app_fing[0]=position.finger_position[0];
+    app_fing[1]=position.finger_position[1];
+    app_fing[2]=position.finger_position[2];
+    //std::cout<<app_fing<<std::endl;
     this->ds_hand_pos.push_back(app_fing);
     this->dl_hand_pos.store(&(ds_hand_pos.back()),boost::memory_order_release);
     // joint velocity
@@ -358,11 +363,19 @@ void kinova_status_openapi::ReadJoints(KinDrv::jaco_position_t &position,KinDrv:
     //std::cout<<app_short << std::endl;
     this->ds_ang_vel.push_back(app_short);
 	this->dl_ang_vel.store(&(ds_ang_vel.back()),boost::memory_order_release);
-    // finger velocity
+    // finger velocity. For the finger velocity because there is a difference between the
+    // measured and the commanded value we can only rely on the sign of the misure.
     State app_short_fing(3);
-    app_short_fing[0]=velocity.finger_position[1];
-    app_short_fing[1]=velocity.finger_position[2];
-    app_short_fing[2]=velocity.finger_position[3];
+    for(int i=0;i<3;i++)
+    {
+         if(velocity.finger_position[i]>0.00001)
+            app_short_fing[i]= 30.0;
+         else if(velocity.finger_position[i]<-0.00001)
+            app_short_fing[i]= -30.0;
+         else
+            app_short_fing[i]= 0.0;
+    }
+    //std::cout<<app_short_fing<<std::endl;
     this->ds_hand_vel.push_back(app_short_fing);
     this->dl_hand_vel.store(&(ds_hand_vel.back()),boost::memory_order_release);
 	// joint torques
@@ -469,7 +482,7 @@ std::vector<State> kinova_status_openapi::FirstRead(std::vector<std::string> typ
 	boost::this_thread::sleep(boost::posix_time::milliseconds(10)); // this sleep is necessary because at the begining i read a lot of nasty value
 	GetLastValue(res,type);
 	// DEBUG
-	//std::cout<<" FirstRead result  "<<result<<std::endl;
+    //std::cout<<"FirstRead result"<<result<<std::endl;
 	//---
 	return res;
 
@@ -482,7 +495,9 @@ bool kinova_status_openapi::GetLastValue(std::vector<State>& res, std::vector<st
 	{
 		for(unsigned int i =0;i<type.size();i++)
 		{
+            //DEBUG
             std::cout<<"reading succed"<<std::endl;
+            //--
 			State app;
 			if(type[i].compare("j_pos") == 0)
             {

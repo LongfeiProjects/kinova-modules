@@ -139,9 +139,10 @@ void robot::SendAndWait(State starting_joint_position)
 }
 
 void robot::MoveHome()
-{
+{   this->st->Stop();
     this->st->RestartAPI();
 	this->contr->Move2Home();
+    this->st->Start();
 }
 
 void robot::StartAllThread()

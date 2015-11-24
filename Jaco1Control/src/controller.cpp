@@ -56,6 +56,7 @@ State controller::CartesianKinematicController(std::vector<State> current_state)
     // adapting the action according to the specific driver in use
     if(this->opt.control_action>10)
     {
+        std::cout << "this->opt.control_action>10"<<std::endl;
         result.set_size(9);
         result[0] = part_result[0]; result[1] = part_result[1]; result[2] = part_result[2];
         result[3] = part_result[3]; result[4] = part_result[4]; result[5] = part_result[5];
