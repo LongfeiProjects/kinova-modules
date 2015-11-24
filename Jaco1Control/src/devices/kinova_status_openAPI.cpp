@@ -130,7 +130,7 @@ void kinova_status_openapi::Cleaning()
     std::cout<<"start cleaning thread "<<std::endl;
 	while(this->running_cleaner.load(boost::memory_order_acquire))
 	{
-        /*if(this->ds_ang_pos.size() > (unsigned int)(this->Max_DS_allowed) ){
+        if(this->ds_ang_pos.size() > (unsigned int)(this->Max_DS_allowed) ){
            this->ds_ang_pos.pop_front();
         }
         if(this->ds_hand_pos.size() > (unsigned int)(this->Max_DS_allowed) ){
@@ -150,7 +150,7 @@ void kinova_status_openapi::Cleaning()
         }
         if(this->ds_comp_t.size() > (unsigned int)(this->Max_DS_allowed)){
            this->ds_comp_t.pop_front();
-        }*/
+        }
     }
 	std::cout<<"im out of Cleaning thread"<<std::endl;
 }
