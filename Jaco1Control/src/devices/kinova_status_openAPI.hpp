@@ -37,14 +37,14 @@ class kinova_status_openapi : public stats
 		boost::thread* garbage_collection;
 		boost::chrono::high_resolution_clock::time_point tStart;
         // for logging          for visualizing      for control                   list size
-        DataStore ds_ang_pos;	DataFlow ang_pos;    DataLast dl_ang_pos;          boost::atomic<int> size_ang_pos;
+        DataStore ds_ang_pos;	DataFlow ang_pos;    DataLast dl_ang_pos;
         DataStore ds_hand_pos;              		 DataLast dl_hand_pos;
 		DataStore ds_ang_vel;					     DataLast dl_ang_vel;
         DataStore ds_hand_vel;              		 DataLast dl_hand_vel;
 		DataStore ds_ang_tau;	DataFlow ang_tau;    DataLast dl_ang_tau;
 		DataStore ds_cart_f;	DataFlow cart_f;	 DataLast dl_cart_f;
 		DataStore ds_mot_amp;	DataFlow mot_amp;
-		DataStore ds_comp_t;	DataFlow comp_t;
+        DataStore ds_comp_t;	DataFlow comp_t;                                  boost::atomic<PtrDataStoreIt> size_comp_t;
 		DataStore ds_robot_t;
 		DataStore ds_cart_pos;              		 DataLast dl_cart_pos;
 		std::vector<DataStoreIt> bookmarks;

@@ -89,12 +89,10 @@ void kinova_status_openapi::Reading()
         velocity = this->arm->get_ang_vel();
 		position = this->arm->get_ang_pos();
 		//force = this->arm->get_ang_force();
-        //cart_pos = this->arm->get_cart_pos();
         this->ReadTimeStamp();
         this->ReadJoints(position,velocity,force);
         this->ReadCartesian(position);
         //this->ReadCartesian1(cart_pos);
-        //this->ReadCurrents(cur);
 		if(!first_write.load(boost::memory_order_acquire))
 		{
 			std::cout<<"first write"<<std::endl;
@@ -170,7 +168,7 @@ void kinova_status_openapi::StartSaving(std::vector<std::string>  & type)
 {
 	// first i have to stop the garbage collector process
 	this->running_cleaner.store(false,boost::memory_order_release);
-	this->garbage_collection->join();
+    this->garbage_collection->join();
     // start the global time for logging
     this->tStart = boost::chrono::high_resolution_clock::now();
     std::cout<<"starting saving"<<std::endl;
@@ -180,45 +178,72 @@ void kinova_status_openapi::StartSaving(std::vector<std::string>  & type)
 		{
 			DataStoreIt app;
 			if(type[i].compare("comp_t")==0)
-			{
-                app = this->ds_comp_t.end();
-                app--;
+            {
+                std::cout<<"ds_comp_t.size() = " << this->ds_comp_t.size() << std::endl;
+                std::cout << "1" << std::endl;
+                std::cout << this->ds_comp_t.back() << std::endl;
+                //app = this->ds_comp_t.end();
+                //app--;
+                app = *(this->size_comp_t.load(boost::memory_order_acquire));
+                std::cout << "*app - " << i << "- =" << *(app) <<std::endl;
 			}
 			if(type[i].compare("j_pos") == 0)
 			{
+                std::cout << "2" << std::endl;
                 app = this->ds_ang_pos.end();
+     //           std::cout << "app - " << i << " - =" << app <<std::endl;
+
 				app--;
+                 std::cout << "*app - " << i << "- =" << *app <<std::endl;
 			}
             if(type[i].compare("hand_pos") == 0)
             {
+                std::cout << "3" << std::endl;
                 app = this->ds_hand_pos.end();
+     //           std::cout << "app - " << i << " - =" << app <<std::endl;
                 app--;
+                std::cout << "*app - " << i << "- =" << *app <<std::endl;
             }
 			else if(type[i].compare("j_vel") == 0)
 			{
+                std::cout << "4" << std::endl;
 				app = this->ds_ang_vel.end();
+     //           std::cout << "app - " << i << " - =" << app <<std::endl;
 				app--;
+                std::cout << "*app - " << i << "- =" << *app <<std::endl;
 			}
             else if(type[i].compare("hand_vel") == 0)
             {
+                std::cout << "5" << std::endl;
                 app = this->ds_hand_vel.end();
+  //              std::cout << "app - " << i << " - =" << app <<std::endl;
                 app--;
+                std::cout << "*app - " << i << "- =" << *app <<std::endl;
             }
 			else if(type[i].compare("j_tau") == 0)
 			{
+                std::cout << "6" << std::endl;
 				app = this->ds_ang_tau.end();
+    //            std::cout << "app - " << i << " - =" << app <<std::endl;
 				app--;
+                std::cout << "*app - " << i << "- =" << *app <<std::endl;
 			}
 			else if(type[i].compare("cart_f") == 0)
 			{
+                std::cout << "7" << std::endl;
 				app = this->ds_cart_f.end();
+        //        std::cout << "app - " << i << " - =" << app <<std::endl;
 				app--;
+                std::cout << "*app - " << i << "- =" << *app <<std::endl;
 			}
 			else if(type[i].compare("cart_pos") == 0)
 			{
+                std::cout << "8" << std::endl;
                 std::cout << "cart_pos if" << std::endl;
 				app = this->ds_cart_pos.end();
+    //            std::cout << "app - " << i << " - =" << app <<std::endl;
 				app--;
+                std::cout << "*app - " << i << "- =" << *app <<std::endl;
 			}
 			this->bookmarks.push_back(app);
 		}
@@ -231,8 +256,11 @@ std::vector<Log> kinova_status_openapi::StopSaving(std::vector<std::string>  & t
 	std::vector<Log> result;
 	for(unsigned int i =0;i<type.size();i++)
 	{
+        std::cout << " -- 1 -- " << std::endl;
 		if(type[i].compare("comp_t")==0)
 		{
+            std::cout << " -- 2 -- " << std::endl;
+            std::cout<<"ds_comp_t.size() = " << this->ds_comp_t.size() << std::endl;
 			Log app(this->bookmarks[i],this->ds_comp_t.end());
 
            std::cout<< "app size = " << app.size() << std::endl;
@@ -246,47 +274,71 @@ std::vector<Log> kinova_status_openapi::StopSaving(std::vector<std::string>  & t
         else if(type[i].compare("j_pos") == 0)
 		{   // here i construct the log by assigning to the vec of state Log
 			// the sublist
+            std::cout << " -- 3 -- " << std::endl;
+  //          std::cout << "bookmarks[" << i << "]=" << this->bookmarks[i] <<std::endl;
+            std::cout << "*bookmarks[" << i << "]=" << *this->bookmarks[i] <<std::endl;
 			Log app(this->bookmarks[i],this->ds_ang_pos.end());
 			result.push_back(app);
 		}
         else if(type[i].compare("hand_pos") == 0)
         {   // here i construct the log by assigning to the vec of state Log
             // the sublist
+            std::cout << " -- 4 -- " << std::endl;
+   //         std::cout << "bookmarks[" << i << "]=" << this->bookmarks[i] <<std::endl;
+            std::cout << "*bookmarks[" << i << "]=" << *this->bookmarks[i] <<std::endl;
             Log app(this->bookmarks[i],this->ds_hand_pos.end());
             result.push_back(app);
         }
 		else if(type[i].compare("j_vel") == 0)
 		{
+            std::cout << " -- 5 -- " << std::endl;
+    //        std::cout << "bookmarks[" << i << "]=" << this->bookmarks[i] <<std::endl;
+            std::cout << "*bookmarks[" << i << "]=" << *this->bookmarks[i] <<std::endl;
 			Log app(this->bookmarks[i],this->ds_ang_vel.end());
 			result.push_back(app);
 		}
         else if(type[i].compare("hand_vel") == 0)
         {
+            std::cout << " -- 6 -- " << std::endl;
+      //      std::cout << "bookmarks[" << i << "]=" << this->bookmarks[i] <<std::endl;
+            std::cout << "*bookmarks[" << i << "]=" << *this->bookmarks[i] <<std::endl;
             Log app(this->bookmarks[i],this->ds_hand_vel.end());
             result.push_back(app);
         }
 		else if(type[i].compare("j_tau") == 0)
 		{
+            std::cout << " -- 7 -- " << std::endl;
+        //    std::cout << "bookmarks[" << i << "]=" << this->bookmarks[i] <<std::endl;
+            std::cout << "*bookmarks[" << i << "]=" << *this->bookmarks[i] <<std::endl;
 			Log app(this->bookmarks[i],this->ds_ang_tau.end());
 			result.push_back(app);
 		}
 		else if(type[i].compare("cart_f") == 0)
 		{
+            std::cout << " -- 8 -- " << std::endl;
+         //   std::cout << "bookmarks[" << i << "]=" << this->bookmarks[i] <<std::endl;
+            std::cout << "*bookmarks[" << i << "]=" << *this->bookmarks[i] <<std::endl;
 			Log app(this->bookmarks[i],this->ds_cart_f.end());
 			result.push_back(app);
 		}
 		else if(type[i].compare("cart_pos") == 0)
 		{
+            std::cout << " -- 9 -- " << std::endl;
+        //    std::cout << "bookmarks[" << i << "]=" << this->bookmarks[i] <<std::endl;
+            std::cout << "*bookmarks[" << i << "]=" << *this->bookmarks[i] <<std::endl;
 			Log app(this->bookmarks[i],this->ds_cart_pos.end());
 			result.push_back(app);
 		}
 	}
+
+    std::cout << " -- 10 -- " << std::endl;
 	// reactivate the cleaner tasks
 	this->running_cleaner.store(true,boost::memory_order_release);
-	this->garbage_collection = new boost::thread(boost::bind(&kinova_status_openapi::Cleaning,this));
+    this->garbage_collection = new boost::thread(boost::bind(&kinova_status_openapi::Cleaning,this));
 	// clean bookmarks
 	this->bookmarks.clear();
 
+    std::cout << "before return stop" << std::endl;
 	return result;
 }
 
@@ -298,18 +350,8 @@ void kinova_status_openapi::ClearCommands()
 }
 
 void kinova_status_openapi::RestartAPI(){
-    /*this->running.store(false,boost::memory_order_release);
-    this->running_cleaner.store(false,boost::memory_order_release);
-    this->reader_stats->join();
-    this->garbage_collection->join();*/
-    //add log_stats!!!!!!
     arm->stop_api_ctrl();
     arm->start_api_ctrl();
-    /*this->running.store(true,boost::memory_order_release);
-    this->running_cleaner.store(true,boost::memory_order_release);
-    this->reader_stats = new boost::thread(boost::bind(&kinova_status_openapi::Reading,this));
-    this->garbage_collection = new boost::thread(boost::bind(&kinova_status_openapi::Cleaning,this));*/
-    //add log_stats!!!!!!
 }
 
 void kinova_status_openapi::ReadTimeStamp()
@@ -322,8 +364,7 @@ void kinova_status_openapi::ReadTimeStamp()
 	this->ds_comp_t.push_back(t_cur);
 	// i can write for the vis less often then the other op
 	this->comp_t.push( &(ds_comp_t.back()) );
-	//this->ds_robot_t.push_back(t_rob);
-
+    this->running_cleaner.store(&(ds_comp_t.back()),boost::memory_order_release);
 }
 
 void kinova_status_openapi::ReadJoints(KinDrv::jaco_position_t &position,KinDrv::jaco_position_t & velocity,KinDrv::jaco_position_t & force)

@@ -177,6 +177,7 @@ void MainWindow::playTrajectoryButtonClicked(int trajectoryId){
 
             Log cartPosLog = logs[this->readTypeMap["cart_pos"]];
             Log velLog = logs[this->readTypeMap["j_vel"]];
+            Log fingerVel = logs[this->readTypeMap["hand_vel"]];
 
            /* for(int j=0;j<velLog.size();j++){
                  cout << "joints vel :" << velLog[j][0] << velLog[j][1] << velLog[j][2] << velLog[j][3] << velLog[j][4] << velLog[j][5] <<endl;
@@ -189,6 +190,7 @@ void MainWindow::playTrajectoryButtonClicked(int trajectoryId){
 
             new_ff.push_back(cartPosLog);
             new_ff.push_back(velLog);
+            new_ff.push_back(fingerVel);
 
 
             cout << "after converting 2" << endl;
@@ -420,7 +422,6 @@ State convertDirectionToState(int direction, float speed){
 
 void MainWindow::loopSendVelocityCommad(int direction){
     if(!this->stopedTimers[direction-1]){ //we have to use a bool to know I we stopped the timer  because the timer->stop() is not immediate
-       cout << "en el loop --> enviar comandos de velocidad: "  << this->fixedStepsCounter[direction-1] <<endl;
        if(direction==Close || direction==Open){
            if(KINOVA_LIB == 1){
                State cmd = convertDirectionToState(direction,30);
@@ -704,7 +705,7 @@ void MainWindow::on_pushButton_2_clicked()
             this->readTypeMap.insert(make_pair("cart_pos",1));
             this->readTypeMap.insert(make_pair("j_vel",2));
             this->readTypeMap.insert(make_pair("j_pos",3));
-
+            this->readTypeMap.insert(make_pair("hand_vel",4));
             cout << "time index = " << this->readTypeMap["comp_t"] <<endl;
             cout << "vel index = " << this->readTypeMap["j_vel"] <<endl;
             cout << "cartpos index = " << this->readTypeMap["cart_pos"] <<endl;
@@ -712,8 +713,8 @@ void MainWindow::on_pushButton_2_clicked()
             /*this->readTypeMap["comp_t"] = 0;
             this->readTypeMap["cart_pos"] = 1;
             this->readTypeMap["j_vel"] = 2;
-            this->readTypeMap["j_pos"] = 3;*/
-            this->readTypeMap["hand_vel"] = 4;
+            this->readTypeMap["j_pos"] = 3;
+            this->readTypeMap["hand_vel"] = 4*/;
 
             // controller
             Option opt;
@@ -828,14 +829,14 @@ void MainWindow::addRecordedTrajectory(Trajectory t){
 }
 
 void MainWindow::showSaveTrajectoryPanel(){
-   Dialog* dialog2 = new Dialog();
-   dialog2->init(this->sqlManager);
    if(KINOVA_LIB ==1){
        cout << "before convert" << endl;
        this->sampledTrajectoryInfo = convertLog2Trajectory(this->recordedLogs);
        cout << "after convert" << endl;
    }
    cout << "will show save panel" << endl;
+   Dialog* dialog2 = new Dialog();
+   dialog2->init(this->sqlManager);
    Trajectory saved =  dialog2->execAndReturnSavedTrajectory(this->sampledTrajectoryInfo);
 
    if(saved.id>-1){
@@ -911,6 +912,7 @@ vector<RecordedCartesianInfo> MainWindow::convertLog2Trajectory(vector<Log> logs
     Log cartPosLog = logs[this->readTypeMap["cart_pos"]];
     Log timeLog = logs[this->readTypeMap["comp_t"]];
     Log velLog = logs[this->readTypeMap["j_vel"]];
+    Log fingerVel = logs[this->readTypeMap["hand_vel"]];
     vector<RecordedCartesianInfo> res;
     for(unsigned int i =0;i<cartPosLog.size();i++)
     {
@@ -922,8 +924,9 @@ vector<RecordedCartesianInfo> MainWindow::convertLog2Trajectory(vector<Log> logs
             cartInfo.theta_x = cartPosLog[i][3];
             cartInfo.theta_y = cartPosLog[i][4];
             cartInfo.theta_z = cartPosLog[i][5];
-
-            //TODO missing finger position
+            cartInfo.finger1 = fingerVel[i][0];
+            cartInfo.finger2 = fingerVel[i][1];
+            cartInfo.finger3 = fingerVel[i][2];
 
             //Joint Velocity
             cartInfo.angvel_j1 = velLog[i][0];
@@ -932,7 +935,7 @@ vector<RecordedCartesianInfo> MainWindow::convertLog2Trajectory(vector<Log> logs
             cartInfo.angvel_j4 = velLog[i][3];
             cartInfo.angvel_j5 = velLog[i][4];
             cartInfo.angvel_j6 = velLog[i][5];
-            cout << "joints vel :" << velLog[i][0] << velLog[i][1] << velLog[i][2] << velLog[i][3] << velLog[i][4] << velLog[i][5] <<endl;
+            //cout << "joints vel :" << velLog[i][0] << velLog[i][1] << velLog[i][2] << velLog[i][3] << velLog[i][4] << velLog[i][5] <<endl;
             //Timestamp
             cartInfo.timestamp = timeLog[i][0];
 
@@ -943,12 +946,13 @@ vector<RecordedCartesianInfo> MainWindow::convertLog2Trajectory(vector<Log> logs
 
 vector<Log> MainWindow::convertTrajectory2Log(Trajectory traj){
 
-    vector<Log> res(4);
+    vector<Log> res(5);
 cout << "res.size = " << res.size() <<endl;
     cout << "trajInfo size = " << traj.trajectoryInfo.size() << endl;
     Log cartPosLog(traj.trajectoryInfo.size());
     Log timeLog(traj.trajectoryInfo.size());
     Log velLog(traj.trajectoryInfo.size());
+    Log fingerVel(traj.trajectoryInfo.size());
 
     cout << "*** 1 ***" << endl;
     for(unsigned int i =0;i<traj.trajectoryInfo.size();i++)
@@ -967,6 +971,10 @@ cout << "res.size = " << res.size() <<endl;
             cartPosLog[i][5] = cartInfo.theta_z;
 
             //TODO missing finger position
+            fingerVel[i] = State(3);
+            fingerVel[i][0] = cartInfo.finger1;
+            fingerVel[i][1] = cartInfo.finger2;
+            fingerVel[i][2] = cartInfo.finger3;
 
 
             cout << "*** 4 ***" << endl;
@@ -1000,6 +1008,7 @@ cout << "res.size = " << res.size() <<endl;
     cout << "res.size = " << res.size() <<endl;
     res[this->readTypeMap["j_vel"]] =  velLog;
     cout << "res.size = " << res.size() <<endl;
+    res[this->readTypeMap["hand_vel"]] =  fingerVel;
     cout << "after inserting in the vector" << endl;
 
   /*  for(int i=0;i< res[this->readTypeMap["comp_t"]].size() ;i++){

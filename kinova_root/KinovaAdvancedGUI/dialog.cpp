@@ -5,13 +5,13 @@ Dialog::Dialog(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::Dialog)
 {
+    cout << "constructing the save panel" << endl;
     ui->setupUi(this);
 }
 
 
 void Dialog::init(SqlManager* sqlManager){
     this->setSqlManager(sqlManager);
-    this->loadTrajectoryList();
     this->success = false;
 }
 
@@ -49,17 +49,6 @@ Trajectory Dialog::execAndReturnSavedTrajectory(vector<RecordedCartesianInfo> sa
     }
 }
 
-
-/*
-not used
-*/
-void Dialog::loadTrajectoryList(){
-    recordedTrajectories = this->sqlManager->getTrajectoriesInfo();
-    for(vector<Trajectory>::iterator iter = recordedTrajectories.begin(); iter!=recordedTrajectories.end();++iter){
-       Trajectory t = *iter;
-       //this->ui->listWidget->addItem(QString::fromStdString(t.name));
-    }
-}
 
 void Dialog::on_save_Trajectory_Panel_Button_rejected()
 {

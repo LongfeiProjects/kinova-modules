@@ -26,8 +26,6 @@ public:
 
     void setSqlManager(SqlManager* sqlManager);
 
-    void loadTrajectoryList();
-
     void init(SqlManager* sqlManager);
     Trajectory execAndReturnSavedTrajectory(vector<RecordedCartesianInfo> sampledTrajectoryInfo);
 private:
