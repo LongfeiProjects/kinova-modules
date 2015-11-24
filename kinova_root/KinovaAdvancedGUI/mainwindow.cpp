@@ -415,7 +415,7 @@ void MainWindow::loopSendVelocityCommad(int direction){
        if(direction==Close || direction==Open){
            if(KINOVA_LIB == 1){
                State cmd = convertDirectionToState(direction,30);
-               this->bot->SendCommand(cmd,27);
+               this->bot->SendCommand(cmd,28);
            }else{
                 this->klib->moveSingleStep(direction,30); //Fixed speed, the unit velocity of the fingers is not clear at all!
            }
@@ -686,12 +686,14 @@ void MainWindow::on_pushButton_2_clicked()
             this->readType.push_back("cart_pos");
             this->readType.push_back("j_vel");
             this->readType.push_back("j_pos");
+            this->readType.push_back("hand_vel");
 
 
             this->readTypeMap["comp_t"] = 0;
             this->readTypeMap["cart_pos"] = 1;
             this->readTypeMap["j_vel"] = 2;
             this->readTypeMap["j_pos"] = 3;
+            this->readTypeMap["hand_vel"] = 4;
 
             // controller
             Option opt;
@@ -737,11 +739,11 @@ void MainWindow::on_pushButton_2_clicked()
             moveFingers[4] = 0;
             moveFingers[5] = 0;
             moveFingers[6] = 0;
-            moveFingers[7] = -30;
-            moveFingers[8] = -30;
-            moveFingers[9] = -30;
+            moveFingers[7] = 1.0;
+            moveFingers[8] = 1.0;
+            moveFingers[9] = 1.0;
             for(int i=0;i<10;i++){
-                this->bot->SendCommand(moveFingers,27);
+                this->bot->SendCommand(moveFingers,18);
             }
             res = SUCCESS;
         }catch(KinDrv::KinDrvException e){
@@ -869,6 +871,7 @@ void MainWindow::writeLogFiles(vector<Log> recordedLogs){
 
     cout << "before write file" <<endl;
     Log jointLog = recordedLogs[this->readTypeMap["j_pos"]];//delete it
+    Log hand_vel = recordedLogs[this->readTypeMap["hand_vel"]];
 
     WriteFile(cartPosLog,"cart_pos_openapi.mat");
     cout << "after write file 1" <<endl;
@@ -877,8 +880,10 @@ void MainWindow::writeLogFiles(vector<Log> recordedLogs){
     WriteFile(velLog,"joint_vel_openapi.mat");
     cout << "after write file 3" <<endl;
     WriteFile(jointLog,"joint_pos_openapi.mat");
+    cout << "after write file 5" <<endl;
+    WriteFile(hand_vel,"hand_vel_openapi.mat");
 
-    cout << "after write file 4" <<endl;
+    cout << "after write file 6" <<endl;
 
 }
 
@@ -1209,9 +1214,11 @@ void MainWindow::on_pushButton_3_clicked()
     Log cartPosLog = recordedLogs[this->readTypeMap["cart_pos"]];
     Log timeLog = recordedLogs[this->readTypeMap["comp_t"]];
     Log velLog = recordedLogs[this->readTypeMap["j_vel"]];
+    Log vel_finger = recordedLogs[this->readTypeMap["hand_vel"]];
     vector<Log> values;
     values.push_back(cartPosLog);
     values.push_back(velLog);
+    values.push_back(vel_finger);
 
 
     this->bot->ExecuteUpdatedTrajectory(timeLog,starting,values);
