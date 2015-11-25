@@ -47,7 +47,7 @@ class kinova_status_openapi : public stats
 		DataStore ds_ang_tau;	DataFlow ang_tau;    DataLast dl_ang_tau;
 		DataStore ds_cart_f;	DataFlow cart_f;	 DataLast dl_cart_f;
 		DataStore ds_mot_amp;	DataFlow mot_amp;
-        DataStore ds_comp_t;	DataFlow comp_t;                                  DataStoreIt size_comp_t;    unsigned int  ptr_t;
+        DataStore ds_comp_t;	DataFlow comp_t;
 		DataStore ds_robot_t;
 		DataStore ds_cart_pos;              		 DataLast dl_cart_pos;
 		std::vector<DataStoreIt> bookmarks;

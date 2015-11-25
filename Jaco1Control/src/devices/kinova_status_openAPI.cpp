@@ -85,14 +85,13 @@ void kinova_status_openapi::Reading()
 	while(this->running.load(boost::memory_order_acquire))
 	{
 		boost::chrono::high_resolution_clock::time_point global_begin = boost::chrono::high_resolution_clock::now();
-        KinDrv::jaco_position_t position,velocity,force,cart_pos;
+        KinDrv::jaco_position_t position,velocity,force;
         velocity = this->arm->get_ang_vel();
 		position = this->arm->get_ang_pos();
-		//force = this->arm->get_ang_force();
+        force = this->arm->get_ang_force();
         this->ReadTimeStamp();
         this->ReadJoints(position,velocity,force);
         this->ReadCartesian(position);
-        //this->ReadCartesian1(cart_pos);
 		if(!first_write.load(boost::memory_order_acquire))
 		{
 			std::cout<<"first write"<<std::endl;
@@ -171,68 +170,67 @@ void kinova_status_openapi::StartSaving(std::vector<std::string>  & type)
 			if(type[i].compare("comp_t")==0)
             {
 
-                std::cout << "1" << std::endl;
-                std::cout<<"ds_comp_t.size() = " << this->ds_comp_t.size() << std::endl;
+                //std::cout << "1" << std::endl;
+                //std::cout<<"ds_comp_t.size() = " << this->ds_comp_t.size() << std::endl;
                 app = this->ds_comp_t.end();
                 app--;
-                std::cout << "*app - " << i << "- =" << *app <<std::endl;
-                this->ptr_t = this->ds_comp_t.size();
+                //std::cout << "*app - " << i << "- =" << *app <<std::endl;
 			}
 			if(type[i].compare("j_pos") == 0)
 			{
-                std::cout << "2" << std::endl;
-                std::cout<<"ds_ang_pos.size() = " << this->ds_ang_pos.size() << std::endl;
+                //std::cout << "2" << std::endl;
+                //std::cout<<"ds_ang_pos.size() = " << this->ds_ang_pos.size() << std::endl;
                 app = this->ds_ang_pos.end();
 				app--;
-                std::cout << "*app - " << i << "- =" << *app <<std::endl;
+                //std::cout << "*app - " << i << "- =" << *app <<std::endl;
 			}
             if(type[i].compare("hand_pos") == 0)
             {
-                std::cout << "3" << std::endl;
-                std::cout<<"ds_hand_pos.size() = " << this->ds_hand_pos.size() << std::endl;
+                //std::cout << "3" << std::endl;
+                //std::cout<<"ds_hand_pos.size() = " << this->ds_hand_pos.size() << std::endl;
                 app = this->ds_hand_pos.end();
                 app--;
-                std::cout << "*app - " << i << "- =" << *app <<std::endl;
+                //std::cout << "*app - " << i << "- =" << *app <<std::endl;
             }
 			else if(type[i].compare("j_vel") == 0)
 			{
-                std::cout << "4" << std::endl;
-                std::cout<<"ds_ang_vel.size() = " << this->ds_ang_vel.size() << std::endl;
+                //std::cout << "4" << std::endl;
+                //std::cout<<"ds_ang_vel.size() = " << this->ds_ang_vel.size() << std::endl;
 				app = this->ds_ang_vel.end();
 				app--;
-                std::cout << "*app - " << i << "- =" << *app <<std::endl;
+                //std::cout << "*app - " << i << "- =" << *app <<std::endl;
 			}
             else if(type[i].compare("hand_vel") == 0)
             {
-                std::cout << "5" << std::endl;
-                std::cout<<"ds_hand_vel.size() = " << this->ds_hand_vel.size() << std::endl;
+                //std::cout << "5" << std::endl;
+                //std::cout<<"ds_hand_vel.size() = " << this->ds_hand_vel.size() << std::endl;
                 app = this->ds_hand_vel.end();
                 app--;
-                std::cout << "*app - " << i << "- =" << *app <<std::endl;
+                //std::cout << "*app - " << i << "- =" << *app <<std::endl;
             }
 			else if(type[i].compare("j_tau") == 0)
 			{
-                std::cout << "6" << std::endl;
-                std::cout<<"ds_ang_tau.size() = " << this->ds_ang_tau.size() << std::endl;
+                //std::cout << "6" << std::endl;
+                //std::cout<<"ds_ang_tau.size() = " << this->ds_ang_tau.size() << std::endl;
 				app = this->ds_ang_tau.end();
 				app--;
-                std::cout << "*app - " << i << "- =" << *app <<std::endl;
+                //std::cout << "*app - " << i << "- =" << *app <<std::endl;
 			}
 			else if(type[i].compare("cart_f") == 0)
 			{
-                std::cout << "7" << std::endl;
-                std::cout<<"ds_cart_f.size() = " << this->ds_cart_f.size() << std::endl;
+                //std::cout << "7" << std::endl;
+                //std::cout<<"ds_cart_f.size() = " << this->ds_cart_f.size() << std::endl;
 				app = this->ds_cart_f.end();
 				app--;
-                std::cout << "*app - " << i << "- =" << *app <<std::endl;
+                //std::cout << "*app - " << i << "- =" << *app <<std::endl;
 			}
 			else if(type[i].compare("cart_pos") == 0)
 			{
-                std::cout << "8" << std::endl;
-                std::cout<<"ds_cart_pos.size() = " << this->ds_cart_pos.size() << std::endl;
+                //std::cout << "8" << std::endl;
+                //std::cout<<"ds_cart_pos.size() = " << this->ds_cart_pos.size() << std::endl;
 				app = this->ds_cart_pos.end();
 				app--;
-                std::cout << "*app - " << i << "- =" << *app <<std::endl;
+                //std::cout << "*app - " << i << "- =" << *app <<std::endl;
 			}
 			this->bookmarks.push_back(app);
 		}
@@ -250,15 +248,10 @@ std::vector<Log> kinova_status_openapi::StopSaving(std::vector<std::string>  & t
 	{
 		if(type[i].compare("comp_t")==0)
 		{
-            std::cout << " -- 1 -- " << std::endl;
-            std::cout<<"ds_comp_t.size() = " << this->ds_comp_t.size() << std::endl;
-           /* DataStoreIt it = this->ds_comp_t.begin();
-            for(unsigned int i = 0;i < this->ptr_t;i++)
-            {
-                it++;
-            }*/
+            //std::cout << " -- 1 -- " << std::endl;
+           // std::cout<<"ds_comp_t.size() = " << this->ds_comp_t.size() << std::endl;
             Log app(this->bookmarks[i],this->ds_comp_t.end());
-            std::cout<< "app size = " << app.size() << std::endl;
+            //std::cout<< "app size = " << app.size() << std::endl;
 			for(unsigned int i =0;i<app.size();i++)
 			{
 				app[i]=app[i]-app[0];
@@ -268,100 +261,65 @@ std::vector<Log> kinova_status_openapi::StopSaving(std::vector<std::string>  & t
 		}
         else if(type[i].compare("j_pos") == 0)
         {
-            std::cout << " -- 2 -- " << std::endl;
-            std::cout<<"ds_ang_pos.size() = " << this->ds_ang_pos.size() << std::endl;
-            /*DataStoreIt it = this->ds_ang_pos.begin();
-            for(unsigned int i = 0;i < this->ptr_t;i++)
-            {
-                it++;
-            }*/
+            //std::cout << " -- 2 -- " << std::endl;
+            //std::cout<<"ds_ang_pos.size() = " << this->ds_ang_pos.size() << std::endl;
             Log app(this->bookmarks[i],this->ds_ang_pos.end());
-            std::cout<< "app size = " << app.size() << std::endl;
-            std::cout << " -- 2.1 -- " << std::endl;
+            //std::cout<< "app size = " << app.size() << std::endl;
+            //std::cout << " -- 2.1 -- " << std::endl;
 			result.push_back(app);
 		}
         else if(type[i].compare("hand_pos") == 0)
         {
-            std::cout << " -- 3 -- " << std::endl;
-            std::cout<<"ds_hand_pos.size() = " << this->ds_hand_pos.size() << std::endl;
-            /*DataStoreIt it = this->ds_hand_pos.begin();
-            for(unsigned int i = 0;i < this->ptr_t;i++)
-            {
-                it++;
-            }*/
+            //std::cout << " -- 3 -- " << std::endl;
+            //std::cout<<"ds_hand_pos.size() = " << this->ds_hand_pos.size() << std::endl
             Log app(this->bookmarks[i],this->ds_hand_pos.end());
-            std::cout<< "app size = " << app.size() << std::endl;
-            std::cout << " -- 3.1 -- " << std::endl;
+            //std::cout<< "app size = " << app.size() << std::endl;
+            //std::cout << " -- 3.1 -- " << std::endl;
             result.push_back(app);
         }
 		else if(type[i].compare("j_vel") == 0)
 		{
-            std::cout << " -- 4 -- " << std::endl;
-            std::cout<<"ds_ang_vel.size() = " << this->ds_ang_vel.size() << std::endl;
-            /*DataStoreIt it = this->ds_ang_vel.begin();
-            for(unsigned int i = 0;i < this->ptr_t;i++)
-            {
-                it++;
-            }*/
+            //std::cout << " -- 4 -- " << std::endl;
+            //std::cout<<"ds_ang_vel.size() = " << this->ds_ang_vel.size() << std::endl;
             Log app(this->bookmarks[i],this->ds_ang_vel.end());
-            std::cout<< "app size = " << app.size() << std::endl;
-            std::cout << " -- 4.1 -- " << std::endl;
+            //std::cout<< "app size = " << app.size() << std::endl;
+            //std::cout << " -- 4.1 -- " << std::endl;
 			result.push_back(app);
 		}
         else if(type[i].compare("hand_vel") == 0)
         {
-            std::cout << " -- 5 -- " << std::endl;
-            std::cout<<"ds_hand_vel.size() = " << this->ds_hand_vel.size() << std::endl;
-            /*DataStoreIt it = this->ds_hand_vel.begin();
-            for(unsigned int i = 0;i < this->ptr_t;i++)
-            {
-                it++;
-            }*/
+            //std::cout << " -- 5 -- " << std::endl;
+            //std::cout<<"ds_hand_vel.size() = " << this->ds_hand_vel.size() << std::endl;
             Log app(this->bookmarks[i],this->ds_hand_vel.end());
-            std::cout<< "app size = " << app.size() << std::endl;
-            std::cout << " -- 5.1 -- " << std::endl;
+            //std::cout<< "app size = " << app.size() << std::endl;
+            //std::cout << " -- 5.1 -- " << std::endl;
             result.push_back(app);
         }
 		else if(type[i].compare("j_tau") == 0)
 		{
-            std::cout << " -- 6 -- " << std::endl;
-            std::cout<<"ds_ang_tau.size() = " << this->ds_ang_tau.size() << std::endl;
-            /*DataStoreIt it = this->ds_ang_tau.begin();
-            for(unsigned int i = 0;i < this->ptr_t;i++)
-            {
-                it++;
-            }*/
+            //std::cout << " -- 6 -- " << std::endl;
+            //std::cout<<"ds_ang_tau.size() = " << this->ds_ang_tau.size() << std::endl;
             Log app(this->bookmarks[i],this->ds_ang_tau.end());
-            std::cout<< "app size = " << app.size() << std::endl;
-            std::cout << " -- 6.1 -- " << std::endl;
+            //std::cout<< "app size = " << app.size() << std::endl;
+            //std::cout << " -- 6.1 -- " << std::endl;
 			result.push_back(app);
 		}
 		else if(type[i].compare("cart_f") == 0)
 		{
-            std::cout << " -- 7 -- " << std::endl;
-            std::cout<<"ds_cart_f.size() = " << this->ds_cart_f.size() << std::endl;
-            /*DataStoreIt it = this->ds_cart_f.begin();
-            for(unsigned int i = 0;i < this->ptr_t;i++)
-            {
-                it++;
-            }*/
+            //std::cout << " -- 7 -- " << std::endl;
+            //std::cout<<"ds_cart_f.size() = " << this->ds_cart_f.size() << std::endl;
             Log app(this->bookmarks[i],this->ds_cart_f.end());
-            std::cout<< "app size = " << app.size() << std::endl;
-            std::cout << " -- 7.1 -- " << std::endl;
+            //std::cout<< "app size = " << app.size() << std::endl;
+            //std::cout << " -- 7.1 -- " << std::endl;
 			result.push_back(app);
 		}
 		else if(type[i].compare("cart_pos") == 0)
 		{
-            std::cout << " -- 8 -- " << std::endl;
-            std::cout<<"ds_cart_pos.size() = " << this->ds_cart_pos.size() << std::endl;
-            /*DataStoreIt it = this->ds_cart_pos.begin();
-            for(unsigned int i = 0;i < this->ptr_t;i++)
-            {
-                it++;
-            }*/
+            //std::cout << " -- 8 -- " << std::endl;
+            //std::cout<<"ds_cart_pos.size() = " << this->ds_cart_pos.size() << std::endl;
             Log app(this->bookmarks[i],this->ds_cart_pos.end());
-            std::cout<< "app size = " << app.size() << std::endl;
-            std::cout << " -- 8.1 -- " << std::endl;
+            //std::cout<< "app size = " << app.size() << std::endl;
+            //std::cout << " -- 8.1 -- " << std::endl;
 			result.push_back(app);
 		}
 	}
@@ -400,7 +358,6 @@ void kinova_status_openapi::ReadTimeStamp()
 	this->ds_comp_t.push_back(t_cur);
 	// i can write for the vis less often then the other op
 	this->comp_t.push( &(ds_comp_t.back()) );
-    this->size_comp_t=ds_comp_t.end();
 }
 
 void kinova_status_openapi::ReadJoints(KinDrv::jaco_position_t &position,KinDrv::jaco_position_t & velocity,KinDrv::jaco_position_t & force)
@@ -456,7 +413,7 @@ void kinova_status_openapi::ReadJoints(KinDrv::jaco_position_t &position,KinDrv:
     this->ds_hand_vel.push_back(app_short_fing);
     this->dl_hand_vel.store(&(ds_hand_vel.back()),boost::memory_order_release);
 	// joint torques
-	/*app[0]=force.joints[0];
+    app[0]=force.joints[0];
 	app[1]=force.joints[1];
 	app[2]=force.joints[2];
 	app[3]=force.joints[3];
@@ -465,7 +422,7 @@ void kinova_status_openapi::ReadJoints(KinDrv::jaco_position_t &position,KinDrv:
 	this->ds_ang_tau.push_back(app);
 	this->dl_ang_tau.store( &(ds_ang_tau.back()),boost::memory_order_release);
 	// i can write for the vis less often then the other op
-	this->ang_tau.push( &(ds_ang_tau.back()) );*/
+    this->ang_tau.push( &(ds_ang_tau.back()) );
 }
 
 // TO DO: SPLIT CARTESIAN POSITION FROM ORIENTATION INTO DIFFERENT VARIABLE
