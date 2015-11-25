@@ -46,11 +46,11 @@ void robot::ExecuteTrajectory(std::vector<State> timestamps, State starting_cart
                     //DEBUG
                     std::cout<<"before move2startingposition"<<std::endl;
                     //---
-                    //SendAndWait(starting_cartesian_position);
+                    SendAndWait(starting_cartesian_position);
                     std::vector<State> start;
                     start = st->FirstRead(this->contr->opt.meas_val);
                     //DEBUG
-                    std::cout<<"after move2home"<<std::endl;
+                    std::cout<<"after move2startingposition"<<std::endl;
                     //---
                     // Initialization of current value after after move2home
                     cur_val = start;
@@ -125,16 +125,16 @@ void robot::SendAndWait(State starting_joint_position)
     usleep(1000*300);
     st->GetLastValue(cur_val_1,read);
     sos =arma::dot(cur_val_1[0],cur_val_1[0]);
-    std::cout<< "curval" << cur_val_1[0] << std::endl;
-    std::cout<< sos << std::endl;
+    //std::cout<< "curval" << cur_val_1[0] << std::endl;
+    //std::cout<< sos << std::endl;
    while(sos > 0.000001)
     {
         usleep(10*1000);
         std::vector<State> cur_val_1;
         st->GetLastValue(cur_val_1,read);
         sos =arma::dot(cur_val_1[0],cur_val_1[0]);
-        std::cout<< "curval" << cur_val_1[0] << std::endl;
-        std::cout<< sos << std::endl;
+        //std::cout<< "curval" << cur_val_1[0] << std::endl;
+        //std::cout<< sos << std::endl;
     }
 }
 

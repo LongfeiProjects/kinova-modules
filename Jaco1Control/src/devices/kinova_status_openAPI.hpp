@@ -21,6 +21,9 @@
 //#define EXT_FORCE_LIM  10       // Nm
 //#define VELOCITY_LIM   25       // percentage reduce
 
+
+//Adding/removing objects anywhere in a std::list<T> keeps both pointers and iterators stable.
+//cplusplus.com has section iterator validity for each member function of standard containers for example: http://www.cplusplus.com/reference/list/list/insert/.
 class kinova_status_openapi : public stats
 {
 
@@ -44,7 +47,7 @@ class kinova_status_openapi : public stats
 		DataStore ds_ang_tau;	DataFlow ang_tau;    DataLast dl_ang_tau;
 		DataStore ds_cart_f;	DataFlow cart_f;	 DataLast dl_cart_f;
 		DataStore ds_mot_amp;	DataFlow mot_amp;
-        DataStore ds_comp_t;	DataFlow comp_t;                                  boost::atomic<PtrDataStoreIt> size_comp_t;
+        DataStore ds_comp_t;	DataFlow comp_t;
 		DataStore ds_robot_t;
 		DataStore ds_cart_pos;              		 DataLast dl_cart_pos;
 		std::vector<DataStoreIt> bookmarks;
@@ -64,9 +67,7 @@ class kinova_status_openapi : public stats
         // kinova specific functions
 		void ReadTimeStamp();
 		void ReadJoints(KinDrv::jaco_position_t &position,KinDrv::jaco_position_t & velocity,KinDrv::jaco_position_t & force);
-        void ReadCartesian1(KinDrv::jaco_position_t & position);
         void ReadCartesian(KinDrv::jaco_position_t & position);
-		//FIXME exist this in the open driver? void ReadCurrents(GeneralInformations & info);
 		int Read4Vis(std::vector<State_ptr > & lastval);
 		std::vector<State> FirstRead(std::vector<std::string>);
 		bool GetLastValue(std::vector<State>& , std::vector<std::string>  & type );
