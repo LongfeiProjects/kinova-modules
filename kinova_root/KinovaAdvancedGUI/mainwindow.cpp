@@ -8,6 +8,7 @@
 #include <future>
 #include <map>
 #include <utility>
+#include "gsrwidget.h"
 
 using namespace std;
 MainWindow::MainWindow(QWidget *parent) :
@@ -30,6 +31,11 @@ MainWindow::MainWindow(QWidget *parent) :
     this->sqlManager->init();
     this->point.InitStruct();
     initGUI();
+
+    //delete this
+    GSRWidget* gsr = new GSRWidget();
+    gsr->show();
+
 }
 
 

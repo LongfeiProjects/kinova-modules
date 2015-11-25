@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui sql
+QT       += core gui sql serialport
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -18,17 +18,20 @@ SOURCES += main.cpp\
     sqlmanager.cpp \
     dialog.cpp \
     flowlayout.cpp \
-    qpushbuttonextended.cpp
+    qpushbuttonextended.cpp \
+    gsrwidget.cpp
 
 HEADERS  += mainwindow.h \
     sqlmanager.h \
     dialog.h \
     types.h \
     flowlayout.h \
-    qpushbuttonextended.h
+    qpushbuttonextended.h \
+    gsrwidget.h
 
 FORMS    += mainwindow.ui \
-    dialog.ui
+    dialog.ui \
+    gsrwidget.ui
 
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../kinovalib/release/ -lkinovalib
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../kinovalib/debug/ -lkinovalib
@@ -56,7 +59,7 @@ TRANSLATIONS = kinovaGUI_en.ts \n
 DEPENDPATH += /usr/lib/x86_64-linux-gnu
 DEPENDPATH += $$PWD/../kinovalib_openAPI
 
-LIBS += -lusb-1.0 -lsfml-graphics -lsfml-system -lsfml-window -lboost_system -lboost_thread -lpthread -ldl -llapack -larmadillo -lplplotcxxd -lboost_filesystem -lboost_timer -lboost_chrono
+LIBS += -lusb-1.0 -lsfml-graphics -lsfml-system -lsfml-window -lboost_system -lboost_thread -lpthread -ldl -llapack -larmadillo -lplplotcxxd -lboost_filesystem -lboost_timer -lboost_chrono -lqextserialport
 #-lkindrv
 
 
