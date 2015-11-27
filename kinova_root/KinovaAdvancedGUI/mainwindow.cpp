@@ -245,7 +245,7 @@ void MainWindow::playTrajectoryButtonClicked(int trajectoryId){
 void MainWindow::addTrajectory(Trajectory t, int col, int row){
     cout << "adding t = " << t.id<< endl;
     //Add push button
-    QPushButton* pushButton = new QPushButton(this->gridLayoutWidget_6);
+    QPushButtonWithLogger* pushButton = new QPushButtonWithLogger(this->gridLayoutWidget_6);
     pushButton->setMaximumSize(QSize(120, 120));
 
     QSizePolicy sizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
