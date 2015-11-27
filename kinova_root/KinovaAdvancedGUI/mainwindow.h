@@ -2,7 +2,7 @@
 #define MAINWINDOW_H
 
 #include "ui_mainwindow.h"
-//#include "ui_savetrajectory.h"
+#include "guilogger.h"
 #include "dialog.h"
 #include <QMainWindow>
 #include "kinovalib.h"
@@ -12,6 +12,7 @@
 #include "sqlmanager.h"
 #include <vector>
 #include "flowlayout.h"
+#include "configdialog.h"
 #include <QGraphicsProxyWidget>
 #include <thread>
 
@@ -120,6 +121,13 @@ private:
     void stopRecording();
     void writeLogFiles(vector<Log> recordedLogs);
     vector<RecordedCartesianInfo> convertLog2Trajectory(vector<Log> logs);
+
+
+
+
+    /*Data for the experiment. Participant id , etc*/
+    int participantId;
+    string speedToString(float speed);
 private slots:
      void clickedSlot();
     void on_homeButton_clicked();
@@ -162,9 +170,8 @@ private slots:
     void on_playGraspPosition_clicked();
     void on_undoButton_clicked();
     void on_MainWindow_destroyed();
-    void on_pushButton_clicked();
-    void on_pushButton_3_clicked();
     void playTrajectoryButtonClicked(int trajectoryId);
+    void on_pushButton_4_clicked();
 };
 
 #endif // MAINWINDOW_H

@@ -97,6 +97,35 @@ void kinova_status_openapi::Reading()
 			std::cout<<"first write"<<std::endl;
 			first_write.store(true,boost::memory_order_release);
 		}
+        //DEBUG
+        /*KinDrv::jaco_retract_mode_t mode = arm->get_status();
+        switch( mode ) {
+            case KinDrv::MODE_READY_TO_RETRACT:
+                std::cout<<"MODE_READY_TO_RETRACT"<<std::endl;
+            break;
+            case KinDrv::MODE_READY_STANDBY:
+                std::cout<<"MODE_READY_STANDBY"<<std::endl;
+            break;
+            case KinDrv::MODE_RETRACT_TO_READY:
+                std::cout<<"MODE_RETRACT_TO_READY"<<std::endl;
+            break;
+            case KinDrv::MODE_NORMAL_TO_READY:
+                std::cout<<"MODE_NORMAL_TO_READY"<<std::endl;
+            break;
+            case KinDrv::MODE_NORMAL:
+                std::cout<<"MODE_NORMAL"<<std::endl;
+            break;
+            case KinDrv::MODE_NOINIT:
+                std::cout<<"MODE_NOINIT"<<std::endl;
+            break;
+            case KinDrv::MODE_ERROR:
+                std::cout<<"MODE_ERROR"<<std::endl;
+            break;
+            case KinDrv::MODE_RETRACT_STANDBY:
+                std::cout<<"MODE_RETRACT_STANDBY"<<std::endl;
+            break;
+        }*/
+        //-----
 		reading_time = boost::chrono::duration_cast<boost::chrono::milliseconds>(boost::chrono::high_resolution_clock::now() - global_begin);
     	//std::cout << "time spent Reading: " << reading_time.count() << " ms\n";
         int test_time = boost::chrono::round<boost::chrono::milliseconds>(reading_time).count();

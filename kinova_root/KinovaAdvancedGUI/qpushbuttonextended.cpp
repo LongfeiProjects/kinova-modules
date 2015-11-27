@@ -1,7 +1,7 @@
 #include "qpushbuttonextended.h"
 
 
-QPushButtonExtended::QPushButtonExtended(QWidget *parent) : QPushButton(parent){
+QPushButtonExtended::QPushButtonExtended(QWidget *parent) : QPushButtonWithLogger(parent){
 
 }
 
@@ -11,7 +11,7 @@ void QPushButtonExtended::mousePressEvent(QMouseEvent *event)
     if(event->button() == Qt::RightButton){
         emit onPressRightClick();
     }
-    QPushButton::mousePressEvent(event);
+    QPushButtonWithLogger::mousePressEvent(event);
 }
 
 void QPushButtonExtended::mouseReleaseEvent(QMouseEvent *event)
@@ -19,5 +19,5 @@ void QPushButtonExtended::mouseReleaseEvent(QMouseEvent *event)
     if(event->button() == Qt::RightButton){
         emit onReleaseRightClick();
     }
-    QPushButton::mouseReleaseEvent(event);
+    QPushButtonWithLogger::mouseReleaseEvent(event);
 }

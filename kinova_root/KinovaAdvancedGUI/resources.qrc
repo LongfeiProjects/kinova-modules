@@ -22,6 +22,7 @@
         <file>img/handleGrasp.png</file>
         <file>img/graspObject.png</file>
         <file>img/undo.png</file>
+        <file>img/config.png</file>
     </qresource>
     <qresource prefix="/database">
         <file>database/trajectoryProg.db</file>

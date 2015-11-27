@@ -33,8 +33,8 @@ MainWindow::MainWindow(QWidget *parent) :
     initGUI();
 
     //delete this
-    GSRWidget* gsr = new GSRWidget();
-    gsr->show();
+ //   GSRWidget* gsr = new GSRWidget();
+ //   gsr->show();
 
 }
 
@@ -104,6 +104,10 @@ void MainWindow::initGUI(){
     QObject::connect(this->ui->pullButton_Y, SIGNAL(onReleaseRightClick(void)),this, SLOT(on_button_rightClick_DecreaseSpeed()));
     QObject::connect(this->ui->pushButton_Y, SIGNAL(onReleaseRightClick(void)),this, SLOT(on_button_rightClick_DecreaseSpeed()));
 
+
+    /*Hide participant ID until it is set*/
+    this->ui->participantIdLabel->setVisible(false);
+    this->participantId=0;
 }
 
 void MainWindow::on_button_rightClick_IncreaseSpeed(){
@@ -431,7 +435,7 @@ void MainWindow::loopSendVelocityCommad(int direction){
        if(direction==Close || direction==Open){
            if(KINOVA_LIB == 1){
                State cmd = convertDirectionToState(direction,30);
-               this->bot->SendCommand(cmd,28);
+               this->bot->SendCommand(cmd,27);
            }else{
                 this->klib->moveSingleStep(direction,30); //Fixed speed, the unit velocity of the fingers is not clear at all!
            }
@@ -770,7 +774,7 @@ void MainWindow::on_pushButton_2_clicked()
             moveFingers[8] = 1.0;
             moveFingers[9] = 1.0;
             for(int i=0;i<10;i++){
-                this->bot->SendCommand(moveFingers,18);
+                this->bot->SendCommand(moveFingers,17);
             }
             res = SUCCESS;
         }catch(KinDrv::KinDrvException e){
@@ -800,6 +804,21 @@ void MainWindow::error_kinova_not_initialized(){
     }
 }
 
+string MainWindow::speedToString(float speed){
+    string ret;
+    if(speed==PRECISION_SPEED){
+         ret= "precission";
+    }else if(speed==LOW_SPEED){
+        ret= "low";
+    }else if(speed==MEDIUM_SPEED){
+        ret= "medium";
+    }else if(speed==HIGH_SPEED){
+        ret= "high";
+    }else{
+         ret= "error?";
+    }
+    return ret;
+}
 
 void MainWindow::on_speedComboBox_currentIndexChanged(const QString &arg1)
 {
@@ -811,7 +830,8 @@ void MainWindow::on_speedComboBox_currentIndexChanged(const QString &arg1)
         this->speed = MEDIUM_SPEED;
     }else if(QString::compare(arg1,QString(tr("high"))) == 0 ){
         this->speed = HIGH_SPEED;
-   }
+    }
+    GUILogger::getInstance().addComboChanged("speedCombo",this->speedToString(this->speed));
 }
 
 
@@ -1229,46 +1249,18 @@ void MainWindow::on_MainWindow_destroyed()
     delete this->bot;
 }
 
-void MainWindow::on_pushButton_clicked()
+
+void MainWindow::on_pushButton_4_clicked()
 {
-    //State s = State(9);
-    State s(9);
-    s[0] = -0.05;
-    s[1] = -0.46;
-    s[2] = 0.45;
-    s[3] = 1.5;
-    s[4] = 0.2;
-    s[5] = 0.0;
-    s[6] = 0.0;
-    s[7] = 0.0;
-    s[8] = 0.0;
-    cout << "before sending" << endl;
-     this->bot->SendAndWait(s);
-    cout << "after sending sendAndWait" << endl;
-}
-
-void MainWindow::on_pushButton_3_clicked()
-{
-    State starting(9);
-    starting[0] = -0.05;
-    starting[1] = -0.46;
-    starting[2] = 0.45;
-    starting[3] = 1.5;
-    starting[4] = 0.2;
-    starting[5] = 0.0;
-    starting[6] = 0.0;
-    starting[7] = 0.0;
-    starting[8] = 0.0;
-    Log cartPosLog = recordedLogs[this->readTypeMap["cart_pos"]];
-    Log timeLog = recordedLogs[this->readTypeMap["comp_t"]];
-    Log velLog = recordedLogs[this->readTypeMap["j_vel"]];
-    Log vel_finger = recordedLogs[this->readTypeMap["hand_vel"]];
-    vector<Log> values;
-    values.push_back(cartPosLog);
-    values.push_back(velLog);
-    values.push_back(vel_finger);
-
-
-    this->bot->ExecuteUpdatedTrajectory(timeLog,starting,values);
-    cout << "after executing the traj" << endl;
+    ConfigDialog * config = new ConfigDialog(this,this->participantId);
+    int res = config->exec();
+    QString::number(2);
+    if(res){
+        this->participantId = config->getParticipantId();
+        this->ui->participantIdLabel->setText(QString::number(this->participantId));
+        this->ui->participantIdLabel->setVisible(true);
+        cout << "participant id = "  << config->getParticipantId() << endl;
+    }else{
+        cout << "cancelado " << endl;
+    }
 }

@@ -34,6 +34,12 @@ typedef struct{
     vector<RecordedCartesianInfo> trajectoryInfo;
 }Trajectory;
 
+typedef struct{
+    time_t timestamp;
+    string event;
+    string element;
+}LogInfo;
+
 
 #endif // TYPES
 

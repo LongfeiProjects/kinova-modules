@@ -3,7 +3,9 @@
 
 #include <QtGui>
 #include <qpushbutton.h>
-class QPushButtonExtended : public QPushButton
+#include "qpushbuttonwithlogger.h"
+
+class QPushButtonExtended : public QPushButtonWithLogger
 {
     Q_OBJECT
 public:

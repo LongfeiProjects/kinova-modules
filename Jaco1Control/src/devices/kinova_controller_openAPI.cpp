@@ -148,6 +148,11 @@ KinDrv::jaco_basic_traj_point_t  kinova_controller_openapi::ConvertControl(State
 	pointToSend.time_delay = 0;
     if(ty==KinDrv::POSITION_ANGULAR || ty==KinDrv::SPEED_ANGULAR)
 	{
+        std::cout << "***********we are in position_angular or speed_angular**************" << std::endl;
+        std::cout << "**************************************************************************************************" << std::endl;
+        std::cout << "**************************************************************************************************" << std::endl;
+        std::cout << "**************************************************************************************************" << std::endl;
+        std::cout << "**************************************************************************************************" << std::endl;
         value=value/DEG;
 		pointToSend.target.joints[0] = (float)value[0];
 		pointToSend.target.joints[1] = (float)value[1];
@@ -161,6 +166,7 @@ KinDrv::jaco_basic_traj_point_t  kinova_controller_openapi::ConvertControl(State
 	}
     else if(ty==KinDrv::POSITION_CARTESIAN || ty==KinDrv::SPEED_CARTESIAN)
 	{
+        std::cout << "we are in position_cartisian or speed_cartesian" << std::endl;
         pointToSend.target.position[0] = (float)value[0];
         pointToSend.target.position[1] = (float)value[1];
 		pointToSend.target.position[2] = (float)value[2];
@@ -192,7 +198,7 @@ void kinova_controller_openapi::SendSingleCommand(State cmd,int type)
     //std::cout << "time spent ConvertControl: " << boost::chrono::duration_cast<boost::chrono::milliseconds>(boost::chrono::high_resolution_clock::now() - begin).count() << " ms\n";
     //begin = boost::chrono::high_resolution_clock::now();
 	//---
-	this->arm->erase_trajectories();
+    //this->arm->erase_trajectories();
 	this->arm->set_target(p);
 	//DEBUG
     //std::cout << "time spent MySendAdvanceTrajectory: " << boost::chrono::duration_cast<boost::chrono::milliseconds>(boost::chrono::high_resolution_clock::now() - begin).count() << " ms\n";
