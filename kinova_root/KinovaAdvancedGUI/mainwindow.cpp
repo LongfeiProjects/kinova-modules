@@ -8,7 +8,9 @@
 #include <future>
 #include <map>
 #include <utility>
+#include <qprogressdialog.h>
 #include "gsrwidget.h"
+#include <unistd.h>
 
 using namespace std;
 MainWindow::MainWindow(QWidget *parent) :
@@ -32,6 +34,7 @@ MainWindow::MainWindow(QWidget *parent) :
     this->point.InitStruct();
     initGUI();
 
+    GUILogger::getInstance().enableLogging(true);
     //delete this
  //   GSRWidget* gsr = new GSRWidget();
  //   gsr->show();
@@ -692,7 +695,7 @@ void MainWindow::on_closeHandButton_released()
 }
 
 
-void MainWindow::on_pushButton_2_clicked()
+void MainWindow::on_initKinovaButton_clicked()
 {
     cout << "Initilizating kinova" << endl;
     int res = -1;
@@ -863,7 +866,11 @@ void MainWindow::showSaveTrajectoryPanel(){
    cout << "will show save panel" << endl;
    Dialog* dialog2 = new Dialog();
    dialog2->init(this->sqlManager);
+
+
    Trajectory saved =  dialog2->execAndReturnSavedTrajectory(this->sampledTrajectoryInfo);
+
+
 
    if(saved.id>-1){
         this->addRecordedTrajectory(saved);
@@ -1092,8 +1099,21 @@ void MainWindow::on_record_Button_toggled(bool checked)
 /*Save the actual position as a checkpoint. This allows the user to undo actions*/
 void MainWindow::saveCheckPoint(){
     if(KINOVA_LIB==1){
-        //TODO call bot->readCurrentState
-        cout << "checkpoint saving not working. I need to call the bot->readCurrentState" << endl;
+        vector<State> result;
+        this->bot->ReadCurrentState(result,this->readType);
+        int indice = this->readTypeMap["cart_pos"];
+
+        this->actualPosition.Coordinates.X = result[indice][0];
+        this->actualPosition.Coordinates.Y = result[indice][1];
+        this->actualPosition.Coordinates.Z = result[indice][2];
+        this->actualPosition.Coordinates.ThetaX = result[indice][3];
+        this->actualPosition.Coordinates.ThetaY = result[indice][4];
+        this->actualPosition.Coordinates.ThetaZ = result[indice][5];
+        this->actualPosition.Fingers.Finger1 = result[indice][6];
+        this->actualPosition.Fingers.Finger2 = result[indice][7];
+        this->actualPosition.Fingers.Finger3 = result[indice][8];
+        this->checkpoints.push_back(this->actualPosition);
+        this->ui->undoButton->setEnabled(true);
     }else{
         int res = this->klib->getActualCartesianPosition(this->actualPosition);
         if(res==SUCCESS){
@@ -1226,22 +1246,43 @@ void MainWindow::on_playGraspPosition_clicked()
 void MainWindow::on_undoButton_clicked()
 {
 
+
     this->actualPosition = this->checkpoints.back();
     this->checkpoints.pop_back();
 
-    this->point.Position.CartesianPosition.X = this->actualPosition.Coordinates.X;
-    this->point.Position.CartesianPosition.Y = this->actualPosition.Coordinates.Y;
-    this->point.Position.CartesianPosition.Z = this->actualPosition.Coordinates.Z;
-    this->point.Position.CartesianPosition.ThetaX= this->actualPosition.Coordinates.ThetaX;
-    this->point.Position.CartesianPosition.ThetaY=this->actualPosition.Coordinates.ThetaY;
-    this->point.Position.CartesianPosition.ThetaZ=this->actualPosition.Coordinates.ThetaZ;
-    this->point.Position.Fingers.Finger1 = this->actualPosition.Fingers.Finger1;
-    this->point.Position.Fingers.Finger2 = this->actualPosition.Fingers.Finger2;
-    this->point.Position.Fingers.Finger3 = this->actualPosition.Fingers.Finger3;
+    if(KINOVA_LIB==1){
+        this->point.Position.CartesianPosition.X = this->actualPosition.Coordinates.X;
+        this->point.Position.CartesianPosition.Y = this->actualPosition.Coordinates.Y;
+        this->point.Position.CartesianPosition.Z = this->actualPosition.Coordinates.Z;
+        this->point.Position.CartesianPosition.ThetaX= this->actualPosition.Coordinates.ThetaX;
+        this->point.Position.CartesianPosition.ThetaY=this->actualPosition.Coordinates.ThetaY;
+        this->point.Position.CartesianPosition.ThetaZ=this->actualPosition.Coordinates.ThetaZ;
+        this->point.Position.Fingers.Finger1 = this->actualPosition.Fingers.Finger1;
+        this->point.Position.Fingers.Finger2 = this->actualPosition.Fingers.Finger2;
+        this->point.Position.Fingers.Finger3 = this->actualPosition.Fingers.Finger3;
+        this->ui->undoButton->setDisabled(true);
+        State s = convertOficialAPItoStatePoint(this->point);
+        QApplication::processEvents( QEventLoop::ExcludeUserInputEvents);
+        this->bot->SendAndWait(s);
+        this->ui->undoButton->setDisabled(false);
+        //this->bot->SendCommand(s,11); //move arm and hand using cartesian position
+    }else{
+        this->point.Position.CartesianPosition.X = this->actualPosition.Coordinates.X;
+        this->point.Position.CartesianPosition.Y = this->actualPosition.Coordinates.Y;
+        this->point.Position.CartesianPosition.Z = this->actualPosition.Coordinates.Z;
+        this->point.Position.CartesianPosition.ThetaX= this->actualPosition.Coordinates.ThetaX;
+        this->point.Position.CartesianPosition.ThetaY=this->actualPosition.Coordinates.ThetaY;
+        this->point.Position.CartesianPosition.ThetaZ=this->actualPosition.Coordinates.ThetaZ;
+        this->point.Position.Fingers.Finger1 = this->actualPosition.Fingers.Finger1;
+        this->point.Position.Fingers.Finger2 = this->actualPosition.Fingers.Finger2;
+        this->point.Position.Fingers.Finger3 = this->actualPosition.Fingers.Finger3;
+
+        klib->sendCommand(CARTESIAN_POSITION,true,true,this->point);
+    }
 
     this->ui->undoButton->setDisabled(this->checkpoints.empty());
 
-    klib->sendCommand(CARTESIAN_POSITION,true,true,this->point);
+
 }
 
 void MainWindow::on_MainWindow_destroyed()
@@ -1250,17 +1291,32 @@ void MainWindow::on_MainWindow_destroyed()
 }
 
 
-void MainWindow::on_pushButton_4_clicked()
+void MainWindow::on_configButton_clicked()
 {
     ConfigDialog * config = new ConfigDialog(this,this->participantId);
     int res = config->exec();
-    QString::number(2);
+    string stringRes = res?"Ok":"Cancel";
+    GUILogger::getInstance().addDialogEvent("configDialog",stringRes);
     if(res){
         this->participantId = config->getParticipantId();
         this->ui->participantIdLabel->setText(QString::number(this->participantId));
         this->ui->participantIdLabel->setVisible(true);
-        cout << "participant id = "  << config->getParticipantId() << endl;
-    }else{
-        cout << "cancelado " << endl;
     }
+}
+
+void MainWindow::on_pushButton_clicked()
+{
+    State s(9);
+    s[0] = 0.211946;
+    s[1] = -0.274977;
+    s[2] = 0.496122;
+    s[3] = 1.50185;
+    s[4] = 1.05132;
+    s[5] = 0.0698151;
+    s[6] = 47.75;
+    s[7] = 42.75;
+    s[8] = 53.75;
+    cout << "before sending" << endl;
+     this->bot->SendAndWait(s);
+    cout << "after sending sendAndWait" << endl;
 }

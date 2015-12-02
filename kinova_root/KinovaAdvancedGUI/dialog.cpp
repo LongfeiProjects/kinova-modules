@@ -1,4 +1,5 @@
 #include "dialog.h"
+#include <QProgressDialog>
 #include "ui_dialog.h"
 
 Dialog::Dialog(QWidget *parent) :
@@ -22,10 +23,19 @@ Dialog::~Dialog()
 
 void Dialog::on_save_Trajectory_Panel_Button_accepted()
 {
+    QProgressDialog dlg;
+    dlg.setParent((QWidget*)this->parent());
+    dlg.setWindowModality(Qt::WindowModal);
+    dlg.setRange(0,0);
+    dlg.setCancelButton(0);
+    dlg.show();
+
     cout << "saving trajectory" << endl;
     this->savedTrajectory.name = this->ui->nameEdit->text().toStdString();
     this->savedTrajectory.description = this->ui->descriptionEdit->toPlainText().toStdString();
     this->success = this->sqlManager->saveRecordedTrajectory(this->savedTrajectory);
+
+    dlg.cancel();
 }
 
 
@@ -38,9 +48,11 @@ Trajectory Dialog::execAndReturnSavedTrajectory(vector<RecordedCartesianInfo> sa
     this->savedTrajectory.trajectoryInfo = sampledTrajectoryInfo;
     cout << "before execute save panel" << endl;
     bool result = this->exec();
+    string res = result?"Yes":"No";
+    GUILogger::getInstance().addDialogEvent("saveTrajectoryDialog",res);
     cout << "after execute save panel" << endl;
 
-    if(this->success){
+    if(result && this->success){
          return this->savedTrajectory;
     }else{
         Trajectory t;

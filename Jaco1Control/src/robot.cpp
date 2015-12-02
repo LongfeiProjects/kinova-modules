@@ -109,19 +109,21 @@ void robot::ExecuteTrajectoryFile(State starting_cartesian_position)
 }
 
 void robot::SendCommand(State & cmd,int type)
-{
+{std::cout << "before SendSingleCommand" << std::endl;
 	this->contr->SendSingleCommand(cmd,type);
 }
 
 void robot::SendAndWait(State starting_joint_position)
-{
+{   std::cout << "entering sendAndWait" << std::endl;
     // GO TO initial position
     double sos;
     std::vector<State> cur_val_1;
     std::string app = "j_vel";
     std::vector<std::string> read;
     read.push_back(app);
+    std::cout << "before send command" << std::endl;
     this->SendCommand(starting_joint_position,1);
+    std::cout << "after send command" << std::endl;
     usleep(1000*300);
     st->GetLastValue(cur_val_1,read);
     sos =arma::dot(cur_val_1[0],cur_val_1[0]);

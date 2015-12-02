@@ -2,6 +2,7 @@
 #define DIALOG_H
 
 #include <QDialog>
+#include <guilogger.h>
 #include <iostream>
 #include <vector>
 

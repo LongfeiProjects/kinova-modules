@@ -19,11 +19,13 @@ class GUILogger{
             return instance;
         }
 
-        void addMouseEvent(QMouseEvent* event, string element);
+        void addMouseEvent(QWidget* source, QMouseEvent* event, string element);
         void addComboChanged(string element, string value);
+        void addDialogEvent(string element,string value);
         void dumpEvents(string filename, bool append);
         void clearLogs();
         void startLogging();
+        void enableLogging(bool enabled);
 
 
     private:
@@ -33,6 +35,7 @@ class GUILogger{
         void operator=(GUILogger const&) = delete;
 
         vector<LogInfo> loggedEvents;
+        bool enabled = false;
 
 
 };

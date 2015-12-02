@@ -46,8 +46,30 @@ void ConfigDialog::on_generateLog_button_clicked()
 {
     ostringstream filename;
     filename << "GuiLog_Participant_" <<  this->participantId << ".log";
-    string strfile = filename.str();
-    GUILogger::getInstance().dumpEvents(strfile,true);
+    bool save = false;
+    if (std::ifstream(filename.str()))
+    {
+        QString question;
+        if(APPEND_DATA_IN_LOGFILE){
+            question = tr("The logfile already exist. Data will be APPENDED. Do you want to proceed?");
+        }else{
+            question = tr("The logfile already exist. Data will be OVERWRITTEN. Do you want to proceed?");
+        }
+        QMessageBox::StandardButton reply;
+        reply = QMessageBox::question(this,tr("Logfile Already Exist"),question, QMessageBox::Yes|QMessageBox::No);
+        save = reply == QMessageBox::Yes;
+    }
+
+    if(save){
+        string strfile = filename.str();
+        GUILogger::getInstance().dumpEvents(strfile,APPEND_DATA_IN_LOGFILE);
+        QMessageBox* msgBox = new QMessageBox();
+        msgBox->setWindowTitle(tr("Log Saved"));
+        QString s(tr("Log info was saved in "));
+        QString qfilename = QString::fromStdString(strfile);
+        msgBox->setText(s+qfilename);
+        msgBox->exec();
+    }
 }
 
 

@@ -1,5 +1,5 @@
 #include "sqlmanager.h"
-
+#include <qapplication.h>
 SqlManager::SqlManager(){
 
 }
@@ -61,6 +61,9 @@ bool SqlManager::saveRecordedTrajectory(Trajectory &trajectory){
           int id = query.lastInsertId().toInt();
           cartesianInfoIds.push_back(id);
       }
+      //This invocation is not a very elegant solution it is to be able to show the qt progress dialog.
+      //Besto solution is to run this code in other thread to avoid the qt main loop being blocked
+        QApplication::processEvents( QEventLoop::ExcludeUserInputEvents);
    }
 
    //Fill the link table : trajectory_cartesianInfo
@@ -74,6 +77,9 @@ bool SqlManager::saveRecordedTrajectory(Trajectory &trajectory){
            return false;
        }
        seq++;
+       //This invocation is not a very elegant solution it is to be able to show the qt progress dialog.
+       //Besto solution is to run this code in other thread to avoid the qt main loop being blocked
+         QApplication::processEvents( QEventLoop::ExcludeUserInputEvents);
    }
 
    return true;

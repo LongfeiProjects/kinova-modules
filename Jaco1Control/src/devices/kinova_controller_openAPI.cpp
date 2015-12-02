@@ -165,7 +165,7 @@ KinDrv::jaco_basic_traj_point_t  kinova_controller_openapi::ConvertControl(State
         pointToSend.target.finger_position[2] = (float)(value[8]*DEG);
 	}
     else if(ty==KinDrv::POSITION_CARTESIAN || ty==KinDrv::SPEED_CARTESIAN)
-	{
+    {
         std::cout << "we are in position_cartisian or speed_cartesian" << std::endl;
         pointToSend.target.position[0] = (float)value[0];
         pointToSend.target.position[1] = (float)value[1];

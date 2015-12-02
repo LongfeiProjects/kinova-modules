@@ -154,7 +154,7 @@ private slots:
     void on_rightButton_released();
     void on_button_rightClick_IncreaseSpeed();
     void on_button_rightClick_DecreaseSpeed();
-    void on_pushButton_2_clicked();
+    void on_initKinovaButton_clicked();
     void on_pushButton_Y_pressed();
     void on_pushButton_Y_released();
     void on_pullButton_Y_pressed();
@@ -171,7 +171,8 @@ private slots:
     void on_undoButton_clicked();
     void on_MainWindow_destroyed();
     void playTrajectoryButtonClicked(int trajectoryId);
-    void on_pushButton_4_clicked();
+    void on_configButton_clicked();
+    void on_pushButton_clicked();
 };
 
 #endif // MAINWINDOW_H

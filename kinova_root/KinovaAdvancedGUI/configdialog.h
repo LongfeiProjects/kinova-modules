@@ -8,6 +8,8 @@ namespace Ui {
 class ConfigDialog;
 }
 
+#define APPEND_DATA_IN_LOGFILE 1
+
 class ConfigDialog : public QDialog
 {
     Q_OBJECT
