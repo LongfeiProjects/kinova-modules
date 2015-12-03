@@ -19,6 +19,8 @@ void MainWindow::initGUI(){
     this->ui->taskscomboBox->addItem(tr("4:Open drawer"));
     this->ui->taskscomboBox->addItem(tr("5:Pick and place object"));
     this->ui->taskscomboBox->addItem(tr("6:Open door"));
+
+    this->gsrwidget = new GSRWidget();
 }
 
 MainWindow::~MainWindow()
@@ -32,6 +34,19 @@ void MainWindow::showErrorMessage(QString msg){
     msgBox->setText(msg);
     msgBox->exec();
     delete msgBox;
+}
+
+void MainWindow::showInfoMessage(QString msg){
+    QMessageBox* msgBox = new QMessageBox(this);
+    msgBox->setWindowTitle(tr("Info"));
+    msgBox->setText(msg);
+    msgBox->exec();
+    delete msgBox;
+}
+
+
+bool MainWindow::showQuestion(string questionTitle, string msg){
+    return QMessageBox::question(this,tr(questionTitle.data()),tr(msg.data()), QMessageBox::Yes|QMessageBox::No) == QMessageBox::Yes;
 }
 
 void MainWindow::on_setButton_clicked()
@@ -57,8 +72,14 @@ bool MainWindow::checkExperimentPreConditions(){
 }
 
 void MainWindow::saveExperimentalData(){
-    //TODO
-    showErrorMessage(QString("Dumping data is still not implemented!! Do it!"));
+    //Save this data in a file TODO
+    QByteArray gsrData = this->gsrwidget->getData();
+    string gsrStringData = gsrData.toStdString();
+    Logger * logger =  new Logger();
+    logger->dumpEvents(true,gsrStringData,this->performedTasks,this->participantId,this->initExperimentTime,this->endExperimentTime);
+    delete logger;
+
+    showInfoMessage(tr("The experiment is ended. The log data was saved"));
 }
 
 void MainWindow::on_startExperimentButton_clicked()
@@ -73,6 +94,8 @@ void MainWindow::on_startExperimentButton_clicked()
             this->ui->statustextEdit->setText(tr("STARTED!"));
         }
     }else{ //We have to finish the experiment
+        time(&this->endExperimentTime);
+        this->ui->gsrStartButton->click();
         this->experimentStarted = false;
         this->ui->experimentStatusFrame->setStyleSheet(QStringLiteral("image: url(:/img/wrong.png);"));
         this->participantId = -1;
@@ -81,22 +104,35 @@ void MainWindow::on_startExperimentButton_clicked()
         this->ui->participantIdIconFrame->setStyleSheet(QStringLiteral("image: url(:/img/wrong.png);"));
         this->ui->startExperimentButton->setText(tr("Start Experiment"));
         this->ui->taskManagementGroupBox->setDisabled(true);
+
+        this->ui->listFinishedTasks->clear();
         saveExperimentalData();
     }
 }
 
 void MainWindow::on_startTask_clicked()
-{
+{ 
     if(!this->runningTask){
-        this->runningTask = true;
-        this->ui->startTask->setText(tr("Finish Task"));
-        time_t(&actualTask.initTimestamp);
-        actualTask.taskName = this->ui->taskscomboBox->currentText().toStdString();
-        this->ui->taskscomboBox->setDisabled(true);
+        bool cont = true;
+        QList<QListWidgetItem *> items = this->ui->listFinishedTasks->findItems(QString::fromStdString(this->ui->taskscomboBox->currentText().toStdString()), Qt::MatchExactly);
+        if(items.size()>0){
+            cont = showQuestion("Task already performed", "This task was already performed by this participant. Do you want to continue anyway?");
+        }
+        if(cont){
+            this->runningTask = true;
+            this->ui->startTask->setText(tr("Finish Task"));
+            time(&actualTask.initTimestamp);
+            actualTask.taskName = this->ui->taskscomboBox->currentText().toStdString();
+            this->ui->taskscomboBox->setDisabled(true);
+        }
     }else{
-        time_t(&actualTask.endTimestamp);
+        time(&actualTask.endTimestamp);
 
-        //TODO Make a Dialog where the experimenter can add commets and also indicate if the task was finished properly
+        DialogTaskFinished* dialog = new DialogTaskFinished(this,actualTask.taskName);
+        dialog->exec();
+        actualTask.giveUp = dialog->getGiveUpStr();
+        actualTask.comments = dialog->getComments();
+        delete dialog;
 
         this->performedTasks.push_back(actualTask);
         this->ui->listFinishedTasks->addItem(QString::fromStdString(actualTask.taskName));
@@ -104,5 +140,40 @@ void MainWindow::on_startTask_clicked()
         this->ui->taskscomboBox->setDisabled(false);
         this->runningTask=false;
 
+    }
+}
+
+
+
+void MainWindow::on_gsrStartButton_clicked(bool checked)
+{
+    if(checked){
+        this->ui->skinStatusText->setText(tr("Starting..."));
+        this->ui->skinConductanceIconFrame->setStyleSheet(QStringLiteral("image: url(:/img/wait.png);"));
+        this->ui->gsrStartButton->setDisabled(true);
+        QApplication::processEvents( QEventLoop::ExcludeUserInputEvents);
+        if(!this->gsrwidget->startGSR()){
+            this->ui->skinStatusText->setText(tr("Error"));
+            showErrorMessage(tr("Error starting skin conductance measurement"));
+        }else{
+            this->ui->skinConductanceIconFrame->setStyleSheet(QStringLiteral("image: url(:/img/ok.png);"));
+            this->ui->skinStatusText->setText(tr("Enabled"));
+            this->ui->gsrStartButton->setText("Stop");
+        }
+        this->ui->gsrStartButton->setDisabled(false);
+    }else{
+        this->gsrwidget->stopGSR();
+        this->ui->skinConductanceIconFrame->setStyleSheet(QStringLiteral("image: url(:/img/wrong.png);"));
+        this->ui->skinStatusText->setText(tr("Disabled"));
+        this->ui->gsrStartButton->setText("Start");
+    }
+}
+
+void MainWindow::on_setButton_2_clicked(bool checked)
+{
+    if(checked){
+        this->gsrwidget->show();
+    }else{
+        this->gsrwidget->hide();
     }
 }

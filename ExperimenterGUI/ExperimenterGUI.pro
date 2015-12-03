@@ -4,20 +4,31 @@
 #
 #-------------------------------------------------
 
-QT       += core gui
+QT       += core gui serialport
 
-greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
+greaterThan(QT_MAJOR_VERSION, 4): QT += widgets printsupport
 
 TARGET = ExperimenterGUI
 TEMPLATE = app
 
 
 SOURCES += main.cpp\
-        mainwindow.cpp
+        mainwindow.cpp \
+    dialogtaskfinished.cpp \
+    gsrwidget.cpp \
+    logger.cpp \
+    qcustomplot.cpp
 
-HEADERS  += mainwindow.h
+HEADERS  += mainwindow.h \
+    dialogtaskfinished.h \
+    gsrwidget.h \
+    logger.h \
+    types.h \
+    qcustomplot.h
 
-FORMS    += mainwindow.ui
+FORMS    += mainwindow.ui \
+    dialogtaskfinished.ui \
+    gsrwidget.ui
 
 RESOURCES += \
     resources.qrc

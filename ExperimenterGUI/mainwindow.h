@@ -6,18 +6,16 @@
 #include <qmainwindow.h>
 #include <qmessagebox.h>
 #include <time.h>
+#include "dialogtaskfinished.h"
+#include "gsrwidget.h"
+#include "logger.h"
+#include "types.h"
 
 using namespace std;
 namespace Ui {
 class MainWindow;
 }
 
-typedef struct{
-    time_t initTimestamp;
-    time_t endTimestamp;
-    string taskName;
-    bool finished;
-}Task;
 
 class MainWindow : public QMainWindow
 {
@@ -34,6 +32,11 @@ private slots:
 
     void on_startTask_clicked();
 
+
+    void on_gsrStartButton_clicked(bool checked);
+
+    void on_setButton_2_clicked(bool checked);
+
 private:
     Ui::MainWindow *ui;
 
@@ -42,6 +45,7 @@ private:
     time_t endExperimentTime;
     vector<Task> performedTasks;
     Task actualTask;
+    GSRWidget* gsrwidget;
 
     bool experimentStarted = false;
     bool runningTask = false;
@@ -51,9 +55,11 @@ private:
 
 
     void initGUI();
+    bool showQuestion(string questionTitle, string msg);
     void showErrorMessage(QString msg);
     bool checkExperimentPreConditions();
     void saveExperimentalData();
+    void showInfoMessage(QString msg);
 };
 
 #endif // MAINWINDOW_H
