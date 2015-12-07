@@ -1,7 +1,9 @@
 create table Trajectory(
    id INTEGER PRIMARY KEY AUTOINCREMENT,
    name CHAR(30) not null,
-   description TEXT);
+   description TEXT, 
+   participantId INTEGER,
+   initialTimestamp INTEGER);
 
 
 create table CartesianInfo(

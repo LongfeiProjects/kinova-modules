@@ -28,14 +28,22 @@ class GUILogger{
         void enableLogging(bool enabled);
 
 
-    private:
-        GUILogger(){};
+        void dumpTrajectories(string filename, vector<Trajectory> trajectories, bool append);
+private:
+        GUILogger(){
+            time_t t;
+            time(&t);
+            ostringstream filename;
+            filename << "GUIEventsTemp_" <<  t << ".log";
+            this->realTimeOutfile.open(filename.str(), std::ios_base::app); //In this mode we always append data
+        };
 
         GUILogger(GUILogger const&) = delete;
         void operator=(GUILogger const&) = delete;
 
         vector<LogInfo> loggedEvents;
         bool enabled = false;
+        std::ofstream realTimeOutfile;
 
 
 };

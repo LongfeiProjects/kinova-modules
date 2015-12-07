@@ -16,6 +16,9 @@ public:
 signals:
 
 public slots:
+
+private:
+
 };
 
 #endif // QPUSHBUTTONWITHLOGGER_H

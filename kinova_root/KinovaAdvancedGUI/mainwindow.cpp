@@ -29,8 +29,6 @@ MainWindow::MainWindow(QWidget *parent) :
     this->openHandTimer = new QTimer(this);
     this->closeHandTimer = new QTimer(this);
     this->klib = new Kinovalib();
-    this->sqlManager = new SqlManager();
-    this->sqlManager->init();
     this->point.InitStruct();
     initGUI();
 
@@ -61,8 +59,7 @@ void MainWindow::initGUI(){
     this->isSpeedIncremented = false;
 
     /*********************************** Recorded Trajectories panel ******************/
-    //this->recordedTrajectories = this->sqlManager->getTrajectoriesInfo();
-    this->recordedTrajectories = this->sqlManager->getCompleteTrajectories();
+    this->recordedTrajectories = SqlManager::getInstance().getCompleteTrajectories();
 
     int row = 0;
     int col = 0;
@@ -865,10 +862,8 @@ void MainWindow::showSaveTrajectoryPanel(){
    }
    cout << "will show save panel" << endl;
    Dialog* dialog2 = new Dialog();
-   dialog2->init(this->sqlManager);
 
-
-   Trajectory saved =  dialog2->execAndReturnSavedTrajectory(this->sampledTrajectoryInfo);
+   Trajectory saved =  dialog2->execAndReturnSavedTrajectory(this->sampledTrajectoryInfo,this->participantId,this->initTimestampTrajectory);
 
 
 
@@ -1063,6 +1058,7 @@ void MainWindow::startRecording(){
         this->recordedLogs.clear();
         this->bot->StartLog(this->readType);
     }
+    time(&this->initTimestampTrajectory);
 }
 
 void MainWindow::stopRecording(){

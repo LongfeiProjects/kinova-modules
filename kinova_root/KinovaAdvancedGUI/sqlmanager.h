@@ -17,11 +17,13 @@ using namespace std;
 class SqlManager
 {
 public:
-    SqlManager();
+    static SqlManager& getInstance(){
+        static SqlManager instance;
+        return instance;
+    }
 
     void getRecordedTrajectories();
 
-    int init();
 
     /*Return the full trajectory including the cartesian positions*/
     vector<Trajectory> getCompleteTrajectories();
@@ -30,9 +32,34 @@ public:
     vector<Trajectory> getTrajectoriesInfo();
     /*Save the complete trajectory in the database and also updates the id of the trajectory parameter*/
     bool saveRecordedTrajectory(Trajectory &trajectory);
+    vector<Trajectory> getCompleteTrajectoriesByParticipant(int participantID);
+
 private:
+
+    SqlManager(){
+        bool databaseExist = false;
+        this->database = QSqlDatabase::addDatabase("QSQLITE");
+        QFile dbFile("/home/smaricha/qt_workspace/kinova-modules/kinova_root/KinovaAdvancedGUI/database/trajectoryProg.db");
+        if(!dbFile.exists()){
+            //TODO create database ??
+        }else{
+            databaseExist=true;
+            this->database.setDatabaseName(dbFile.fileName());
+        }
+
+        if(databaseExist){
+            if(this->database.open()){
+                cout << "database opened" << endl;
+            }
+        }
+    }
+
+    SqlManager(SqlManager const&) = delete;
+    void operator=(SqlManager const&) = delete;
+
     QSqlDatabase database;
-public slots:
+
+
 };
 
 #endif // SQLMANAGER_H

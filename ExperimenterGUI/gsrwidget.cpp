@@ -74,6 +74,8 @@ void GSRWidget::handleReadyRead()
 
      //TODO buscar el ultmio "sss;aaa"
     // lastData.toStdString().find_last_of()
+     //add a la graphica
+     //correr los ejes
      int i = index*0.01;
      this->ui->customPlot->graph(0)->addData(i,(index+1)*0.01);
       if(i>8){

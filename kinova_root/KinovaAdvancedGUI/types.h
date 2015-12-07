@@ -32,6 +32,8 @@ typedef struct{
     string name;
     string description;
     vector<RecordedCartesianInfo> trajectoryInfo;
+    int participantID;
+    long int initialTimestamp;
 }Trajectory;
 
 typedef struct{

@@ -25,13 +25,11 @@ public:
     explicit Dialog(QWidget *parent = 0);
     ~Dialog();
 
-    void setSqlManager(SqlManager* sqlManager);
 
-    void init(SqlManager* sqlManager);
-    Trajectory execAndReturnSavedTrajectory(vector<RecordedCartesianInfo> sampledTrajectoryInfo);
+    void init();
+    Trajectory execAndReturnSavedTrajectory(vector<RecordedCartesianInfo> sampledTrajectoryInfo, int participantID, time_t initTimestampTrajectory);
 private:
     Ui::Dialog *ui;
-    SqlManager* sqlManager;
 
     Trajectory savedTrajectory;
     bool success;

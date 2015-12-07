@@ -8,13 +8,9 @@ Dialog::Dialog(QWidget *parent) :
 {
     cout << "constructing the save panel" << endl;
     ui->setupUi(this);
-}
-
-
-void Dialog::init(SqlManager* sqlManager){
-    this->setSqlManager(sqlManager);
     this->success = false;
 }
+
 
 Dialog::~Dialog()
 {
@@ -33,21 +29,20 @@ void Dialog::on_save_Trajectory_Panel_Button_accepted()
     cout << "saving trajectory" << endl;
     this->savedTrajectory.name = this->ui->nameEdit->text().toStdString();
     this->savedTrajectory.description = this->ui->descriptionEdit->toPlainText().toStdString();
-    this->success = this->sqlManager->saveRecordedTrajectory(this->savedTrajectory);
+    this->success = SqlManager::getInstance().saveRecordedTrajectory(this->savedTrajectory);
 
     dlg.cancel();
 }
 
 
-void Dialog::setSqlManager(SqlManager* sqlManager){
-    this->sqlManager = sqlManager;
-}
 
-Trajectory Dialog::execAndReturnSavedTrajectory(vector<RecordedCartesianInfo> sampledTrajectoryInfo){
+Trajectory Dialog::execAndReturnSavedTrajectory(vector<RecordedCartesianInfo> sampledTrajectoryInfo, int participantID, time_t initTimestampTrajectory){
     cout << "Entering save panel" << endl;
     this->savedTrajectory.trajectoryInfo = sampledTrajectoryInfo;
     cout << "before execute save panel" << endl;
-    bool result = this->exec();
+    this->savedTrajectory.participantID=participantID;
+    this->savedTrajectory.initialTimestamp = initTimestampTrajectory;
+    bool result = QDialog::exec();//this->exec();
     string res = result?"Yes":"No";
     GUILogger::getInstance().addDialogEvent("saveTrajectoryDialog",res);
     cout << "after execute save panel" << endl;

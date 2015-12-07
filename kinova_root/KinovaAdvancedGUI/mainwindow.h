@@ -51,9 +51,6 @@ private:
     Kinovalib* klib ;
     robot* bot;
 
-    //Databasea manager
-    SqlManager* sqlManager;
-
     /*Kinova API stuff*/
     TrajectoryPoint point;
     int opType;
@@ -102,6 +99,7 @@ private:
     vector<Trajectory> recordedTrajectories;
     vector<CartesianPosition> checkpoints;
     vector<RecordedCartesianInfo> sampledTrajectoryInfo;
+    time_t initTimestampTrajectory;
 
     //delete it
     vector<Log> recordedLogs;
@@ -128,6 +126,7 @@ private:
     /*Data for the experiment. Participant id , etc*/
     int participantId;
     string speedToString(float speed);
+    GUILogger* logger;
 private slots:
      void clickedSlot();
     void on_homeButton_clicked();

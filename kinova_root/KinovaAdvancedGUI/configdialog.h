@@ -3,6 +3,7 @@
 
 #include <QDialog>
 #include "guilogger.h"
+#include "sqlmanager.h"
 
 namespace Ui {
 class ConfigDialog;

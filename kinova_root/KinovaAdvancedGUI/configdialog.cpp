@@ -46,8 +46,10 @@ void ConfigDialog::on_generateLog_button_clicked()
 {
     ostringstream filename;
     filename << "GuiLog_Participant_" <<  this->participantId << ".log";
-    bool save = false;
-    if (std::ifstream(filename.str()))
+    ostringstream filenameTrajectories;
+    filenameTrajectories << "TrajectoriesLog_Participant_" <<  this->participantId << ".log";
+    bool save = true;
+    if (std::ifstream(filename.str()) || std::ifstream(filenameTrajectories.str()))
     {
         QString question;
         if(APPEND_DATA_IN_LOGFILE){
@@ -61,14 +63,24 @@ void ConfigDialog::on_generateLog_button_clicked()
     }
 
     if(save){
+        //Save GUI Events Log
         string strfile = filename.str();
         GUILogger::getInstance().dumpEvents(strfile,APPEND_DATA_IN_LOGFILE);
+
+        //Save Trajectories for this participant
+        GUILogger::getInstance().dumpTrajectories(filenameTrajectories.str(),SqlManager::getInstance().getCompleteTrajectoriesByParticipant(this->participantId),APPEND_DATA_IN_LOGFILE);
+
+
         QMessageBox* msgBox = new QMessageBox();
         msgBox->setWindowTitle(tr("Log Saved"));
-        QString s(tr("Log info was saved in "));
-        QString qfilename = QString::fromStdString(strfile);
-        msgBox->setText(s+qfilename);
+
+        ostringstream msg;
+        msg << tr("Log info was saved in").toStdString();
+        msg << strfile << tr(" and ").toStdString()  <<  filenameTrajectories.str();
+
+        msgBox->setText(QString::fromStdString(msg.str()));
         msgBox->exec();
+
     }
 }
 

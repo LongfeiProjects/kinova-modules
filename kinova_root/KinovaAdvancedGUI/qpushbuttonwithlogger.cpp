@@ -22,7 +22,7 @@ void QPushButtonWithLogger::mouseReleaseEvent(QMouseEvent *event)
 {
     //string button = (event->button() == Qt::LeftButton)?"Left button":"Right Button";
     //cout << "released button = " <<  button << endl;
-    GUILogger::getInstance().addMouseEvent(this,event,this->objectName().toStdString());
+     GUILogger::getInstance().addMouseEvent(this,event,this->objectName().toStdString());
 
     QPointF qpointf = event->localPos();
     cout << "qpointf.x(),qpointf.y() =  " << qpointf.x() << "," << qpointf.y() <<endl;
