@@ -61,8 +61,7 @@ unix|win32: LIBS += -ldl
 RESOURCES += \
     resources.qrc
 
-TRANSLATIONS = kinovaGUI_en.ts \n
-                kinovaGUI_fr.ts
+TRANSLATIONS = kinovaGUI_en.ts kinovaGUI_fr.ts
 
 
 DEPENDPATH += /usr/lib/x86_64-linux-gnu

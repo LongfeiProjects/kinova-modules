@@ -226,7 +226,7 @@ void MainWindow::playTrajectoryButtonClicked(int trajectoryId){
                 button = (QPushButtonWithLogger*)child;
                 button->setDisabled(true);
                 QIcon icon8;
-                icon8.addFile(QStringLiteral(":/imagenes/img/wait.png"), QSize(), QIcon::Normal, QIcon::Off);
+                 icon8.addFile(QStringLiteral(":/imagenes/img/wait.png"), QSize(), QIcon::Normal, QIcon::Off);
                 button->setIcon(icon8);
                 button->setIconSize(QSize(75, 75));
                 button->repaint();
