@@ -28,6 +28,8 @@ private slots:
 
     void on_generateLog_button_clicked();
 
+    void on_pushButton_clicked();
+
 private:
     Ui::ConfigDialog *ui;
     int participantId;

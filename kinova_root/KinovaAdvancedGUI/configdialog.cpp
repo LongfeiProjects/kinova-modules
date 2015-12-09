@@ -85,3 +85,21 @@ void ConfigDialog::on_generateLog_button_clicked()
 }
 
 
+
+void ConfigDialog::on_pushButton_clicked()
+{
+    QString question="All the data will be erased. before proceeding sure to have generated the log for this participant. \nDo you want to continue?";
+    QMessageBox::StandardButton reply;
+    reply = QMessageBox::question(this,tr("Warning"),question, QMessageBox::Yes|QMessageBox::No);
+    if(reply == QMessageBox::Yes){
+       QMessageBox* msgBox = new QMessageBox();
+       if(SqlManager::getInstance().cleanDB()){
+           msgBox->setWindowTitle(tr("Info"));
+           msgBox->setText(tr("Database cleaned!"));
+       }else{
+           msgBox->setWindowTitle(tr("Error"));
+           msgBox->setText(tr("Error while cleaning database!"));
+       }
+        msgBox->exec();
+    }
+}

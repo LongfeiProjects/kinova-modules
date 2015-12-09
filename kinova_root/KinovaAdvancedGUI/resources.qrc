@@ -23,6 +23,13 @@
         <file>img/graspObject.png</file>
         <file>img/undo.png</file>
         <file>img/config.png</file>
+        <file>img/lowStrength.png</file>
+        <file>img/low-middleStrength.png</file>
+        <file>img/middle-highStrength.png</file>
+        <file>img/highStrength.png</file>
+        <file>img/noForce.png</file>
+        <file>img/stop_hand_icon.png</file>
+        <file>img/wait.png</file>
     </qresource>
     <qresource prefix="/database">
         <file>database/trajectoryProg.db</file>

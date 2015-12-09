@@ -19,7 +19,6 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
-
     this->moveDownTimer = new QTimer(this);
     this->moveLeftTimer = new QTimer(this);
     this->moveUpTimer = new QTimer(this);
@@ -28,14 +27,15 @@ MainWindow::MainWindow(QWidget *parent) :
     this->movePullTimer = new QTimer(this);
     this->openHandTimer = new QTimer(this);
     this->closeHandTimer = new QTimer(this);
+    //Security Check Timmer
+    this->securityCheckTimer = new QTimer(this);
+    this->securityCheckTimer->start(CHECK_FORCE_TIMER);
+    connect (this->securityCheckTimer, SIGNAL(timeout()), this, SLOT(securityCheckSlot()));
     this->klib = new Kinovalib();
     this->point.InitStruct();
     initGUI();
 
     GUILogger::getInstance().enableLogging(true);
-    //delete this
- //   GSRWidget* gsr = new GSRWidget();
- //   gsr->show();
 
 }
 
@@ -108,6 +108,43 @@ void MainWindow::initGUI(){
     /*Hide participant ID until it is set*/
     this->ui->participantIdLabel->setVisible(false);
     this->participantId=0;
+
+    this->installEventFilter(this);
+
+
+}
+
+
+
+
+void MainWindow::securityCheckSlot(){
+    //TODO check force
+    //this->force = 0.0;
+    if(force<0.1){ //no force
+        this->ui->forcescale->setStyleSheet(QStringLiteral("image: url(:/imagenes/img/noForce.png);"));
+        this->ui->forcestatusicon->setVisible(false);
+        this->ui->forcestatuslabel->setVisible(false);
+    }else if(force < 0.35){//low force
+        this->ui->forcescale->setStyleSheet(QStringLiteral("image: url(:/imagenes/img/lowStrength.png);"));
+        this->ui->forcestatusicon->setVisible(false);
+        this->ui->forcestatuslabel->setVisible(false);
+    }else if(force < 0.5){//middle force
+        this->ui->forcescale->setStyleSheet(QStringLiteral("image: url(:/imagenes/img/low-middleStrength.png);"));
+        this->ui->forcestatusicon->setVisible(false);
+        this->ui->forcestatuslabel->setVisible(false);
+    }else if(force < 0.7){//middle high
+        this->ui->forcestatusicon->setVisible(true);
+        this->ui->forcestatuslabel->setVisible(true);
+        this->ui->forcescale->setStyleSheet(QStringLiteral("image: url(:/imagenes/img/middle-highStrength.png);"));
+        this->ui->forcestatusicon->setStyleSheet(QStringLiteral("image: url(:/imagenes/img/warning.png);"));
+        this->ui->forcestatuslabel->setText(tr("Warning"));
+    }else if(force <= 1.0){//high stength
+        this->ui->forcestatusicon->setVisible(true);
+        this->ui->forcestatuslabel->setVisible(true);
+        this->ui->forcescale->setStyleSheet(QStringLiteral("image: url(:/imagenes/img/highStrength.png);"));
+        this->ui->forcestatusicon->setStyleSheet(QStringLiteral("image: url(:/imagenes/img/stop_hand_icon.png);"));
+        this->ui->forcestatuslabel->setText(tr("Stop"));
+    }
 }
 
 void MainWindow::on_button_rightClick_IncreaseSpeed(){
@@ -173,10 +210,50 @@ QFont getLabelFont(){
     return font2;
 }
 
-//TEST it!!!
 void MainWindow::playTrajectoryButtonClicked(int trajectoryId){
     cout<< "entro en play" << endl;
     cout << trajectoryId << endl;
+    this->ui->Play->setDisabled(true);
+
+    QString buttonname = QString("playButton_")+QString::number(trajectoryId);
+    QPushButtonWithLogger* button ;
+    cout << "name: " << buttonname.toStdString() << endl;
+    QPushButtonWithLogger* obj = this->gridLayoutWidget_6->findChild<QPushButtonWithLogger*>(buttonname);
+    cout <<"OBTENIDO: " << obj->text().toStdString() << endl;
+    foreach (QObject* child, this->gridLayoutWidget_6->children())
+        {
+            if(buttonname== child->objectName()){
+                button = (QPushButtonWithLogger*)child;
+                button->setDisabled(true);
+                QIcon icon8;
+                icon8.addFile(QStringLiteral(":/imagenes/img/wait.png"), QSize(), QIcon::Normal, QIcon::Off);
+                button->setIcon(icon8);
+                button->setIconSize(QSize(75, 75));
+                button->repaint();
+              /**
+               *
+               * FIXME: Disable the button with this method https://forum.qt.io/topic/6472/how-to-disable-a-button-after-clicking-it
+               * disconnect(pushButton, SIGNAL(clicked()), this, SLOT(map()));
+                ui->pbCalculate->setEnabled(false);
+                ui->pbCalculate->repaint();
+                //do calculations which take some time
+                ui->pbCalculate->setEnabled(true);
+                connect(pushButton, SIGNAL(clicked()), this, SLOT(map()));
+
+
+                connect (pushButton, SIGNAL(clicked()), signalMapper, SLOT()) ;
+
+                signalMapper -> setMapping (pushButton, t.id) ;
+                connect (signalMapper, SIGNAL(mapped(int)), this, SLOT(playTrajectoryButtonClicked(int)));*/
+
+
+
+
+                break;
+            }
+        }
+    //QApplication::processEvents( QEventLoop::ExcludeUserInputEvents);
+
     for(int i = 0;i<this->recordedTrajectories.size();i++){
         Trajectory t = this->recordedTrajectories[i];
         if(t.id==trajectoryId){
@@ -240,10 +317,16 @@ void MainWindow::playTrajectoryButtonClicked(int trajectoryId){
             break;
         }
     }
+    this->ui->Play->setDisabled(false);
+    button->setEnabled(true);
+    QIcon icon8;
+    icon8.addFile(QStringLiteral(":/imagenes/img/play.png"), QSize(), QIcon::Normal, QIcon::Off);
+    button->setIcon(icon8);
+    button->setIconSize(QSize(75, 75));
+    button->repaint();
 }
 
 void MainWindow::addTrajectory(Trajectory t, int col, int row){
-    cout << "adding t = " << t.id<< endl;
     //Add push button
     QPushButtonWithLogger* pushButton = new QPushButtonWithLogger(this->gridLayoutWidget_6);
     pushButton->setMaximumSize(QSize(120, 120));
@@ -258,7 +341,7 @@ void MainWindow::addTrajectory(Trajectory t, int col, int row){
     icon8.addFile(QStringLiteral(":/imagenes/img/play.png"), QSize(), QIcon::Normal, QIcon::Off);
     pushButton->setIcon(icon8);
     pushButton->setIconSize(QSize(75, 75));
-
+    pushButton->setObjectName(QString("playButton_")+QString::number(t.id));
     QSignalMapper* signalMapper = new QSignalMapper (this) ;
     connect (pushButton, SIGNAL(clicked()), signalMapper, SLOT(map())) ;
 

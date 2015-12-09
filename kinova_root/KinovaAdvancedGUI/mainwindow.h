@@ -28,6 +28,8 @@ namespace Ui {
 class MainWindow;
 }
 
+
+
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
@@ -121,7 +123,10 @@ private:
     vector<RecordedCartesianInfo> convertLog2Trajectory(vector<Log> logs);
 
 
-
+    /*Security Check Thread*/
+    QTimer* securityCheckTimer;
+    int CHECK_FORCE_TIMER = 100; // time in miliseconds.
+    float force = 0.0;
 
     /*Data for the experiment. Participant id , etc*/
     int participantId;
@@ -172,6 +177,44 @@ private slots:
     void playTrajectoryButtonClicked(int trajectoryId);
     void on_configButton_clicked();
     void on_pushButton_clicked();
+    void securityCheckSlot();
+
+
+
+
+
+
+    protected:
+    bool eventFilter(QObject *obj, QEvent *event){
+        if (event->type() == QEvent::KeyPress) {
+            QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event);
+            switch(keyEvent->key()){
+                case Qt::Key_1:
+                    this->force = 0;
+                break;
+                case Qt::Key_2:
+                    this->force = 0.2;
+                break;
+                case Qt::Key_3:
+                    this->force = 0.4;
+                break;
+                case Qt::Key_4:
+                    this->force = 0.6;
+                break;
+                case Qt::Key_5:
+                    this->force = 0.8;
+                break;
+
+            }
+
+            if (keyEvent->key() == Qt::Key_1) {
+                // Special tab handling
+                return true;
+            } else
+                return false;
+        }
+        return false;
+    }
 };
 
 #endif // MAINWINDOW_H

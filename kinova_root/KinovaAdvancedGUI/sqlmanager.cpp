@@ -39,7 +39,7 @@ bool SqlManager::saveRecordedTrajectory(Trajectory &trajectory){
           cartesianInfoIds.push_back(id);
       }
       //This invocation is not a very elegant solution it is to be able to show the qt progress dialog.
-      //Besto solution is to run this code in other thread to avoid the qt main loop being blocked
+      //Best solution is to run this code in other thread to avoid the qt main loop being blocked
         QApplication::processEvents( QEventLoop::ExcludeUserInputEvents);
    }
 
@@ -71,7 +71,6 @@ vector<Trajectory> SqlManager::getCompleteTrajectories(){
     QString strQuery = "SELECT * from Trajectory";
     if(query.exec(strQuery)){
         while(query.next()){
-            cout << "loading.-.-" <<endl;
             Trajectory t;
             t.id = query.value(0).toInt();
             t.name = query.value(1).toString().toStdString();
@@ -179,3 +178,23 @@ vector<Trajectory> SqlManager::getTrajectoriesInfo(){
     return result;
 }
 
+
+bool SqlManager::cleanDB(){
+    bool success = false;
+    QSqlQuery query(this->database);
+    QString strQuery = "delete from trajectory_cartesianInfo;";
+    if(query.exec(strQuery)){
+        strQuery =  "delete  from CartesianInfo;";
+        if(query.exec(strQuery)){
+            strQuery= "delete from Trajectory;";
+            if(query.exec(strQuery)){
+                success=true;
+                qDebug() << "Database cleaned" <<endl;
+            }
+        }
+
+    }else{
+        qDebug() << "Error cleaning DB " <<endl;
+    }
+    return success;
+}

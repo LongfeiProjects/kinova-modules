@@ -17,7 +17,7 @@
    </size>
   </property>
   <property name="windowTitle">
-   <string>MainWindow</string>
+   <string>Kinova Programming Interface</string>
   </property>
   <widget class="QWidget" name="centralWidget">
    <widget class="QTabWidget" name="Play">
@@ -973,7 +973,7 @@ color: rgb(247, 247, 246);
          <rect>
           <x>0</x>
           <y>10</y>
-          <width>191</width>
+          <width>171</width>
           <height>111</height>
          </rect>
         </property>
@@ -986,7 +986,7 @@ color: rgb(247, 247, 246);
         <widget class="QWidget" name="verticalLayoutWidget">
          <property name="geometry">
           <rect>
-           <x>30</x>
+           <x>20</x>
            <y>0</y>
            <width>131</width>
            <height>101</height>
@@ -1055,6 +1055,91 @@ color: rgb(247, 247, 246);
          </layout>
         </widget>
        </widget>
+       <widget class="QFrame" name="frame_16">
+        <property name="geometry">
+         <rect>
+          <x>190</x>
+          <y>10</y>
+          <width>311</width>
+          <height>111</height>
+         </rect>
+        </property>
+        <property name="frameShape">
+         <enum>QFrame::StyledPanel</enum>
+        </property>
+        <property name="frameShadow">
+         <enum>QFrame::Raised</enum>
+        </property>
+        <widget class="QWidget" name="forcescale" native="true">
+         <property name="geometry">
+          <rect>
+           <x>0</x>
+           <y>0</y>
+           <width>150</width>
+           <height>109</height>
+          </rect>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>150</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">image: url(:/imagenes/img/noForce.png);</string>
+         </property>
+        </widget>
+        <widget class="QWidget" name="forcestatusicon" native="true">
+         <property name="geometry">
+          <rect>
+           <x>153</x>
+           <y>6</y>
+           <width>150</width>
+           <height>61</height>
+          </rect>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>150</width>
+           <height>50</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>150</width>
+           <height>16777215</height>
+          </size>
+         </property>
+        </widget>
+        <widget class="QLabel" name="forcestatuslabel">
+         <property name="geometry">
+          <rect>
+           <x>179</x>
+           <y>75</y>
+           <width>100</width>
+           <height>30</height>
+          </rect>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>0</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>150</width>
+           <height>50</height>
+          </size>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+        </widget>
+       </widget>
       </widget>
       <widget class="QLabel" name="recordingLabel">
        <property name="geometry">
@@ -1090,7 +1175,7 @@ font: 38pt &quot;Ubuntu&quot;;</string>
         <rect>
          <x>590</x>
          <y>20</y>
-         <width>221</width>
+         <width>222</width>
          <height>111</height>
         </rect>
        </property>

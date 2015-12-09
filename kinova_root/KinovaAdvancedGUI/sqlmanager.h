@@ -34,6 +34,7 @@ public:
     bool saveRecordedTrajectory(Trajectory &trajectory);
     vector<Trajectory> getCompleteTrajectoriesByParticipant(int participantID);
 
+    bool cleanDB();
 private:
 
     SqlManager(){
