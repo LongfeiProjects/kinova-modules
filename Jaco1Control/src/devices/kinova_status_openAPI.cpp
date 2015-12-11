@@ -380,6 +380,7 @@ void kinova_status_openapi::RestartAPI(){
 void kinova_status_openapi::ReadTimeStamp()
 {
     State t_cur(1);
+
     boost::chrono::milliseconds reading_time;
     reading_time = boost::chrono::duration_cast<boost::chrono::milliseconds>(boost::chrono::high_resolution_clock::now() - this->tStart);
     t_cur[0] =  boost::chrono::round<boost::chrono::milliseconds>(reading_time).count();

@@ -26,6 +26,7 @@
 #include <boost/make_shared.hpp>
 #include <boost/thread/recursive_mutex.hpp>
 #include <boost/thread/lockable_concepts.hpp>
+#define ARMA_DONT_USE_CXX11
 #include <armadillo>
 
 

@@ -168,6 +168,7 @@ void robot::StopAllThread()
 
 void robot::Cheking()
 {
+    std::cout<< "starting cheking thread"<<std::endl;
 	try
 	{
 		while( !this->stop_auxiliary_thread.load(boost::memory_order_acquire) )
@@ -190,7 +191,7 @@ void robot::Cheking()
 				}
 
 			}
-			usleep(1000*((3)));
+             boost::this_thread::sleep(boost::posix_time::milliseconds(10-test_time));
 		}
 		std::cout<< "im out the the Cheking thread"<<std::endl;
 	}
