@@ -191,7 +191,7 @@ void robot::Cheking()
 				}
 
 			}
-             boost::this_thread::sleep(boost::posix_time::milliseconds(10-test_time));
+             //boost::this_thread::sleep(boost::posix_time::milliseconds(10-test_time));
 		}
 		std::cout<< "im out the the Cheking thread"<<std::endl;
 	}
