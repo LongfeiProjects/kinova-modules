@@ -67,7 +67,8 @@ TRANSLATIONS = kinovaGUI_en.ts kinovaGUI_fr.ts
 DEPENDPATH += /usr/lib/x86_64-linux-gnu
 DEPENDPATH += $$PWD/../kinovalib_openAPI
 
-LIBS += -lusb-1.0 -lsfml-graphics -lsfml-system -lsfml-window -lboost_system -lboost_thread -lpthread -ldl -llapack -larmadillo -lplplotcxxd -lboost_filesystem -lboost_timer -lboost_chrono -lqextserialport
+LIBS += -lusb-1.0 -lsfml-graphics -lsfml-system -lsfml-window -lboost_system -lboost_thread -lpthread -ldl -llapack -larmadillo -lplplotcxxd -lboost_filesystem -lboost_timer -lboost_chrono
+#-lqextserialport
 #-lkindrv
 
 

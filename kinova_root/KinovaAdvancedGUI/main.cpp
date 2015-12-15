@@ -1,7 +1,8 @@
 #include "mainwindow.h"
 #include <QApplication>
 #include "kinovalib.h"
-#include <QtExtSerialPort/qextserialport.h>
+//#include <QtExtSerialPort/qextserialport.h>
+#include <QtSerialPort/QSerialPort>
 #include "robot.hpp"
 #include "devices/kinova_status_openAPI.hpp"
 
