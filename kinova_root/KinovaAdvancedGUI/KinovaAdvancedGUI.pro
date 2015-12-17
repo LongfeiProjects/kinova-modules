@@ -23,7 +23,8 @@ SOURCES += main.cpp\
     configdialog.cpp \
     qpushbuttonwithlogger.cpp \
     guilogger.cpp \
-    qcombowithlogger.cpp
+    qcombowithlogger.cpp \
+    savedialog.cpp
 
 HEADERS  += mainwindow.h \
     sqlmanager.h \
@@ -35,12 +36,14 @@ HEADERS  += mainwindow.h \
     configdialog.h \
     qpushbuttonwithlogger.h \
     guilogger.h \
-    qcombowithlogger.h
+    qcombowithlogger.h \
+    savedialog.h
 
 FORMS    += mainwindow.ui \
     dialog.ui \
     gsrwidget.ui \
-    configdialog.ui
+    configdialog.ui \
+    savedialog.ui
 
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../kinovalib/release/ -lkinovalib
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../kinovalib/debug/ -lkinovalib

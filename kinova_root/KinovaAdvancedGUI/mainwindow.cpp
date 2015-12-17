@@ -27,6 +27,8 @@ MainWindow::MainWindow(QWidget *parent) :
     this->movePullTimer = new QTimer(this);
     this->openHandTimer = new QTimer(this);
     this->closeHandTimer = new QTimer(this);
+
+    this->signalMapper = new QSignalMapper (this) ;
     //Security Check Timmer
     this->securityCheckTimer = new QTimer(this);
     this->securityCheckTimer->start(CHECK_FORCE_TIMER);
@@ -370,35 +372,6 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-
-
-void MainWindow::clickedSlot(){
-    cout<<"Sending command to kinova arm"<<endl;
-    bool actualPositionObtained = true;
-    if(!this->armCommand){
-        /*As the Kinova API does not provide any finger only command, then we simulate it by sending the actual coordinates of the arm.
-        So, here we load the actual position and then send the command with the finger parameters*/
-        int res = this->klib->getActualCartesianPosition(this->actualPosition);
-        if(res==SUCCESS){
-            this->point.Position.CartesianPosition.X = actualPosition.Coordinates.X;
-            this->point.Position.CartesianPosition.Y = actualPosition.Coordinates.Y;
-            this->point.Position.CartesianPosition.Z = actualPosition.Coordinates.Z;
-            this->point.Position.CartesianPosition.ThetaX= actualPosition.Coordinates.ThetaX;
-            this->point.Position.CartesianPosition.ThetaY=actualPosition.Coordinates.ThetaY;
-            this->point.Position.CartesianPosition.ThetaZ=actualPosition.Coordinates.ThetaZ;
-        }else{
-            QMessageBox* msgBox = new QMessageBox();
-            msgBox->setWindowTitle(tr("Send Command"));
-            msgBox->setText(tr("Something went wrong, couldn't get the actual position of the robot"));
-            msgBox->exec();
-            actualPositionObtained=false;
-        }
-    }
-    if(actualPositionObtained){
-        klib->sendCommand(this->opType,this->armCommand,this->fingerCommand,this->point);
-    }
-}
-
 void MainWindow::on_homeButton_clicked()
 {
     cout << "Moving home"<< endl;
@@ -419,63 +392,8 @@ void MainWindow::on_homeButton_clicked()
 }
 
 
-void MainWindow::on_xDoubleSpinBox_valueChanged(double arg1)
-{
-    this->point.Position.CartesianPosition.X=arg1;
-}
-
-void MainWindow::on_yDoubleSpinBox_valueChanged(double arg1)
-{
-    this->point.Position.CartesianPosition.Y=arg1;
-}
-
-void MainWindow::on_zDoubleSpinBox_valueChanged(double arg1)
-{
-    this->point.Position.CartesianPosition.Z=arg1;
-}
-
-void MainWindow::on_xDoubleSpinBox_2_valueChanged(double arg1)
-{
-    this->point.Position.CartesianPosition.ThetaX=arg1;
-}
-
-void MainWindow::on_yDoubleSpinBox_2_valueChanged(double arg1)
-{
-    this->point.Position.CartesianPosition.ThetaY=arg1;
-}
-
-void MainWindow::on_zDoubleSpinBox_2_valueChanged(double arg1)
-{
-    this->point.Position.CartesianPosition.ThetaZ=arg1;
-}
-
-void MainWindow::on_speed1DoubleSpinBox_valueChanged(double arg1)
-{
-    this->point.Limitations.speedParameter1=arg1;
-}
-
-void MainWindow::on_speed2DoubleSpinBox_valueChanged(double arg1)
-{
-    this->point.Limitations.speedParameter2=arg1;
-}
-
-void MainWindow::on_limitationsGroup_toggled(bool arg1)
-{
-    this->point.LimitationsActive= (int)arg1;
-}
-
-void MainWindow::on_ArmControl_Widget_toggled(bool arg1)
-{
-    this->armCommand=arg1;
-}
-
-void MainWindow::on_FingersControl_Widget_toggled(bool arg1)
-{
-    this->fingerCommand=arg1;
-}
-
 State convertDirectionToState(int direction, float speed){
-    State res;
+    State res(9);
     res.zeros(9);
     switch (direction) {
     case Right:
@@ -514,18 +432,18 @@ State convertDirectionToState(int direction, float speed){
 }
 
 void MainWindow::loopSendVelocityCommad(int direction){
-    if(!this->stopedTimers[direction-1]){ //we have to use a bool to know I we stopped the timer  because the timer->stop() is not immediate
+    if(!this->stopedTimers[direction-1]){ //we have to use a bool to know If we stopped the timer  because the timer->stop() is not immediate
        if(direction==Close || direction==Open){
            if(KINOVA_LIB == 1){
                State cmd = convertDirectionToState(direction,30);
-               this->bot->SendCommand(cmd,27);
+                 this->bot->SendCommand(cmd,27);
            }else{
                 this->klib->moveSingleStep(direction,30); //Fixed speed, the unit velocity of the fingers is not clear at all!
            }
        }else{
            if(KINOVA_LIB == 1){
                State cmd = convertDirectionToState(direction,this->speed);
-               this->bot->SendCommand(cmd,7);
+                this->bot->SendCommand(cmd,7);
             }else{
                this->klib->moveSingleStep(direction,this->speed);
            }
@@ -572,14 +490,13 @@ void MainWindow::on_rightButton_pressed()
     this->saveCheckPoint();
 
     //We use QSignal mapper to send a parameter to the slot loopSendVelocityCommand. This parameter is the movement direction
-    QSignalMapper* signalMapper = new QSignalMapper (this) ;
     connect (this->moveRightTimer, SIGNAL(timeout()), signalMapper, SLOT(map())) ;
 
     signalMapper -> setMapping (this->moveRightTimer, Right) ;
     connect (signalMapper, SIGNAL(mapped(int)), this, SLOT(loopSendVelocityCommad(int)));
 
     this->moveRightTimer->start(LOOP_SPEED_SEND_VELOCITY_COMMAND);
-     this->isMoving = true;
+    this->isMoving = true;
 }
 
 
@@ -589,7 +506,10 @@ void MainWindow::on_rightButton_released()
     this->moveRightTimer->stop();
     cout<<"right timer stopped"<<endl;
     this->stopedTimers[Right-1] = true;
-     this->isMoving = false;
+
+    this->moveRightTimer->disconnect();
+    this->signalMapper->disconnect();
+    this->isMoving = false;
 }
 
 void MainWindow::on_upButton_pressed()
@@ -599,19 +519,21 @@ void MainWindow::on_upButton_pressed()
     //Save actual position as a checkpoint
     this->saveCheckPoint();
     //We use QSignal mapper to send a parameter to the slot loopSendVelocityCommand. This parameter is the movement direction
-    QSignalMapper* signalMapper = new QSignalMapper (this) ;
     connect (this->moveUpTimer, SIGNAL(timeout()), signalMapper, SLOT(map())) ;
     signalMapper->setMapping (this->moveUpTimer, Up) ;
     connect (signalMapper, SIGNAL(mapped(int)), this, SLOT(loopSendVelocityCommad(int)));
     this->moveUpTimer->start(LOOP_SPEED_SEND_VELOCITY_COMMAND);
-     this->isMoving = true;
+    this->isMoving = true;
 }
 
 void MainWindow::on_upButton_released()
 {
     this->moveUpTimer->stop();
     this->stopedTimers[Up-1] = true;
-     this->isMoving = false;
+
+    this->moveUpTimer->disconnect();
+    this->signalMapper->disconnect();
+    this->isMoving = false;
 
 }
 
@@ -623,21 +545,23 @@ void MainWindow::on_leftButton_pressed()
     this->saveCheckPoint();
 
     //We use QSignal mapper to send a parameter to the slot loopSendVelocityCommand. This parameter is the movement direction
-    QSignalMapper* signalMapper = new QSignalMapper (this) ;
     connect (this->moveLeftTimer, SIGNAL(timeout()), signalMapper, SLOT(map())) ;
 
     signalMapper -> setMapping (this->moveLeftTimer, Left) ;
     connect (signalMapper, SIGNAL(mapped(int)), this, SLOT(loopSendVelocityCommad(int)));
     this->moveLeftTimer->start(LOOP_SPEED_SEND_VELOCITY_COMMAND);
-     this->isMoving = true;
+    this->isMoving = true;
 }
 
 void MainWindow::on_leftButton_released()
 {
     this->moveLeftTimer->stop();
     this->stopedTimers[Left-1] = true;
-    this->isMoving = false;
 
+
+    this->moveLeftTimer->disconnect();
+    this->signalMapper->disconnect();
+    this->isMoving = false;
 }
 
 void MainWindow::on_downButton_pressed()
@@ -648,7 +572,6 @@ void MainWindow::on_downButton_pressed()
     this->saveCheckPoint();
 
     //We use QSignal mapper to send a parameter to the slot loopSendVelocityCommand. This parameter is the movement direction
-    QSignalMapper* signalMapper = new QSignalMapper (this) ;
     delete this->moveDownTimer;
     this->moveDownTimer = new QTimer(this);
     connect (this->moveDownTimer, SIGNAL(timeout()), signalMapper, SLOT(map())) ;
@@ -663,6 +586,9 @@ void MainWindow::on_downButton_released()
 {
    this->moveDownTimer->stop();
    this->stopedTimers[Down-1] = true;
+
+    this->moveDownTimer->disconnect();
+    this->signalMapper->disconnect();
     this->isMoving = false;
 }
 
@@ -676,8 +602,6 @@ void MainWindow::on_pushButton_Y_pressed()
 
     //Save actual position as a checkpoint
     this->saveCheckPoint();
-
-    QSignalMapper* signalMapper = new QSignalMapper (this) ;
     delete this->movePushTimer;
     this->movePushTimer = new QTimer(this);
     connect (this->movePushTimer, SIGNAL(timeout()), signalMapper, SLOT(map())) ;
@@ -692,6 +616,10 @@ void MainWindow::on_pushButton_Y_released()
 {
     this->movePushTimer->stop();
     this->stopedTimers[Push-1] = true;
+
+
+    this->movePushTimer->disconnect();
+    this->signalMapper->disconnect();
      this->isMoving = false;
 
 }
@@ -705,7 +633,6 @@ void MainWindow::on_pullButton_Y_pressed()
     this->saveCheckPoint();
 
     //We use QSignal mapper to send a parameter to the slot loopSendVelocityCommand. This parameter is the movement direction
-    QSignalMapper* signalMapper = new QSignalMapper (this) ;
     delete this->movePullTimer;
     this->movePullTimer = new QTimer(this);
     connect (this->movePullTimer, SIGNAL(timeout()), signalMapper, SLOT(map())) ;
@@ -720,8 +647,11 @@ void MainWindow::on_pullButton_Y_released()
 {
     this->movePullTimer->stop();
     this->stopedTimers[Pull-1] = true;
-     this->isMoving = false;
 
+
+    this->movePullTimer->disconnect();
+    this->signalMapper->disconnect();
+    this->isMoving = false;
 }
 
 
@@ -734,7 +664,6 @@ void MainWindow::on_openHandButton_pressed(){
     this->saveCheckPoint();
 
     //We use QSignal mapper to send a parameter to the slot loopSendVelocityCommand. This parameter is the movement direction
-    QSignalMapper* signalMapper = new QSignalMapper (this) ;
     delete this->openHandTimer;
     this->openHandTimer = new QTimer(this);
     connect (this->openHandTimer, SIGNAL(timeout()), signalMapper, SLOT(map())) ;
@@ -747,6 +676,10 @@ void MainWindow::on_openHandButton_pressed(){
 void MainWindow::on_openHandButton_released()
 {
     this->openHandTimer->stop();
+
+
+    this->openHandTimer->disconnect();
+    this->signalMapper->disconnect();
     this->stopedTimers[Open-1] = true;
 }
 
@@ -758,7 +691,6 @@ void MainWindow::on_closeHandButton_pressed(){
     this->saveCheckPoint();
 
     //We use QSignal mapper to send a parameter to the slot loopSendVelocityCommand. This parameter is the movement direction
-    QSignalMapper* signalMapper = new QSignalMapper (this) ;
     delete this->closeHandTimer;
     this->closeHandTimer = new QTimer(this);
     connect (this->closeHandTimer, SIGNAL(timeout()), signalMapper, SLOT(map())) ;
@@ -771,6 +703,10 @@ void MainWindow::on_closeHandButton_pressed(){
 void MainWindow::on_closeHandButton_released()
 {
     this->closeHandTimer->stop();
+
+
+    this->closeHandTimer->disconnect();
+    this->signalMapper->disconnect();
     this->stopedTimers[Close-1] = true;
 }
 
@@ -791,9 +727,6 @@ void MainWindow::on_initKinovaButton_clicked()
             this->readType.push_back("j_pos");
             this->readType.push_back("hand_vel");
 
-
-
-
             this->readTypeMap.insert(make_pair("comp_t",0));
             this->readTypeMap.insert(make_pair("cart_pos",1));
             this->readTypeMap.insert(make_pair("j_vel",2));
@@ -802,12 +735,6 @@ void MainWindow::on_initKinovaButton_clicked()
             cout << "time index = " << this->readTypeMap["comp_t"] <<endl;
             cout << "vel index = " << this->readTypeMap["j_vel"] <<endl;
             cout << "cartpos index = " << this->readTypeMap["cart_pos"] <<endl;
-
-            /*this->readTypeMap["comp_t"] = 0;
-            this->readTypeMap["cart_pos"] = 1;
-            this->readTypeMap["j_vel"] = 2;
-            this->readTypeMap["j_pos"] = 3;
-            this->readTypeMap["hand_vel"] = 4*/;
 
             // controller
             Option opt;
@@ -937,18 +864,28 @@ void MainWindow::addRecordedTrajectory(Trajectory t){
     this->addTrajectory(t,col,row);
 }
 
+
 void MainWindow::showSaveTrajectoryPanel(){
    if(KINOVA_LIB ==1){
        cout << "before convert" << endl;
        this->sampledTrajectoryInfo = convertLog2Trajectory(this->recordedLogs);
        cout << "after convert" << endl;
    }
-   cout << "will show save panel" << endl;
+   cout << "will create save panel" << endl;
+
    Dialog* dialog2 = new Dialog();
 
+
+    //SaveDialog* d = new SaveDialog(this);
+
+
+   cout << "before call execAndReturnSavedTrajectory " << endl;
    Trajectory saved =  dialog2->execAndReturnSavedTrajectory(this->sampledTrajectoryInfo,this->participantId,this->initTimestampTrajectory);
+   //dialog2->execFake();
+  // dialog2->exec();
 
-
+  // d->exec();
+   cout << "after call execAndReturnSavedTrajectory " << endl;
 
    if(saved.id>-1){
         this->addRecordedTrajectory(saved);
@@ -956,21 +893,7 @@ void MainWindow::showSaveTrajectoryPanel(){
    this->sampledTrajectoryInfo.clear();
    this->recordedLogs.clear();
    delete dialog2;
-}
-
-
-void tarea(string msg){
-    for(int i=0;i<10;i++){
-        cout << "task1 " << msg <<endl;
-        sleep(1);
-    }
-}
-
-void tarea1(){
-    for(int i=0;i<10;i++){
-        cout << "task1 " << endl;
-        sleep(1);
-    }
+   //delete d;
 }
 
 
@@ -995,8 +918,6 @@ void  WriteFile(std::vector<State> log,std::string namefile)
 
 
 void MainWindow::writeLogFiles(vector<Log> recordedLogs){
-    //TODO convert from vector<Log> to vector<RecordedCartesianInfo> and store the result in this->sampledTrajectories.
-
     Log cartPosLog = recordedLogs[this->readTypeMap["cart_pos"]];
     Log timeLog = recordedLogs[this->readTypeMap["comp_t"]];
     Log velLog = recordedLogs[this->readTypeMap["j_vel"]];
@@ -1137,10 +1058,12 @@ void MainWindow::startRecording(){
     this->ui->record_Button->setIcon(QIcon(":/imagenes/img/stop.png"));
     this->ui->recordingLabel->setVisible(true);
     //this->setActualPosition();
-    if(KINOVA_LIB == 1){
+
+   if(KINOVA_LIB == 1){
         this->recordedLogs.clear();
         this->bot->StartLog(this->readType);
     }
+
     time(&this->initTimestampTrajectory);
 }
 
@@ -1151,11 +1074,9 @@ void MainWindow::stopRecording(){
     this->isRecordingTrajecory=false;
     if(KINOVA_LIB==1){
         cout << "before stoping" << endl;
-        recordedLogs = this->bot->StopLog(this->readType);
+        this->recordedLogs = this->bot->StopLog(this->readType);
         cout << "after stoping" << endl;
         writeLogFiles(recordedLogs);
-
-        this->recordedLogs = recordedLogs;
     }
 }
 
@@ -1166,11 +1087,12 @@ void MainWindow::on_record_Button_toggled(bool checked)
     }else{
         this->stopRecording();
 
-        QMessageBox::StandardButton reply;
+        showSaveTrajectoryPanel();
+        /*QMessageBox::StandardButton reply;
         reply = QMessageBox::question(this,tr("Save"),tr("Do you want to save the recorded trajectory?"), QMessageBox::Yes|QMessageBox::No);
         if(reply == QMessageBox::Yes){
             showSaveTrajectoryPanel();
-        }
+        }*/
     }
 
 }
@@ -1178,7 +1100,8 @@ void MainWindow::on_record_Button_toggled(bool checked)
 /*Save the actual position as a checkpoint. This allows the user to undo actions*/
 void MainWindow::saveCheckPoint(){
     if(KINOVA_LIB==1){
-        vector<State> result;
+
+         vector<State> result;
         this->bot->ReadCurrentState(result,this->readType);
         int indice = this->readTypeMap["cart_pos"];
 
@@ -1191,6 +1114,7 @@ void MainWindow::saveCheckPoint(){
         this->actualPosition.Fingers.Finger1 = result[indice][6];
         this->actualPosition.Fingers.Finger2 = result[indice][7];
         this->actualPosition.Fingers.Finger3 = result[indice][8];
+
         this->checkpoints.push_back(this->actualPosition);
         this->ui->undoButton->setEnabled(true);
     }else{
@@ -1210,7 +1134,7 @@ void MainWindow::saveCheckPoint(){
 void MainWindow::setActualPosition(){
     /*As the Kinova API does not provide any finger only command, then we simulate it by sending the actual coordinates of the arm.
     So, here we load the actual position and then send the command with the finger parameters*/
-    if(KINOVA_LIB){
+    if(KINOVA_LIB==1){
         vector<State> result;
         this->bot->ReadCurrentState(result,this->readType);
         int indice = this->readTypeMap["cart_pos"];
@@ -1383,19 +1307,4 @@ void MainWindow::on_configButton_clicked()
     }
 }
 
-void MainWindow::on_pushButton_clicked()
-{
-    State s(9);
-    s[0] = 0.211946;
-    s[1] = -0.274977;
-    s[2] = 0.496122;
-    s[3] = 1.50185;
-    s[4] = 1.05132;
-    s[5] = 0.0698151;
-    s[6] = 47.75;
-    s[7] = 42.75;
-    s[8] = 53.75;
-    cout << "before sending" << endl;
-     this->bot->SendAndWait(s);
-    cout << "after sending sendAndWait" << endl;
-}
+

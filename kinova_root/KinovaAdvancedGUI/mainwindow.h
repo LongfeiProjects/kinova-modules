@@ -15,7 +15,7 @@
 #include "configdialog.h"
 #include <QGraphicsProxyWidget>
 #include <thread>
-
+#include "savedialog.h"
 #include <kinovalib_openapi_global.h>
 #include "robot.hpp"
 #include "devices/kinova_controller_openAPI.hpp"
@@ -74,6 +74,7 @@ private:
     QTimer* movePullTimer;
     QTimer* closeHandTimer;
     QTimer* openHandTimer;
+    QSignalMapper* signalMapper;
 
     int fixedStepsCounter[8] = {0,0,0,0,0,0,0,0};
     bool stopedTimers[8] = {false,false,false,false,false,false,false,false};
@@ -133,20 +134,10 @@ private:
     string speedToString(float speed);
     GUILogger* logger;
 private slots:
-     void clickedSlot();
+
     void on_homeButton_clicked();
 
-    void on_xDoubleSpinBox_valueChanged(double arg1);
-    void on_yDoubleSpinBox_valueChanged(double arg1);
-    void on_zDoubleSpinBox_valueChanged(double arg1);
-    void on_xDoubleSpinBox_2_valueChanged(double arg1);
-    void on_yDoubleSpinBox_2_valueChanged(double arg1);
-    void on_zDoubleSpinBox_2_valueChanged(double arg1);
-    void on_speed1DoubleSpinBox_valueChanged(double arg1);
-    void on_speed2DoubleSpinBox_valueChanged(double arg1);
-    void on_limitationsGroup_toggled(bool arg1);
-    void on_ArmControl_Widget_toggled(bool arg1);
-    void on_FingersControl_Widget_toggled(bool arg1);
+
     void loopSendVelocityCommad(int direction);
     void on_upButton_pressed();
     void on_upButton_released();
@@ -176,15 +167,12 @@ private slots:
     void on_MainWindow_destroyed();
     void playTrajectoryButtonClicked(int trajectoryId);
     void on_configButton_clicked();
-    void on_pushButton_clicked();
     void securityCheckSlot();
 
 
+protected:
 
-
-
-
-    protected:
+    /*Delete this, we don't need it*/
     bool eventFilter(QObject *obj, QEvent *event){
         if (event->type() == QEvent::KeyPress) {
             QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event);
@@ -206,7 +194,6 @@ private slots:
                 break;
 
             }
-
             if (keyEvent->key() == Qt::Key_1) {
                 // Special tab handling
                 return true;

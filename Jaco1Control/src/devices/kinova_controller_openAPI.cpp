@@ -26,6 +26,8 @@ KinDrv::jaco_position_type_t kinova_controller_openapi::InitPositionType(int val
 	else if(value == 8)
 	{
 		p = KinDrv::SPEED_ANGULAR;
+	}else{
+        std::cout << "****BIG ERROR!!!****" << std::endl;
 	}
 
 	return p;

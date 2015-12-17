@@ -28,6 +28,7 @@ public:
 
     void init();
     Trajectory execAndReturnSavedTrajectory(vector<RecordedCartesianInfo> sampledTrajectoryInfo, int participantID, time_t initTimestampTrajectory);
+    int execFake();
 private:
     Ui::Dialog *ui;
 

@@ -1,7 +1,6 @@
 #include "mainwindow.h"
 #include <QApplication>
 #include "kinovalib.h"
-//#include <QtExtSerialPort/qextserialport.h>
 #include <QtSerialPort/QSerialPort>
 #include "robot.hpp"
 #include "devices/kinova_status_openAPI.hpp"
@@ -28,8 +27,8 @@ int main(int argc, char *argv[])
 
     QTranslator myappTranslator;
    // myappTranslator.load("myapp_" + QLocale::system().name());
-    myappTranslator.load("kinovaGUI_en",":/translations");
-    //myappTranslator.load("kinovaGUI_fr",":/translations");
+    //myappTranslator.load("kinovaGUI_en",":/translations");
+    myappTranslator.load("kinovaGUI_fr",":/translations");
 
     a.installTranslator(&myappTranslator);
     MainWindow w;

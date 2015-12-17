@@ -146,13 +146,12 @@ void Kinovalib::getTrajectoryInfo(TrajectoryPoint &point){
      initIfnotYetInitialized();
      if(this->isKinovaInit){
         res = (*MyGetActualTrajectoryInfo)(point);
-         cout<< "GetActualTrajectoryInfo: " << res << endl;
      }
  }
 
 void Kinovalib::sendCartesianPosition(bool fingerCommand, bool armCommand, TrajectoryPoint pointToSend)
 {
-    cout << "Kinobalib sending cartesian position" << endl;
+    cout << "Kinovalib sending cartesian position" << endl;
     initIfnotYetInitialized();
     if(this->isKinovaInit){
 

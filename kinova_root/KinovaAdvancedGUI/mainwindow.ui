@@ -67,7 +67,7 @@
         <rect>
          <x>0</x>
          <y>50</y>
-         <width>171</width>
+         <width>181</width>
          <height>61</height>
         </rect>
        </property>
@@ -82,7 +82,7 @@
          <rect>
           <x>10</x>
           <y>10</y>
-          <width>153</width>
+          <width>161</width>
           <height>41</height>
          </rect>
         </property>
@@ -178,6 +178,7 @@
              </property>
              <property name="font">
               <font>
+               <pointsize>10</pointsize>
                <weight>75</weight>
                <bold>true</bold>
               </font>
@@ -247,6 +248,7 @@ color: rgb(247, 247, 246);
              </property>
              <property name="font">
               <font>
+               <pointsize>10</pointsize>
                <weight>75</weight>
                <bold>true</bold>
               </font>
@@ -316,6 +318,7 @@ color: rgb(247, 247, 246);
              </property>
              <property name="font">
               <font>
+               <pointsize>10</pointsize>
                <weight>75</weight>
                <bold>true</bold>
               </font>
@@ -385,6 +388,7 @@ color: rgb(247, 247, 246);
              </property>
              <property name="font">
               <font>
+               <pointsize>10</pointsize>
                <weight>75</weight>
                <bold>true</bold>
               </font>
@@ -498,6 +502,7 @@ color: rgb(247, 247, 246);
              </property>
              <property name="font">
               <font>
+               <pointsize>10</pointsize>
                <weight>75</weight>
                <bold>true</bold>
               </font>
@@ -567,6 +572,7 @@ color: rgb(247, 247, 246);
              </property>
              <property name="font">
               <font>
+               <pointsize>10</pointsize>
                <weight>75</weight>
                <bold>true</bold>
               </font>
@@ -680,6 +686,7 @@ color: rgb(247, 247, 246);
              </property>
              <property name="font">
               <font>
+               <pointsize>10</pointsize>
                <weight>75</weight>
                <bold>true</bold>
               </font>
@@ -746,6 +753,7 @@ color: rgb(247, 247, 246);
              </property>
              <property name="font">
               <font>
+               <pointsize>10</pointsize>
                <weight>75</weight>
                <bold>true</bold>
               </font>
@@ -951,6 +959,7 @@ color: rgb(247, 247, 246);
          </property>
          <property name="font">
           <font>
+           <pointsize>10</pointsize>
            <weight>75</weight>
            <bold>true</bold>
           </font>
@@ -1003,6 +1012,7 @@ color: rgb(247, 247, 246);
             </property>
             <property name="font">
              <font>
+              <pointsize>10</pointsize>
               <weight>75</weight>
               <bold>true</bold>
              </font>
@@ -1144,9 +1154,9 @@ color: rgb(247, 247, 246);
       <widget class="QLabel" name="recordingLabel">
        <property name="geometry">
         <rect>
-         <x>300</x>
+         <x>220</x>
          <y>50</y>
-         <width>251</width>
+         <width>291</width>
          <height>61</height>
         </rect>
        </property>
@@ -1173,9 +1183,9 @@ font: 38pt &quot;Ubuntu&quot;;</string>
       <widget class="QWidget" name="gridLayoutWidget_5">
        <property name="geometry">
         <rect>
-         <x>590</x>
+         <x>561</x>
          <y>20</y>
-         <width>222</width>
+         <width>271</width>
          <height>111</height>
         </rect>
        </property>
@@ -1216,6 +1226,7 @@ font: 38pt &quot;Ubuntu&quot;;</string>
          <widget class="QLabel" name="label_record_stop">
           <property name="font">
            <font>
+            <pointsize>10</pointsize>
             <weight>75</weight>
             <bold>true</bold>
            </font>
@@ -1260,6 +1271,7 @@ color: rgb(247, 247, 246);
          <widget class="QLabel" name="label_record_stop_2">
           <property name="font">
            <font>
+            <pointsize>10</pointsize>
             <weight>75</weight>
             <bold>true</bold>
            </font>

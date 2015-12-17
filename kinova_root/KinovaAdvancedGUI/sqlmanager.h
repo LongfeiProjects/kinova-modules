@@ -32,6 +32,7 @@ public:
     vector<Trajectory> getTrajectoriesInfo();
     /*Save the complete trajectory in the database and also updates the id of the trajectory parameter*/
     bool saveRecordedTrajectory(Trajectory &trajectory);
+    bool saveRecordedTrajectoryBulkMode(Trajectory &trajectory);
     vector<Trajectory> getCompleteTrajectoriesByParticipant(int participantID);
 
     bool cleanDB();

@@ -17402,7 +17402,7 @@ double *plane_normal_qr_to_xyz ( double pp[], double normal[], double pq[],
 }
 //****************************************************************************80
 
-void plane_normal_tetrahedron_intersect ( double pp[3],
+/*void plane_normal_tetrahedron_intersect ( double pp[3],
   double normal[3], double t[3*4], int *int_num, double pint[3*4] )
 
 //****************************************************************************80
@@ -17564,7 +17564,8 @@ void plane_normal_tetrahedron_intersect ( double pp[3],
     }
   }
   return;
-}
+}*/
+
 //****************************************************************************80
 
 int plane_normal_triangle_int_3d ( double pp[3], double pn[3], double t[3*3],
@@ -43123,7 +43124,7 @@ int triangle_orientation_2d ( double t[2*3] )
 }
 //****************************************************************************80
 
-void triangle_orthocenter_2d ( double t[2*3], double p[2], bool *flag )
+/*void triangle_orthocenter_2d ( double t[2*3], double p[2], bool *flag )
 
 //****************************************************************************80
 //
@@ -43218,7 +43219,7 @@ void triangle_orthocenter_2d ( double t[2*3], double p[2], bool *flag )
 
   return;
 # undef DIM_NUM
-}
+}*/
 //****************************************************************************80
 
 double triangle_point_dist_2d ( double t[2*3], double p[2] )

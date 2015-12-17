@@ -14,7 +14,7 @@ Dialog::Dialog(QWidget *parent) :
 
 Dialog::~Dialog()
 {
-    delete ui;
+  //  delete ui;
 }
 
 void Dialog::on_save_Trajectory_Panel_Button_accepted()
@@ -56,6 +56,11 @@ Trajectory Dialog::execAndReturnSavedTrajectory(vector<RecordedCartesianInfo> sa
     }
 }
 
+int Dialog::execFake(){
+    cout << "before exec" << endl;
+    return this->exec();
+    cout << "after exec" << endl;
+}
 
 void Dialog::on_save_Trajectory_Panel_Button_rejected()
 {
