@@ -15,7 +15,7 @@ class Logger
 public:
     Logger();
 
-    void dumpEvents(bool append, string gsrData, vector<Task> performedTasks, int participantId, time_t initTime, time_t endTime);
+    void dumpEvents(bool append, string gsrData, time_t intialGSRTimestamp, vector<Task> performedTasks, int participantId, time_t initTime, time_t endTime);
 
 };
 

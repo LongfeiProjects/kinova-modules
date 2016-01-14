@@ -5,7 +5,7 @@ Logger::Logger()
 
 }
 
-void logGSRData(bool append, int participantId,string gsrData){
+void logGSRData(bool append, int participantId,string gsrData,time_t initialGSRTimestamp){
     ostringstream filename;
     filename << "GSRLog_Participant_" <<  participantId << ".log";
     std::ofstream outfile;
@@ -13,6 +13,7 @@ void logGSRData(bool append, int participantId,string gsrData){
         outfile.open(filename.str().data(), std::ios_base::app);
     else
         outfile.open(filename.str().data(), std::ios_base::out);
+    outfile << initialGSRTimestamp << endl;
     outfile << gsrData << endl;
     outfile.close();
 }
@@ -42,8 +43,8 @@ void logExperimentData(vector<Task> performedTasks, int participantId,bool appen
 
 }
 
-void Logger::dumpEvents(bool append, string gsrData, vector<Task> performedTasks, int participantId, time_t initTime, time_t endTime){
-    logGSRData(append, participantId,gsrData);
+void Logger::dumpEvents(bool append, string gsrData, time_t intialGSRTimestamp, vector<Task> performedTasks, int participantId, time_t initTime, time_t endTime){
+    logGSRData(append, participantId,gsrData,intialGSRTimestamp);
     logExperimentData(performedTasks,participantId,append,initTime,endTime);
 }
 

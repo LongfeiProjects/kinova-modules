@@ -27,7 +27,7 @@ int main(int argc, char *argv[])
 
     QTranslator myappTranslator;
    // myappTranslator.load("myapp_" + QLocale::system().name());
-    //myappTranslator.load("kinovaGUI_en",":/translations");
+   //myappTranslator.load("kinovaGUI_en",":/translations");
     myappTranslator.load("kinovaGUI_fr",":/translations");
 
     a.installTranslator(&myappTranslator);

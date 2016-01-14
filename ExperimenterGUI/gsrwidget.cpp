@@ -130,6 +130,7 @@ bool GSRWidget::startGSR()
         data.append('R'); //This will restart the timestamp of the arduino and start the logging via serial port.
         int writtenBytes = this->serial.write(data);
         qDebug() << "written bytes = " << writtenBytes << endl;
+        time(&this->intialTimestampGSR);
         connect(&this->serial, SIGNAL(readyRead()), SLOT(handleReadyRead()));
         connect(&this->serial, SIGNAL(error(QSerialPort::SerialPortError)), SLOT(handleError(QSerialPort::SerialPortError)));
         success=true;
@@ -151,6 +152,10 @@ void GSRWidget::handleTimeout()
 
 QByteArray GSRWidget::getData(){
     return this->m_readData;
+}
+
+time_t GSRWidget::getInitialTimestamp(){
+    return this->intialTimestampGSR;
 }
 
 

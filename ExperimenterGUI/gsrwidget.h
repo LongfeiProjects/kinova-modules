@@ -23,6 +23,7 @@ public:
   void stopGSR();
   QByteArray getData();
 
+  time_t getInitialTimestamp();
 public slots:
   void handleReadyRead();
   void handleError(QSerialPort::SerialPortError serialPortError);
@@ -35,6 +36,7 @@ private:
     QSerialPort serial;
     QTimer      m_timer;
     QByteArray  m_readData;
+    time_t intialTimestampGSR;
     bool communicationOpened;
     int index;
 };

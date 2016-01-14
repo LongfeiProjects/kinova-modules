@@ -74,9 +74,10 @@ bool MainWindow::checkExperimentPreConditions(){
 void MainWindow::saveExperimentalData(){
     //Save this data in a file TODO
     QByteArray gsrData = this->gsrwidget->getData();
+    time_t initialGSRTimestamp = this->gsrwidget->getInitialTimestamp();
     string gsrStringData = gsrData.toStdString();
     Logger * logger =  new Logger();
-    logger->dumpEvents(true,gsrStringData,this->performedTasks,this->participantId,this->initExperimentTime,this->endExperimentTime);
+    logger->dumpEvents(true,gsrStringData,initialGSRTimestamp,this->performedTasks,this->participantId,this->initExperimentTime,this->endExperimentTime);
     delete logger;
 
     showInfoMessage(tr("The experiment is ended. The log data was saved"));
@@ -98,7 +99,7 @@ void MainWindow::on_startExperimentButton_clicked()
         this->ui->gsrStartButton->click();
         this->experimentStarted = false;
         this->ui->experimentStatusFrame->setStyleSheet(QStringLiteral("image: url(:/img/wrong.png);"));
-        this->participantId = -1;
+
         this->ui->participantIdSpinBox->setValue(-1);
         this->ui->participantIdtextEdit->setText("");
         this->ui->participantIdIconFrame->setStyleSheet(QStringLiteral("image: url(:/img/wrong.png);"));
@@ -107,6 +108,7 @@ void MainWindow::on_startExperimentButton_clicked()
 
         this->ui->listFinishedTasks->clear();
         saveExperimentalData();
+        this->participantId = -1;
     }
 }
 
