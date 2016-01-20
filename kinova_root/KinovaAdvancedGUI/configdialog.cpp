@@ -1,4 +1,5 @@
 #include "configdialog.h"
+#include "mainwindow.h"
 #include "ui_configdialog.h"
 #include <QMessageBox>
 #include <iostream>
@@ -96,6 +97,8 @@ void ConfigDialog::on_pushButton_clicked()
        if(SqlManager::getInstance().cleanDB()){
            msgBox->setWindowTitle(tr("Info"));
            msgBox->setText(tr("Database cleaned!"));
+           MainWindow* mw = ((MainWindow*)this->parent());
+           mw->clearTrajectoryPanel();
        }else{
            msgBox->setWindowTitle(tr("Error"));
            msgBox->setText(tr("Error while cleaning database!"));

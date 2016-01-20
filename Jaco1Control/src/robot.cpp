@@ -150,8 +150,8 @@ void robot::MoveHome()
 void robot::StartAllThread()
 {
 	// start the thread in the object robot_status object
-	st->Start();
-    this->emergency_stop = new boost::thread(boost::bind(&robot::EmergencyStop,this));
+    st->Start();
+   this->emergency_stop = new boost::thread(boost::bind(&robot::EmergencyStop,this));
 	// start the thread in the robot object
     if(check.launch_tread)
         this->safety_check = new boost::thread(boost::bind(&robot::Cheking,this));
@@ -205,11 +205,11 @@ void robot::EmergencyStop()
 {
 	while( !this->stop_auxiliary_thread.load(boost::memory_order_acquire) )
 	{
-		if (sf::Keyboard::isKeyPressed(sf::Keyboard::C))
+      /*  if (sf::Keyboard::isKeyPressed(sf::Keyboard::C))
 		{
 			std::cout<< "---------------------------------------------------------"<<std::endl;
 			this->st->ClearCommands();
 			this->stop.store(true,boost::memory_order_release);
-		}
+        }*/
 	}
 }

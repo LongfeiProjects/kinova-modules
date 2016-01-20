@@ -219,9 +219,6 @@ void MainWindow::playTrajectoryButtonClicked(int trajectoryId){
 
     QString buttonname = QString("playButton_")+QString::number(trajectoryId);
     QPushButtonWithLogger* button ;
-    cout << "name: " << buttonname.toStdString() << endl;
-    QPushButtonWithLogger* obj = this->gridLayoutWidget_6->findChild<QPushButtonWithLogger*>(buttonname);
-    cout <<"OBTENIDO: " << obj->text().toStdString() << endl;
     foreach (QObject* child, this->gridLayoutWidget_6->children())
         {
             if(buttonname== child->objectName()){
@@ -365,7 +362,16 @@ void MainWindow::addTrajectory(Trajectory t, int col, int row){
     this->gridPlayPanel->addWidget(label, row+1, col, 1, 1, Qt::AlignHCenter);
 }
 
+void MainWindow::clearTrajectoryPanel(){
+    this->gridLayoutWidget_6->deleteLater();
+    this->ui->playBox->repaint();
 
+    this->gridLayoutWidget_6 = new QWidget(this->ui->playBox);
+    this->gridLayoutWidget_6->setObjectName(QStringLiteral("gridLayoutWidget_6"));
+    this->gridLayoutWidget_6->setGeometry(QRect(QPoint(0, 25), QSize(800, 270) ));
+
+    this->gridPlayPanel = new QGridLayout(gridLayoutWidget_6);
+}
 
 MainWindow::~MainWindow()
 {
@@ -713,95 +719,112 @@ void MainWindow::on_closeHandButton_released()
 
 void MainWindow::on_initKinovaButton_clicked()
 {
-    cout << "Initilizating kinova" << endl;
-    int res = -1;
-    if(KINOVA_LIB==1){
-        // status reader
-        Jaco* mdl = new Jaco();
-        try{
-            kinova_status_openapi * st= new kinova_status_openapi(mdl);
+    if(!this->kinova_initialized){
+        cout << "Initilizating kinova" << endl;
+        int res = -1;
+        if(KINOVA_LIB==1){
+            // status reader
+            Jaco* mdl = new Jaco();
+            try{
+                kinova_status_openapi * st= new kinova_status_openapi(mdl);
 
-            this->readType.push_back("comp_t");
-            this->readType.push_back("cart_pos");
-            this->readType.push_back("j_vel");
-            this->readType.push_back("j_pos");
-            this->readType.push_back("hand_vel");
+                this->readType.push_back("comp_t");
+                this->readType.push_back("cart_pos");
+                this->readType.push_back("j_vel");
+                this->readType.push_back("j_pos");
+                this->readType.push_back("hand_vel");
 
-            this->readTypeMap.insert(make_pair("comp_t",0));
-            this->readTypeMap.insert(make_pair("cart_pos",1));
-            this->readTypeMap.insert(make_pair("j_vel",2));
-            this->readTypeMap.insert(make_pair("j_pos",3));
-            this->readTypeMap.insert(make_pair("hand_vel",4));
-            cout << "time index = " << this->readTypeMap["comp_t"] <<endl;
-            cout << "vel index = " << this->readTypeMap["j_vel"] <<endl;
-            cout << "cartpos index = " << this->readTypeMap["cart_pos"] <<endl;
+                this->readTypeMap.insert(make_pair("comp_t",0));
+                this->readTypeMap.insert(make_pair("cart_pos",1));
+                this->readTypeMap.insert(make_pair("j_vel",2));
+                this->readTypeMap.insert(make_pair("j_pos",3));
+                this->readTypeMap.insert(make_pair("hand_vel",4));
+                cout << "time index = " << this->readTypeMap["comp_t"] <<endl;
+                cout << "vel index = " << this->readTypeMap["j_vel"] <<endl;
+                cout << "cartpos index = " << this->readTypeMap["cart_pos"] <<endl;
 
-            // controller
-            Option opt;
-            opt.type_of_controller = "CartesianKinematic";
-            opt.control_action = 28;
-            const double Pid_coef[] = {5,0,0}; // deg
-            std::vector<double> Pid(Pid_coef,End(Pid_coef));
-            const char * _namefiles[] = {"cart_pos_openapi.mat","joint_vel_openapi.mat"};
-            std::vector<std::string> namefile (_namefiles,End(_namefiles));
-            Jaco* md = new Jaco();
-            string namefileindex = "index_openapi.mat";
-            kinova_controller_openapi * ct = new kinova_controller_openapi(namefile,namefileindex,opt,Pid,md,st->arm); // very rough patch because i can have only one API handle
-            // checking module
-            // define bounding box
-            const double bb_point[] = {-0.6,-0.8,-0.4};
-            const double bb_dims[]  = {1.2,1.6,0.8};
-            std::vector<double> bb_p(bb_point,End(bb_point)),bb_d(bb_dims,End(bb_dims));
+                // controller
+                Option opt;
+                opt.type_of_controller = "CartesianKinematic";
+                opt.control_action = 28;
+                const double Pid_coef[] = {5,0,0}; // deg
+                std::vector<double> Pid(Pid_coef,End(Pid_coef));
+                const char * _namefiles[] = {"cart_pos_openapi.mat","joint_vel_openapi.mat"};
+                std::vector<std::string> namefile (_namefiles,End(_namefiles));
+                Jaco* md = new Jaco();
+                string namefileindex = "index_openapi.mat";
+                kinova_controller_openapi * ct = new kinova_controller_openapi(namefile,namefileindex,opt,Pid,md,st->arm); // very rough patch because i can have only one API handle
+                // checking module
+                // define bounding box
+                const double bb_point[] = {-0.6,-0.8,-0.4};
+                const double bb_dims[]  = {1.2,1.6,0.8};
+                std::vector<double> bb_p(bb_point,End(bb_point)),bb_d(bb_dims,End(bb_dims));
 
-            // define all the limit
-            const char *cl[] = {"j_pos","j_tau"};
-            std::vector<std::string> chekclist(cl,End(cl));
-            const double joint_min[] = {-10000,47,19,-10000,-10000,-10000}; // deg
-            const double joint_max[] = {10000,313,341,10000,10000,10000}; // deg
-            const double tau_min[] = {-15}; // Nm
-            const double tau_max[] = {15};  // nm
-            std::vector<double> j_min(joint_min,End(joint_min)),j_max(joint_max,End(joint_max));
-            std::vector<double> t_min(tau_min,End(tau_min)),t_max(tau_max,End(tau_max));
+                // define all the limit
+                const char *cl[] = {"j_pos","j_tau"};
+                std::vector<std::string> chekclist(cl,End(cl));
+                const double joint_min[] = {-10000,47,19,-10000,-10000,-10000}; // deg
+                const double joint_max[] = {10000,313,341,10000,10000,10000}; // deg
+                const double tau_min[] = {-15}; // Nm
+                const double tau_max[] = {15};  // nm
+                std::vector<double> j_min(joint_min,End(joint_min)),j_max(joint_max,End(joint_max));
+                std::vector<double> t_min(tau_min,End(tau_min)),t_max(tau_max,End(tau_max));
 
-            std::vector<std::vector<double> > l_down_left_corner,l_dims,l_min,l_max;
-            l_down_left_corner.push_back(bb_p);l_dims.push_back(bb_d);
-            l_min.push_back(j_min);l_min.push_back(t_min);
-            l_max.push_back(j_max);l_max.push_back(t_max);
+                std::vector<std::vector<double> > l_down_left_corner,l_dims,l_min,l_max;
+                l_down_left_corner.push_back(bb_p);l_dims.push_back(bb_d);
+                l_min.push_back(j_min);l_min.push_back(t_min);
+                l_max.push_back(j_max);l_max.push_back(t_max);
 
-            safetycheck checker(l_down_left_corner,l_dims,l_min,l_max,chekclist);
-            this->bot= new robot(st,ct,checker);
+                safetycheck checker(l_down_left_corner,l_dims,l_min,l_max,chekclist);
+                this->bot= new robot(st,ct,checker);
 
-            this->bot->MoveHome();
-            State moveFingers(9);
-            moveFingers[0] = 0;
-            moveFingers[1] = 0;
-            moveFingers[2] = 0;
-            moveFingers[3] = 0;
-            moveFingers[4] = 0;
-            moveFingers[5] = 0;
-            moveFingers[6] = 0;
-            moveFingers[7] = 1.0;
-            moveFingers[8] = 1.0;
-            moveFingers[9] = 1.0;
-            for(int i=0;i<10;i++){
-                this->bot->SendCommand(moveFingers,17);
+                this->bot->MoveHome();
+                State moveFingers(9);
+                moveFingers[0] = 0;
+                moveFingers[1] = 0;
+                moveFingers[2] = 0;
+                moveFingers[3] = 0;
+                moveFingers[4] = 0;
+                moveFingers[5] = 0;
+                moveFingers[6] = 0;
+                moveFingers[7] = 1.0;
+                moveFingers[8] = 1.0;
+                moveFingers[9] = 1.0;
+                for(int i=0;i<10;i++){
+                    this->bot->SendCommand(moveFingers,17);
+                }
+                res = SUCCESS;
+            }catch(KinDrv::KinDrvException e){
+                cout << "error initializing"<< endl;
             }
-            res = SUCCESS;
-        }catch(KinDrv::KinDrvException e){
-            cout << "error initializing"<< endl;
-        }
 
+        }else{
+            res = this->klib->kinovaInit();
+        }
+        if(res == SUCCESS){
+            this->ui->status_icon->setVisible(false);
+            this->ui->status_label->setText(QString(tr("Success!")));
+            this->kinova_initialized = true;
+        }else{
+            this->ui->status_label->setText(QString(tr("Initialization wrong, try again")));
+        }
     }else{
-        res = this->klib->kinovaInit();
-    }
-    if(res == SUCCESS){
-        this->ui->status_icon->setVisible(false);
-        this->ui->status_label->setText(QString(tr("Success!")));
-        this->kinova_initialized = true;
-    }else{
-        this->ui->status_label->setText(QString(tr("Initialization wrong, try again")));
+        this->error_kinova_already_initialized();
     }
 }
+
+
+/*
+ * This was used to prove that the freezing bug was because of the sf::Keyboard::isKeyPressed(sf::Keyboard::C)
+ * void MainWindow::Loop(){
+    while (1){
+        boost::this_thread::sleep(boost::posix_time::milliseconds(1));
+         if (sf::Keyboard::isKeyPressed(sf::Keyboard::C))
+          {
+              std::cout<< "----------------------------SAFETY STOP!!!-----------------------------"<<std::endl;
+          }
+    }
+ }*/
 
 
 void MainWindow::error_kinova_not_initialized(){
@@ -810,6 +833,16 @@ void MainWindow::error_kinova_not_initialized(){
         QMessageBox* msgBox = new QMessageBox();
         msgBox->setWindowTitle(tr("Initialization Error"));
         msgBox->setText(tr("Kinova is not initilized. Try Init Kinova before running any command"));
+        msgBox->exec();
+    }
+}
+
+void MainWindow::error_kinova_already_initialized(){
+    int res = klib->moveHome();
+    if(res!=SUCCESS){
+        QMessageBox* msgBox = new QMessageBox();
+        msgBox->setWindowTitle(tr("Already initialized"));
+        msgBox->setText(tr("Kinova was already initialized, you are ready to control the robot."));
         msgBox->exec();
     }
 }
@@ -873,14 +906,14 @@ void MainWindow::showSaveTrajectoryPanel(){
    }
    cout << "will create save panel" << endl;
 
-   Dialog* dialog2 = new Dialog();
-
+  Dialog dialog2(this);
+//  Dialog dialog2;
 
     //SaveDialog* d = new SaveDialog(this);
 
 
    cout << "before call execAndReturnSavedTrajectory " << endl;
-   Trajectory saved =  dialog2->execAndReturnSavedTrajectory(this->sampledTrajectoryInfo,this->participantId,this->initTimestampTrajectory);
+   Trajectory saved =  dialog2.execAndReturnSavedTrajectory(this->sampledTrajectoryInfo,this->participantId,this->initTimestampTrajectory);
    //dialog2->execFake();
   // dialog2->exec();
 
@@ -892,7 +925,7 @@ void MainWindow::showSaveTrajectoryPanel(){
    }
    this->sampledTrajectoryInfo.clear();
    this->recordedLogs.clear();
-   delete dialog2;
+   //delete dialog2;
    //delete d;
 }
 
@@ -1306,5 +1339,3 @@ void MainWindow::on_configButton_clicked()
         this->ui->participantIdLabel->setVisible(true);
     }
 }
-
-

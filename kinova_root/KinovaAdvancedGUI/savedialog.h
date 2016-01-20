@@ -13,6 +13,7 @@ class SaveDialog : public QDialog
 
 public:
     explicit SaveDialog(QWidget *parent = 0);
+
     ~SaveDialog();
 
 private:

@@ -20,7 +20,8 @@ Dialog::~Dialog()
 void Dialog::on_save_Trajectory_Panel_Button_accepted()
 {
     QProgressDialog dlg;
-    dlg.setParent((QWidget*)this->parent());
+    dlg.setParent(NULL);
+     //dlg.setParent(this);
     dlg.setWindowModality(Qt::WindowModal);
     dlg.setRange(0,0);
     dlg.setCancelButton(0);
@@ -29,8 +30,8 @@ void Dialog::on_save_Trajectory_Panel_Button_accepted()
     cout << "saving trajectory" << endl;
     this->savedTrajectory.name = this->ui->nameEdit->text().toStdString();
     this->savedTrajectory.description = this->ui->descriptionEdit->toPlainText().toStdString();
-    this->success = SqlManager::getInstance().saveRecordedTrajectory(this->savedTrajectory);
-
+    //this->success = SqlManager::getInstance().saveRecordedTrajectory(this->savedTrajectory);
+    this->success = SqlManager::getInstance().saveRecordedTrajectoryBulkMode(this->savedTrajectory);
     dlg.cancel();
 }
 

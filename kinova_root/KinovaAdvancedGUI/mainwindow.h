@@ -45,7 +45,13 @@ public:
     void setHandGrasp();
     void saveCheckPoint();
 
+    void clearTrajectoryPanel();
 private:
+
+
+   // boost::thread* reader_stats;
+
+
     Ui::MainWindow *ui;
   //  QDialogButtonBox* save_Trajectory_Panel_Button;
 
@@ -133,6 +139,8 @@ private:
     int participantId;
     string speedToString(float speed);
     GUILogger* logger;
+   // void Loop();
+    void error_kinova_already_initialized();
 private slots:
 
     void on_homeButton_clicked();
@@ -168,7 +176,6 @@ private slots:
     void playTrajectoryButtonClicked(int trajectoryId);
     void on_configButton_clicked();
     void securityCheckSlot();
-
 
 protected:
 
