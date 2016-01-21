@@ -30,3 +30,47 @@ void Mat2RPY(arma::mat m,arma::vec & rpy)
     }
 }
 
+
+// Robot interaction
+State convertDirectionToState( std::string direction, float speed){
+    State res(3);
+    res.zeros(3);
+    if(direction.compare( "Right") == 0)
+    {
+        res[0] = -speed;
+    }
+    else if(direction.compare("Down") == 0)
+    {
+        res[2] = -speed;
+    }
+    else if(direction.compare("Left") == 0)
+    {
+        res[0] = speed;
+    }
+    else if(direction.compare("Up") == 0 )
+    {
+        res[2] = speed;
+    }
+    else if(direction.compare("Push")== 0 )
+    {
+        res[1] = -speed;
+    }
+    else if(direction.compare("Pull")== 0 )
+    {
+        res[1] = speed;
+    }
+    else if(direction.compare("Open") == 0)
+    {
+        res[6] = -30;
+        res[7] = -30;
+        res[8] = -30;
+    }
+    else if(direction.compare("Close") == 0)
+    {
+        res[6] = 30;
+        res[7] = 30;
+        res[8] = 30;
+    }
+    return res;
+}
+

@@ -21,7 +21,7 @@ class controller
 		double D;
 		double time_interval; // controller frequency
 		int index;  // current value
-        Option opt; // structure that is defined to control the behaviour of each controller (for now only the kinematic controller)
+        Option opt; // structure that is defined to control the behaviour of each controller (for now only the kinematic controller) // TODO change option with a map hardcoded in the constructor
         std::vector<int> time_map;    // this vector represent the mapping between the timestamp and a sampling time of 1 ms
         std::vector<std::vector<State> > ff; // vector that contains the value of thr desired trajectory to reproduce
 		std::vector<State> desired_values; // variable to storage desired value plus other things;
@@ -43,6 +43,8 @@ class controller
         // implemented methods
         void  InitCartesianKinematicController(std::vector<State> initial_state){}
 		State CartesianKinematicController(std::vector<State> current_state);
+		// provisionary functions
+		State DirectDifferentialKinematicControl(std::vector<State> current_state,State des,std::string type);
 		inline int ReadFile(std::string namefile,std::vector< State > & value)
 		{
 			std::ifstream infile;

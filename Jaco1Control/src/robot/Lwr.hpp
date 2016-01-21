@@ -15,6 +15,7 @@ class Lwr : public model
 public:
 	void T0_n(double T[][4],const double* input1);
 	void jacob0(double J0[][6], const double* input1);
+	Lwr(){n=7;};
 	~Lwr(){};
 };
 #endif /* LWR_HPP_ */

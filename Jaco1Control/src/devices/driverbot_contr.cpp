@@ -14,7 +14,6 @@ driverbot_contr::driverbot_contr(std::vector<std::string> namefile,Option option
 	this->P = Pid[0];
 	this->I = Pid[1];
 	this->D = Pid[2];
-	this->time_interval = 0.01; // i give a value that im going to update with the real one
 	bot=md;
 	clientID = _clientID;
 	joint_handle = _joint_handle;
@@ -47,22 +46,29 @@ int driverbot_contr::Move2Home()
 
 void driverbot_contr::SendSingleCommand(State cmd,int type)
 {
-	if(type == -1)
-	{
-		if(controltype == 0) // position
+		if(type == 1)       // cartesian position
+		{
+			// to implement later once the communication problem with vrep are solved
+		}
+		else if(type == 2) // joint position
 		{
 			for(unsigned int i =0;i<cmd.size();i++)
 				simxSetJointTargetPosition(this->clientID,this->joint_handle[i],cmd[i],simx_opmode_oneshot);
 		}
-		else if(controltype == 1) // velocity
+		else if(type == 7) // cartesian velocity
+		{
+			// to implement later once the communication problem with vrep are solved
+		}
+		else if(type == 8) // joint velocity
 		{
 			//DEBUG
 			//std::cout<<"velocity control"<<std::endl;
+			std::cout << cmd << std::endl;
 			//---
 			for(unsigned int i =0;i<cmd.size();i++)
 						simxSetJointTargetVelocity(this->clientID,this->joint_handle[i],cmd[i],simx_opmode_oneshot);
 		}
-		else if(controltype == 2) // torque
+		else if(type == 9) //  joint torque
 		{
 			for(unsigned int i =0;i<cmd.size();i++)
 			{
@@ -74,15 +80,14 @@ void driverbot_contr::SendSingleCommand(State cmd,int type)
 				simxSetJointForce(this->clientID,this->joint_handle[i],abs(cmd[i]),simx_opmode_oneshot);
 			}
 		}
-	}
-	else
-	{
-		if(type == 0) // position
+
+
+		/*if(type == 0) // joint position
 		{
 			for(unsigned int i =0;i<cmd.size();i++)
 				simxSetJointTargetPosition(this->clientID,this->joint_handle[i],cmd[i],simx_opmode_oneshot);
 		}
-		else if(type == 1) // velocity
+		else if(type == 1) //  joint velocity
 		{
 			//DEBUG
 			//std::cout<<"velocity control"<<std::endl;
@@ -90,7 +95,7 @@ void driverbot_contr::SendSingleCommand(State cmd,int type)
 			for(unsigned int i =0;i<cmd.size();i++)
 						simxSetJointTargetVelocity(this->clientID,this->joint_handle[i],cmd[i],simx_opmode_oneshot);
 		}
-		else if(type == 2) // torque
+		else if(type == 2) // joint torque
 		{
 			for(unsigned int i =0;i<cmd.size();i++)
 			{
@@ -101,8 +106,11 @@ void driverbot_contr::SendSingleCommand(State cmd,int type)
 
 				simxSetJointForce(this->clientID,this->joint_handle[i],abs(cmd[i]),simx_opmode_oneshot);
 			}
-		}
-	}
+		}*/
+
 
 }
+
+
+
 

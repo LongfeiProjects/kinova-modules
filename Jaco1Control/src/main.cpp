@@ -3,24 +3,71 @@
 
 int main()
 {
-	// status reader
-	Jaco* mdl = new Jaco();
+	// STATUS READER
+	/*Jaco* mdl = new Jaco();
 	kinova_status_openapi * st= new kinova_status_openapi(mdl);
-	// controller
+	// CONTROLLER
     Option opt;
     opt.type_of_controller = "CartesianKinematic";
     opt.control_action = 28;
 	const double Pid_coef[] = {5,0,0}; // deg
 	std::vector<double> Pid(Pid_coef,End(Pid_coef));
+	const char * _name2read[] = {"j_pos","j_vel"};
+    std::vector<std::string> name2read (_name2read,End(_name2read));
+    opt.meas_val = name2read;
 	const char * _namefiles[] = {"cart_pos.txt","joint_vel.txt"};
 	std::vector<std::string> namefile (_namefiles,End(_namefiles));
 	Jaco* md = new Jaco();
     kinova_controller_openapi * ct = new kinova_controller_openapi(namefile,"index_openapi.mat",opt,Pid,md,st->arm);
-	// checking module
+	// CHECKING MODULE
 	// define bounding box
 	const double bb_point[] = {-0.6,-0.8,-0.4};
     const double bb_dims[]  = {1.2,1.6,0.8};
     std::vector<double> bb_p(bb_point,End(bb_point)),bb_d(bb_dims,End(bb_dims));
+	// define all the limit
+	const char *cl[] = {"j_pos","j_tau"};
+	std::vector<std::string> chekclist(cl,End(cl));
+	const double joint_min[] = {-10000,47,19,-10000,-10000,-10000}; // deg
+	const double joint_max[] = {10000,313,341,10000,10000,10000}; // deg
+	const double tau_min[] = {-15}; // Nm
+	const double tau_max[] = {15};  // nm
+	std::vector<double> j_min(joint_min,End(joint_min)),j_max(joint_max,End(joint_max));
+	std::vector<double> t_min(tau_min,End(tau_min)),t_max(tau_max,End(tau_max));
+	std::vector<std::vector<double> > l_down_left_corner,l_dims,l_min,l_max;
+	l_down_left_corner.push_back(bb_p);l_dims.push_back(bb_d);
+	l_min.push_back(j_min);l_min.push_back(t_min);
+	l_max.push_back(j_max)
+	safetycheck checker(l_down_left_corner,l_dims,l_min,l_max,chekclist);
+	robot bot(st,ct,checker); */
+
+	// STATUS READER
+	// model
+	Lwr* mdl = new Lwr();
+	//Jaco* mdl = new Jaco();
+	bool sync = false;
+	std::string joint_base_name = "LBR4p_joint";
+	driverbot * vrep = new driverbot(sync,joint_base_name,mdl);
+	// CONTROLLER
+    Option opt;
+    opt.type_of_controller = "DirectCartesian";
+    opt.control_action = 2;
+   	const double Pid_coef[] = {5,0,0};
+   	std::vector<double> Pid(Pid_coef,End(Pid_coef));
+	const char * _name2read[] = {"j_pos","cart_pos"};
+    std::vector<std::string> name2read (_name2read,End(_name2read));
+    opt.meas_val = name2read;
+   	// FF files
+    const char * _namefiles[] = {"cart_pos.txt","joint_vel.txt"};
+    std::vector<std::string> namefile (_namefiles,End(_namefiles));
+    // model
+	Lwr* md = new Lwr();
+	//Jaco* md = new Jaco();
+    driverbot_contr * ct = new driverbot_contr(namefile,opt,Pid,md,vrep->idclient,vrep->joint_handle);
+    // CHECKING MODULE
+	// define bounding box
+	const double bb_point[] = {-0.6,-0.8,-0.4};
+	const double bb_dims[]  = {1.2,1.6,0.8};
+	std::vector<double> bb_p(bb_point,End(bb_point)),bb_d(bb_dims,End(bb_dims));
 
 	// define all the limit
 	const char *cl[] = {"j_pos","j_tau"};
@@ -38,31 +85,119 @@ int main()
 	l_max.push_back(j_max);l_max.push_back(t_max);
 
 	safetycheck checker(l_down_left_corner,l_dims,l_min,l_max,chekclist);
-	robot bot(st,ct,checker);
-	/* // status reader
-	//Lwr* mdl = new Lwr();
-	Jaco* mdl = new Jaco();
-	bool sync = false;
-	std::string joint_base_name = "LBR4p_joint";
-	driverbot * vrep = new driverbot(sync,joint_base_name,mdl);
-
-	// controller
-    // to do adapt for vrep
-    Option opt;
-    opt.type_of_controller = "CartesianKinematic";
-    opt.control_action = 27;
-	const double Pid_coef[] = {20,0,0};
-	std::vector<double> Pid(Pid_coef,End(Pid_coef));
-	const char * _namefiles[] = {"cart_pos.txt","joint_vel.txt"};
-	std::vector<std::string> namefile (_namefiles,End(_namefiles));
-	//Lwr* md = new Lwr();
-	Jaco* md = new Jaco();
-    driverbot_contr * ct = new driverbot_contr(namefile,opt,Pid,md,vrep->idclient,vrep->joint_handle);
-	safetycheck checker;
 	robot bot(vrep,ct,checker);
-	bot.ExecuteTrajectory();*/
+	// cycle of control to keep the robot in action
+	sf::RenderWindow window(sf::VideoMode(800, 600, 32), "Joystick Use", sf::Style::Default);
+	sf::Event e;
+	// window to control robot
+	sf::RectangleShape square;
+	square.setFillColor(sf::Color(255, 0, 0, 255));
+	square.setPosition(window.getSize().x / 2, window.getSize().y / 2);
+	square.setOutlineColor(sf::Color(0, 0, 0, 255));
+	square.setSize(sf::Vector2f(50.f, 50.f));
+	// joystick
+	//query joystick for settings if it's plugged in...
+	if (sf::Joystick::isConnected(0)){
+		// check how many buttons joystick number 0 has
+		unsigned int buttonCount = sf::Joystick::getButtonCount(0);
+		std::cout << "Button count: " << buttonCount << std::endl;
+	}
+	double speed = 0.06;
+	State cmd;
+	bool continuos_mov = false;
+	while(true)
+	{
 
+		while (window.pollEvent(e)){
+			if (e.type == sf::Event::KeyPressed){
+				switch (e.key.code){
+					case sf::Keyboard::Escape:
+					{
+						 window.close();
+						 return 0;
+					}
+						break;
+					default:
+						break;
+				}
+			}
 
+			if (e.type == sf::Event::JoystickMoved){
+				double x = sf::Joystick::getAxisPosition(0,sf::Joystick::X);
+				double y = sf::Joystick::getAxisPosition(0,sf::Joystick::Y);
+				double u = sf::Joystick::getAxisPosition(0,sf::Joystick::U);
+				//std::cout << "X axis: " << x << std::endl;
+				//std::cout << "Y axis: " << y << std::endl;
+				//std::cout << "U axis: " << u << std::endl;
+				if(y == -100){
+					std::cout<<"Up"<<std::endl;
+					cmd = convertDirectionToState("Up",speed);
+					continuos_mov = true;
+				}else if(y == 100){
+					std::cout<<"Down"<<std::endl;
+					cmd = convertDirectionToState("Down",speed);
+					continuos_mov = true;
+				}if(x == 100){
+					std::cout<<"Right"<<std::endl;
+					cmd = convertDirectionToState("Right",speed);
+					continuos_mov = true;
+				}else if(x == -100){
+					std::cout<<"Left"<<std::endl;
+					cmd = convertDirectionToState("Left",speed);
+					continuos_mov = true;
+				}else if(u == -100){
+					std::cout<<"Pull"<<std::endl;
+					cmd = convertDirectionToState("Pull",speed);
+					continuos_mov = true;
+				}else if(u == 100){
+					std::cout<<"Push"<<std::endl;
+					cmd = convertDirectionToState("Push",speed);
+					continuos_mov = true;
+				}else if(x == 0 && y == 0 && u==0){
+					std::cout<<"continuos_mov = false;"<<std::endl;
+					continuos_mov = false;
+				}
+			}
+			if (sf::Joystick::isButtonPressed(0, 0)){//triangle
+				std::cout << "sf::Joystick::isButtonPressed(0, 0)" << std::endl;
+			}
+			if(sf::Joystick::isButtonPressed(0,1)){//circle
+				std::cout << "sf::Joystick::isButtonPressed(0,1)" << std::endl;
+			}
+			if (sf::Joystick::isButtonPressed(0, 2)){//X
+				std::cout << "sf::Joystick::isButtonPressed(0, 2)" << std::endl;
+			}
+			if (sf::Joystick::isButtonPressed(0, 3)){//square
+				std::cout << "sf::Joystick::isButtonPressed(0, 3)" << std::endl;
+			}
+			if (sf::Joystick::isButtonPressed(0, 4)){//L2
+				std::cout << "sf::Joystick::isButtonPressed(0, 4)" << std::endl;
+			}
+			if (sf::Joystick::isButtonPressed(0, 5)){//R2
+				std::cout << "sf::Joystick::isButtonPressed(0, 5)" << std::endl;
+			}
+			if (sf::Joystick::isButtonPressed(0, 6)){//L1
+				std::cout << "sf::Joystick::isButtonPressed(0, 6)" << std::endl;
+			}
+			if (sf::Joystick::isButtonPressed(0, 7)){//R1
+				std::cout << "sf::Joystick::isButtonPressed(0, 7)" << std::endl;
+			}
+			if (sf::Joystick::isButtonPressed(0, 8)){//select
+				std::cout << "sf::Joystick::isButtonPressed(0, 8)" << std::endl;
+			}
+			if (sf::Joystick::isButtonPressed(0, 9)){//start
+				std::cout << "sf::Joystick::isButtonPressed(0, 9)" << std::endl;
+				window.close();
+				return 0;
+			}
+		}
+		// auto fire
+		if(continuos_mov){
+			bot.SendDeltaCartesianCommand(cmd);
+		}
+
+	}
+	/* Clean up */
 	return 1;
 }
 

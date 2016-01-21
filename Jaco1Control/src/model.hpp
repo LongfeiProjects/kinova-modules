@@ -15,6 +15,7 @@
 class model
 {
    public:
+	int n; // dimension of the state space (number of joints)
       // pure virtual function
 	virtual void T0_n(double T[][4],const double* input1)=0 ;
 	virtual void jacob0(double J0[][6], const double* input1) =0;

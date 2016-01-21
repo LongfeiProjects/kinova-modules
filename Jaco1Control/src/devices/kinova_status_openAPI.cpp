@@ -138,14 +138,11 @@ void kinova_status_openapi::Reading()
 }
 
 // in logging i update the value for logging and visualization
-void kinova_status_openapi::Logging()
-{
-	while(this->running.load(boost::memory_order_acquire))
-	{
+void kinova_status_openapi::Logging(){
+	while(this->running.load(boost::memory_order_acquire)){
 		std::vector<State_ptr> visvec;
 		int readckeck=this->Read4Vis(visvec);
-		if(readckeck)
-		{
+		if(readckeck){
 			vis.Update(visvec);
 			vis.Plot();
 		}
@@ -153,11 +150,9 @@ void kinova_status_openapi::Logging()
 	std::cout<<"im out of Logging thread"<<std::endl;
 }
 
-void kinova_status_openapi::Cleaning()
-{
+void kinova_status_openapi::Cleaning(){
     std::cout<<"start cleaning thread "<<std::endl;
-	while(this->running_cleaner.load(boost::memory_order_acquire))
-	{
+	while(this->running_cleaner.load(boost::memory_order_acquire)){
         if(this->ds_ang_pos.size() > (unsigned int)(this->Max_DS_allowed) ){
            this->ds_ang_pos.pop_front();
         }
@@ -183,78 +178,60 @@ void kinova_status_openapi::Cleaning()
 	std::cout<<"im out of Cleaning thread"<<std::endl;
 }
 
-void kinova_status_openapi::StartSaving(std::vector<std::string>  & type)
-{
+void kinova_status_openapi::StartSaving(std::vector<std::string>  & type){
 	// first i have to stop the garbage collector process
 	this->running_cleaner.store(false,boost::memory_order_release);
     this->garbage_collection->join();
     // start the global time for logging
     this->tStart = boost::chrono::high_resolution_clock::now();
     std::cout<<"starting saving"<<std::endl;
-	if(first_write.load(boost::memory_order_acquire))
-    {
-		for(unsigned int i =0;i<type.size();i++)
-		{
+	if(first_write.load(boost::memory_order_acquire)){
+		for(unsigned int i =0;i<type.size();i++){
             DataStoreIt app;
-			if(type[i].compare("comp_t")==0)
-            {
+			if(type[i].compare("comp_t")==0){
 
                 //std::cout << "1" << std::endl;
                 //std::cout<<"ds_comp_t.size() = " << this->ds_comp_t.size() << std::endl;
                 app = this->ds_comp_t.end();
                 app--;
                 //std::cout << "*app - " << i << "- =" << *app <<std::endl;
-			}
-			if(type[i].compare("j_pos") == 0)
-			{
+			}else if(type[i].compare("j_pos") == 0){
                 //std::cout << "2" << std::endl;
                 //std::cout<<"ds_ang_pos.size() = " << this->ds_ang_pos.size() << std::endl;
                 app = this->ds_ang_pos.end();
 				app--;
                 //std::cout << "*app - " << i << "- =" << *app <<std::endl;
-			}
-            if(type[i].compare("hand_pos") == 0)
-            {
+			}else if(type[i].compare("hand_pos") == 0){
                 //std::cout << "3" << std::endl;
                 //std::cout<<"ds_hand_pos.size() = " << this->ds_hand_pos.size() << std::endl;
                 app = this->ds_hand_pos.end();
                 app--;
                 //std::cout << "*app - " << i << "- =" << *app <<std::endl;
-            }
-			else if(type[i].compare("j_vel") == 0)
-			{
+            }else if(type[i].compare("j_vel") == 0){
                 //std::cout << "4" << std::endl;
                 //std::cout<<"ds_ang_vel.size() = " << this->ds_ang_vel.size() << std::endl;
 				app = this->ds_ang_vel.end();
 				app--;
                 //std::cout << "*app - " << i << "- =" << *app <<std::endl;
-			}
-            else if(type[i].compare("hand_vel") == 0)
-            {
+			}else if(type[i].compare("hand_vel") == 0){
                 //std::cout << "5" << std::endl;
                 //std::cout<<"ds_hand_vel.size() = " << this->ds_hand_vel.size() << std::endl;
                 app = this->ds_hand_vel.end();
                 app--;
                 //std::cout << "*app - " << i << "- =" << *app <<std::endl;
-            }
-			else if(type[i].compare("j_tau") == 0)
-			{
+            }else if(type[i].compare("j_tau") == 0){
                 //std::cout << "6" << std::endl;
                 //std::cout<<"ds_ang_tau.size() = " << this->ds_ang_tau.size() << std::endl;
 				app = this->ds_ang_tau.end();
 				app--;
                 //std::cout << "*app - " << i << "- =" << *app <<std::endl;
-			}
-			else if(type[i].compare("cart_f") == 0)
-			{
+			}else if(type[i].compare("cart_f") == 0){
                 //std::cout << "7" << std::endl;
                 //std::cout<<"ds_cart_f.size() = " << this->ds_cart_f.size() << std::endl;
 				app = this->ds_cart_f.end();
 				app--;
                 //std::cout << "*app - " << i << "- =" << *app <<std::endl;
-			}
-			else if(type[i].compare("cart_pos") == 0)
-			{
+			}else if(type[i].compare("cart_pos") == 0){
                 //std::cout << "8" << std::endl;
                 //std::cout<<"ds_cart_pos.size() = " << this->ds_cart_pos.size() << std::endl;
 				app = this->ds_cart_pos.end();
@@ -267,83 +244,64 @@ void kinova_status_openapi::StartSaving(std::vector<std::string>  & type)
 }
 
 
-std::vector<Log> kinova_status_openapi::StopSaving(std::vector<std::string>  & type)
-{
+std::vector<Log> kinova_status_openapi::StopSaving(std::vector<std::string>  & type){
 	std::vector<Log> result;
     // stop the reading thread
     this->running.store(false,boost::memory_order_release);
     this->reader_stats->join();
-	for(unsigned int i =0;i<type.size();i++)
-	{
-		if(type[i].compare("comp_t")==0)
-		{
+	for(unsigned int i =0;i<type.size();i++){
+		if(type[i].compare("comp_t")==0){
             //std::cout << " -- 1 -- " << std::endl;
            // std::cout<<"ds_comp_t.size() = " << this->ds_comp_t.size() << std::endl;
             Log app(this->bookmarks[i],this->ds_comp_t.end());
             //std::cout<< "app size = " << app.size() << std::endl;
-			for(unsigned int i =0;i<app.size();i++)
-			{
+			for(unsigned int i =0;i<app.size();i++){
 				app[i]=app[i]-app[0];
 			}
 		    result.push_back(app);
-
-		}
-        else if(type[i].compare("j_pos") == 0)
-        {
+		}else if(type[i].compare("j_pos") == 0){
             //std::cout << " -- 2 -- " << std::endl;
             //std::cout<<"ds_ang_pos.size() = " << this->ds_ang_pos.size() << std::endl;
             Log app(this->bookmarks[i],this->ds_ang_pos.end());
             //std::cout<< "app size = " << app.size() << std::endl;
             //std::cout << " -- 2.1 -- " << std::endl;
 			result.push_back(app);
-		}
-        else if(type[i].compare("hand_pos") == 0)
-        {
+		}else if(type[i].compare("hand_pos") == 0){
             //std::cout << " -- 3 -- " << std::endl;
             //std::cout<<"ds_hand_pos.size() = " << this->ds_hand_pos.size() << std::endl
             Log app(this->bookmarks[i],this->ds_hand_pos.end());
             //std::cout<< "app size = " << app.size() << std::endl;
             //std::cout << " -- 3.1 -- " << std::endl;
             result.push_back(app);
-        }
-		else if(type[i].compare("j_vel") == 0)
-		{
+        }else if(type[i].compare("j_vel") == 0){
             //std::cout << " -- 4 -- " << std::endl;
             //std::cout<<"ds_ang_vel.size() = " << this->ds_ang_vel.size() << std::endl;
             Log app(this->bookmarks[i],this->ds_ang_vel.end());
             //std::cout<< "app size = " << app.size() << std::endl;
             //std::cout << " -- 4.1 -- " << std::endl;
 			result.push_back(app);
-		}
-        else if(type[i].compare("hand_vel") == 0)
-        {
+		}else if(type[i].compare("hand_vel") == 0){
             //std::cout << " -- 5 -- " << std::endl;
             //std::cout<<"ds_hand_vel.size() = " << this->ds_hand_vel.size() << std::endl;
             Log app(this->bookmarks[i],this->ds_hand_vel.end());
             //std::cout<< "app size = " << app.size() << std::endl;
             //std::cout << " -- 5.1 -- " << std::endl;
             result.push_back(app);
-        }
-		else if(type[i].compare("j_tau") == 0)
-		{
+        }else if(type[i].compare("j_tau") == 0){
             //std::cout << " -- 6 -- " << std::endl;
             //std::cout<<"ds_ang_tau.size() = " << this->ds_ang_tau.size() << std::endl;
             Log app(this->bookmarks[i],this->ds_ang_tau.end());
             //std::cout<< "app size = " << app.size() << std::endl;
             //std::cout << " -- 6.1 -- " << std::endl;
 			result.push_back(app);
-		}
-		else if(type[i].compare("cart_f") == 0)
-		{
+		}else if(type[i].compare("cart_f") == 0){
             //std::cout << " -- 7 -- " << std::endl;
             //std::cout<<"ds_cart_f.size() = " << this->ds_cart_f.size() << std::endl;
             Log app(this->bookmarks[i],this->ds_cart_f.end());
             //std::cout<< "app size = " << app.size() << std::endl;
             //std::cout << " -- 7.1 -- " << std::endl;
 			result.push_back(app);
-		}
-		else if(type[i].compare("cart_pos") == 0)
-		{
+		}else if(type[i].compare("cart_pos") == 0){
             //std::cout << " -- 8 -- " << std::endl;
             //std::cout<<"ds_cart_pos.size() = " << this->ds_cart_pos.size() << std::endl;
             Log app(this->bookmarks[i],this->ds_cart_pos.end());

@@ -111,5 +111,12 @@ extern double DEG;
 // Mathematical routine
 void Mat2RPY(arma::mat m,arma::vec & rpy);
 
+// Auxiliary functions
+
+
+// Robot interaction
+State convertDirectionToState( std::string direction, float speed);
+
+
 #endif /* COMMON_HPP_ */
 
