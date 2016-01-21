@@ -64,6 +64,7 @@ bool SqlManager::saveRecordedTrajectory(Trajectory &trajectory){
 
 
 bool SqlManager::saveRecordedTrajectoryBulkMode(Trajectory &trajectory){
+    cout << "BULH MODE SAVING" << endl;
     QSqlQuery query(this->database);
     //FIXME change the sentence and use bindValue to se paramteres in the query
     QString strQuery = "INSERT INTO Trajectory (name,description,participantID,initialTimestamp) values('"+QString::fromStdString(trajectory.name)+"','"+QString::fromStdString(trajectory.description)+"',"+QString::number(trajectory.participantID)+","+QString::number(trajectory.initialTimestamp) + ")";

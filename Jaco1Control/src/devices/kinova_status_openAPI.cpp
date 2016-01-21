@@ -345,7 +345,7 @@ void kinova_status_openapi::ReadTimeStamp()
 
 	this->ds_comp_t.push_back(t_cur);
 	// i can write for the vis less often then the other op
-	this->comp_t.push( &(ds_comp_t.back()) );
+    this->comp_t.push( &(ds_comp_t.back()) );
 }
 
 void kinova_status_openapi::ReadJoints(KinDrv::jaco_position_t &position,KinDrv::jaco_position_t & velocity,KinDrv::jaco_position_t & force)

@@ -248,10 +248,11 @@ void robot::EmergencyStop()
 	while( !this->stop_auxiliary_thread.load(boost::memory_order_acquire) )
 	{
 		//if (sf::Keyboard::isKeyPressed(sf::Keyboard::LControl) && sf::Keyboard::isKeyPressed(sf::Keyboard::C))
+      /*  if (sf::Keyboard::isKeyPressed(sf::Keyboard::C))
 		{
 			//std::cout<< "---------------------------------------------------------"<<std::endl;
 			//this->st->ClearCommands();
 			//this->stop.store(true,boost::memory_order_release);
-		}
+        }*/
 	}
 }
