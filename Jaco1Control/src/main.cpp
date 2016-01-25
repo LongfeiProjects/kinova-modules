@@ -232,8 +232,12 @@ int main()
 
 				}
 			}
-			if (sf::Joystick::isButtonPressed(0, 3)){//square
+			if (sf::Joystick::isButtonPressed(0, 3)){//square // show scoring
 				std::cout << "sf::Joystick::isButtonPressed(0, 3)" << std::endl;
+				std::vector<int> score = bot.check.GetScore();
+				for(unsigned int i =0;i<score.size();i++)
+					std::cout<< score[i] <<" ";
+				std::cout<<std::endl;
 			}
 			if (sf::Joystick::isButtonPressed(0, 4)){//L2
 				std::cout << "sf::Joystick::isButtonPressed(0, 4)" << std::endl;

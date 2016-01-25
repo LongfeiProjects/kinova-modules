@@ -208,44 +208,30 @@ void robot::StopAllThread()
         safety_check->join();
 }
 
-void robot::Cheking()
-{
+void robot::Cheking(){
     std::cout<< "starting cheking thread"<<std::endl;
-	try
-	{
-		while( !this->stop_auxiliary_thread.load(boost::memory_order_acquire) )
-		{
+	try{
+		while( !this->stop_auxiliary_thread.load(boost::memory_order_acquire) ){
 			std::vector<State> cur_val;
 			bool read_data = false;
-
 			read_data = st->GetLastValue(cur_val,check.checklist);
 			// if the thread that publish data start to write data i will start to check them
-
-			if(read_data)
-			{
+			if(read_data){
 				bool check=false;
-				check = this->check.VerifyViolation(cur_val);
-				// add control to stop robot if i violate something
-				if(check)
-				{
-					this->stop.store(true,boost::memory_order_release);
-					//this->StopAllThread();
-				}
-
+				this->check.VerifyViolation(cur_val);
 			}
-             //boost::this_thread::sleep(boost::posix_time::milliseconds(10-test_time));
+             boost::this_thread::sleep(boost::posix_time::milliseconds(5));
 		}
 		std::cout<< "im out the the Cheking thread"<<std::endl;
 	}
-	catch(const std::exception &e)
-	{
+	catch(const std::exception &e){
 		std::cout<< "error in the checking thread"<<std::endl;
 	}
 }
 
 void robot::EmergencyStop()
 {
-	while( !this->stop_auxiliary_thread.load(boost::memory_order_acquire) )
+	//while( !this->stop_auxiliary_thread.load(boost::memory_order_acquire) )
 	{
 		/*if (sf::Keyboard::isKeyPressed(sf::Keyboard::LControl) && sf::Keyboard::isKeyPressed(sf::Keyboard::C))
 		{

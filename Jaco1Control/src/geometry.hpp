@@ -34,6 +34,7 @@ bool box_01_contains_point_2d ( double p[2] );
 bool box_01_contains_point_nd ( int ndim, double p[] );
 bool box_contains_point_2d ( double p1[2], double p2[2], double p[2] );*/
 bool box_contains_point_nd ( int ndim, double p1[], double p2[], double p[] );
+double box_point_dist_nd(int ndim, double p1[], double p2[], double p[]);
 /*void box_ray_int_2d ( double p1[2], double p2[2], double pa[2],
   double pb[2], double pint[2] );
 int box_segment_clip_2d ( double p1[2], double p2[2], double pa[2],

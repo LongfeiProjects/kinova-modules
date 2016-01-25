@@ -5,6 +5,7 @@
 # include <cmath>
 # include <ctime>
 # include <cstring>
+# include <algorithm>
 
 using namespace std;
 
@@ -1652,7 +1653,22 @@ bool box_contains_point_nd ( int dim_num, double p1[], double p2[], double p[] )
   }
 
   return true;
-}/*
+}
+
+double box_point_dist_nd(int ndim, double p1[], double p2[], double p[]){
+
+	double result = 0;
+	double values[3];
+	for ( int i = 0; i < ndim; i++ ){
+		values[0] = p1[i] - p[i]; //rect.min.x - p.x
+		values[1] = 0;
+		values[2] = p[i] - p2[i]; //  p.x - rect.max.x
+		result = result + pow((*std::max_element(values,values+3)),2); //
+	}
+}
+
+
+/*
 //---------------------------------------------------------------80
 
 void box_ray_int_2d ( double p1[2], double p2[2], double pa[2],
