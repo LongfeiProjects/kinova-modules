@@ -112,8 +112,9 @@ extern double DEG;
 void Mat2RPY(arma::mat m,arma::vec & rpy);
 
 // Auxiliary functions
-
-
+void WriteLogFiles(std::vector<Log> recordedLogs,std::vector<std::string> names);
+int ReadFile(std::string namefile,std::vector< State > & value);
+std::vector<std::pair<int,int> > ContSeq(std::vector<int> foovec);
 // Robot interaction
 State convertDirectionToState( std::string direction, float speed);
 

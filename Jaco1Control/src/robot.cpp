@@ -94,13 +94,10 @@ void robot::ExecuteUpdatedTrajectory(std::vector<State> timestamps, State starti
 void robot::ExecuteTrajectoryFile(State starting_cartesian_position)
 {
     std::vector<State> timestamps;
-    if(!this->contr->timestamp_file.empty())
-    {
+    if(!this->contr->timestamp_file.empty()){
         this->contr->ReadFile(this->contr->timestamp_file,timestamps);
-
     }
-    for(unsigned int i =0;i<this->contr->ff_files.size();i++)
-    {
+    for(unsigned int i =0;i<this->contr->ff_files.size();i++){
         std::vector<State> app;
         this->contr->ReadFile(this->contr->ff_files[i],app);
         this->contr->ff.push_back(app);
@@ -108,8 +105,8 @@ void robot::ExecuteTrajectoryFile(State starting_cartesian_position)
     this->ExecuteTrajectory(timestamps, starting_cartesian_position);
 }
 
-void robot::SendCommand(State & cmd,int type)
-{std::cout << "before SendSingleCommand" << std::endl;
+void robot::SendCommand(State & cmd,int type){
+	//std::cout << "before SendSingleCommand" << std::endl;
 	this->contr->SendSingleCommand(cmd,type);
 }
 
@@ -150,47 +147,50 @@ void robot::SendAndWait(State starting_joint_position)
 
 }
 // this functions are provisionary and has to be intregrated inside send command for the vrep driver.
-void robot::SendCartesianPositionCommand(State & cmd)
-{
+// send and wait;
+void robot::ReproduceTrajectory(std::string namefile){
+	std::vector<State> value;
+	ReadFile(namefile,value);
+	for(unsigned int i =1 ;i<value.size();i++){
+		std::cout << i << std::endl;
+		this->SendCommand(value[i],contr->opt.control_action);
+	}
+}
+// send and wait
+/*void robot::SendCartesianPositionCommand(State & cmd){
 	std::vector<State> cur_val;
 	State diff,control_action;
 	double sos = 1;
-	while(sos > 0.000001)
-	{
-		st->GetLastValue(cur_val,this->contr->opt.meas_val);
-		control_action = this->contr->DirectDifferentialKinematicControl(cur_val,cmd,"CartPos");
-		this->SendCommand(control_action,contr->opt.control_action);
-		diff = cmd - cur_val[1];
-		sos =arma::dot(diff,diff);
+	this->SendCommand(cmd,contr->opt.control_action);
+	while(sos > 0.00001){
+		st->GetLastValue(cur_val,contr->opt.meas_val);
+		sos =arma::dot(cur_val[2],cur_val[2]);
+		std::cout<< cur_val[2] <<std::endl;
+		std::cout << sos << std::endl;
 	}
-}
-
-void robot::SendDeltaCartesianCommand(State & cmd)
-{
-	std::cout << "inizio controller"<< std::endl;
+}*/
+void robot::SendDeltaCartesianCommand(State & cmd){
+	//std::cout << "inizio controller"<< std::endl;
 	bool read_data = false;
 	std::vector<State> cur_val;
 	State control_action;
 	st->GetLastValue(cur_val,this->contr->opt.meas_val);
 	// DEBUG
-	std::cout<<"joint "<<cur_val[0]<<std::endl;
-	std::cout<<"cartesian position"<<cur_val[1]<<std::endl;
-	std::cout<<"cmd 2 "<<cmd<<std::endl;
+	//std::cout<<"joint "<<cur_val[0]<<std::endl;
+	//std::cout<<"cartesian position"<<cur_val[1]<<std::endl;
+	//std::cout<<"cmd 2 "<<cmd<<std::endl;
 	//----
 	control_action = this->contr->DirectDifferentialKinematicControl(cur_val,cmd,"CartPosDelta");
 	this->SendCommand(control_action,contr->opt.control_action);
-	  std::cout << "fine controller"<< std::endl;
+	//std::cout << "fine controller"<< std::endl;
 }
-
-void robot::MoveHome()
-{   this->st->Stop();
+void robot::MoveHome(){
+	this->st->Stop();
     this->st->RestartAPI();
 	this->contr->Move2Home();
     this->st->Start();
 }
-
-void robot::StartAllThread()
-{
+void robot::StartAllThread(){
 	// start the thread in the object robot_status object
 	st->Start();
     this->emergency_stop = new boost::thread(boost::bind(&robot::EmergencyStop,this));
@@ -247,8 +247,7 @@ void robot::EmergencyStop()
 {
 	while( !this->stop_auxiliary_thread.load(boost::memory_order_acquire) )
 	{
-		//if (sf::Keyboard::isKeyPressed(sf::Keyboard::LControl) && sf::Keyboard::isKeyPressed(sf::Keyboard::C))
-      /*  if (sf::Keyboard::isKeyPressed(sf::Keyboard::C))
+		/*if (sf::Keyboard::isKeyPressed(sf::Keyboard::LControl) && sf::Keyboard::isKeyPressed(sf::Keyboard::C))
 		{
 			//std::cout<< "---------------------------------------------------------"<<std::endl;
 			//this->st->ClearCommands();

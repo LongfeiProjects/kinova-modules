@@ -24,13 +24,15 @@ class driverbot : public stats
 		boost::atomic<bool> first_write;
 		boost::thread* reader_stats;
 		boost::thread* garbage_collection;
-		boost::chrono::high_resolution_clock::time_point tStart;
+		float * tStart;
 		DataStore ds_ang_pos;	DataLast dl_ang_pos;
 		DataStore ds_ang_vel;	DataLast dl_ang_vel;
 		DataStore ds_ang_tau;	DataLast dl_ang_tau;
 		DataStore ds_cart;	    DataLast dl_cart;
 		DataStore ds_t;    		DataLast dl_t;
-		std::vector<DataStoreIt> bookmarks;
+		bool already_saving; // this flag trigger all the things that can take place during logging //---
+		std::vector<std::vector<DataStoreIt> > bookmarks; //---
+		std::vector<int>       active_bookmarks; //---
 		// constructor
 		driverbot(bool sync,std::string joint_base_name,model * bot);
 		~driverbot();
@@ -40,6 +42,8 @@ class driverbot : public stats
 		void Stop();
 		void Reading();
 		void StartSaving(std::vector<std::string>  & type);
+		void SaveCheckPoint(std::vector<std::string>  & type); //---
+		void DeleteCheckPoint(); //---
 		std::vector<Log> StopSaving(std::vector<std::string>  & type);
 		void ClearCommands(){};
 		void Cleaning();

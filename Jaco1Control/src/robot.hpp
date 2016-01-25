@@ -12,7 +12,6 @@
 #include "safetycheck.hpp"
 #include <SFML/Window.hpp>
 #include <SFML/Graphics.hpp>
-//#include <SDL2/SDL.h>
 #include "Idevice.hpp"
 #include "robotmodel.hpp"
 
@@ -56,9 +55,11 @@ class robot
 
         void SendCommand(State & cmd,int type);
         void SendAndWait(State starting_joint_position);
-        // provisionary function
+        // provisionary function (only VREP)
+        void ReproduceTrajectory(std::string namefile);
+        // provisionary function (only VREP)
         void SendCartesianPositionCommand(State & cmd);
-        // provisionary function
+        // provisionary function (only VREP)
         void SendDeltaCartesianCommand(State & cmd);
 		void MoveHome();
 	private:

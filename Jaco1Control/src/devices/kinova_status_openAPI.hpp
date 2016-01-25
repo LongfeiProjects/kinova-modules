@@ -50,7 +50,9 @@ class kinova_status_openapi : public stats
         DataStore ds_comp_t;	DataFlow comp_t;
 		DataStore ds_robot_t;
 		DataStore ds_cart_pos;              		 DataLast dl_cart_pos;
-		std::vector<DataStoreIt> bookmarks;
+		bool already_saving; // this flag trigger all the things that can take place during logging
+		std::vector<std::vector<DataStoreIt> > bookmarks;
+		std::vector<int>       active_bookmarks;
 
 		kinova_status_openapi(model * p);
 		~kinova_status_openapi();
@@ -59,6 +61,8 @@ class kinova_status_openapi : public stats
 		void Stop();
 		void Reading();
 		void StartSaving(std::vector<std::string>  & type);
+		void SaveCheckPoint(std::vector<std::string>  & type);
+		void DeleteCheckPoint();
 		std::vector<Log> StopSaving(std::vector<std::string>  & type);
 		void ClearCommands();
         void RestartAPI();

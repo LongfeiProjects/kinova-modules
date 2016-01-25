@@ -22,6 +22,8 @@ class stats
       virtual void Stop() = 0;
       virtual void Reading() = 0;
       virtual void StartSaving(std::vector<std::string>  & type) = 0;
+      virtual void SaveCheckPoint(std::vector<std::string>  & type){}; //---
+      virtual void DeleteCheckPoint(){}; //---
       virtual std::vector<Log> StopSaving(std::vector<std::string>  & type) = 0;
       virtual void ClearCommands() = 0;
       virtual void RestartAPI(){};

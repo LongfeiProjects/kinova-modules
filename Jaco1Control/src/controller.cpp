@@ -77,8 +77,7 @@ State controller::CartesianKinematicController(std::vector<State> current_state)
 // current state[0] = actual joint position
 // current_state[1] = actual cartesian position
 // in the controller i control the construction of the result vector given the parameters in this->opt
-State controller::DirectDifferentialKinematicControl(std::vector<State> current_state,State des,std::string type)
-{
+State controller::DirectDifferentialKinematicControl(std::vector<State> current_state,State des,std::string type){
 	State result(bot->n);
 	double lambda = 0.001; // bring outside
 	// velocity cartesian conversion
@@ -86,26 +85,21 @@ State controller::DirectDifferentialKinematicControl(std::vector<State> current_
 	arma::mat I=arma::eye(J.n_rows,J.n_rows);
     arma::mat J_brack = arma::inv(J*J.t() + I*lambda);
     arma::mat J_damp = J.t()*(J_brack);
-    if(type.compare("CartPosDelta") == 0) // velocity conversion
-    {
+    if(type.compare("CartPosDelta") == 0){// velocity conversion
     	result = J_damp*des;
     	result = current_state[0] + result*time_interval;
-
-    }
-    else if(type.compare("CartPos") == 0) // cartesian position controller
-    {
+    }else if(type.compare("CartPos") == 0){ // cartesian position controller
     	result = J_damp*(P*(des - current_state[1]));
     	result = current_state[0] + result*time_interval;
     }
-    // DDEBUG
+    // DEBUG
     State  pos;
 	arma::mat  R;
     bot->DK(result,pos,R);
-    std::cout<<"new_cartesian "<<pos<<std::endl;
-	std::cout<<"control_action"<<result<<std::endl;
+    //std::cout<<"new_cartesian "<<pos<<std::endl;
+	//std::cout<<"control_action"<<result<<std::endl;
 	//---
 	return result;
-
 }
 
 

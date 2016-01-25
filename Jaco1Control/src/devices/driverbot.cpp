@@ -70,12 +70,16 @@ driverbot::driverbot(bool _sync,std::string joint_base_name,model * _bot)
  	std::cout<<std::endl;
  	//---
  	bot = _bot;
+ 	this->tStart = new simxFloat[1];
+ 	this->tStart[0] = 0;
+ 	already_saving = false;
  	reader_stats = NULL;
  	garbage_collection = NULL;
  	Max_DS_allowed = 10000;
 }
 
 driverbot::~driverbot(){
+	delete tStart;
 	// close simulator
 	simxStopSimulation(this->idclient,simx_opmode_oneshot_wait);
 	simxFinish(this->idclient);
@@ -84,7 +88,7 @@ driverbot::~driverbot(){
 std::vector<State> driverbot::FirstRead(std::vector<std::string> type){
 	std::vector<State> res;
     boost::this_thread::sleep(boost::posix_time::milliseconds(10)); // this sleep is necessary because at the begining i read a lot of nasty value
-	bool result = driverbot::GetLastValue(res,type);
+	driverbot::GetLastValue(res,type);
     // DEBUG
 	//std::cout<<" FirstRead result  "<<result<<std::endl;
 	//---
@@ -94,7 +98,7 @@ std::vector<State> driverbot::FirstRead(std::vector<std::string> type){
 bool driverbot::GetLastValue(std::vector<State>& res, std::vector<std::string> & type){
 	if(first_write.load(boost::memory_order_acquire)){
 		//DEBUG
-		State * ptr = NULL;
+		//State * ptr = NULL;
 		//std::cout<<"type.size() "<<type.size()<<std::endl;
 		//---
 		for(unsigned int i =0;i<type.size();i++){
@@ -167,83 +171,137 @@ void driverbot::StartSaving(std::vector<std::string>  & type){
 	this->running_cleaner.store(false,boost::memory_order_release);
     this->garbage_collection->join();
     // start the global time for logging
-    this->tStart = boost::chrono::high_resolution_clock::now();
+    simxCustomGetTime(this->idclient,tStart,simx_opmode_oneshot_wait);
+    // initiliaze bookmark
+    for(unsigned int ii =0;ii<type.size();ii++){
+    	std::vector<DataStoreIt> init;
+    	this->bookmarks.push_back(init);
+    }
     std::cout<<"starting saving"<<std::endl;
 	if(first_write.load(boost::memory_order_acquire)){
 		for(unsigned int i =0;i<type.size();i++){
             DataStoreIt app;
-			if(type[i].compare("j_pos") == 0){
-                //std::cout << "2" << std::endl;
-                //std::cout<<"ds_ang_pos.size() = " << this->ds_ang_pos.size() << std::endl;
+            if(type[i].compare("comp_t")==0){
+				app = this->ds_t.end();
+				app--;
+            }if(type[i].compare("j_pos") == 0){
                 app = this->ds_ang_pos.end();
 				app--;
-                //std::cout << "*app - " << i << "- =" << *app <<std::endl;
             }else if(type[i].compare("j_vel") == 0){
-                //std::cout << "4" << std::endl;
-                //std::cout<<"ds_ang_vel.size() = " << this->ds_ang_vel.size() << std::endl;
 				app = this->ds_ang_vel.end();
 				app--;
-                //std::cout << "*app - " << i << "- =" << *app <<std::endl;
             }else if(type[i].compare("j_tau") == 0){
-                //std::cout << "6" << std::endl;
-                //std::cout<<"ds_ang_tau.size() = " << this->ds_ang_tau.size() << std::endl;
 				app = this->ds_ang_tau.end();
 				app--;
-                //std::cout << "*app - " << i << "- =" << *app <<std::endl;
-			//}else if(type[i].compare("cart_f") == 0){
-                //std::cout << "7" << std::endl;
-                //std::cout<<"ds_cart_f.size() = " << this->ds_cart_f.size() << std::endl;
-			//	app = this->ds_cart_f.end();
-			//	app--;
-                //std::cout << "*app - " << i << "- =" << *app <<std::endl;
 			}else if(type[i].compare("cart_pos") == 0){
-                //std::cout << "8" << std::endl;
-                //std::cout<<"ds_cart_pos.size() = " << this->ds_cart_pos.size() << std::endl;
 				app = this->ds_cart.end();
 				app--;
-                //std::cout << "*app - " << i << "- =" << *app <<std::endl;
 			}
-			this->bookmarks.push_back(app);
+			this->bookmarks[i].push_back(app); //---
 		}
+		this->active_bookmarks.push_back(1); //---
+		this->already_saving = true; //---
 	 }
 }
+void driverbot::SaveCheckPoint(std::vector<std::string>  & type){
+	if(already_saving){
+		for(unsigned int i =0;i<type.size();i++){
+			DataStoreIt app;
+			if(type[i].compare("comp_t")==0){
+				app = this->ds_t.end();
+				app--;
+			}if(type[i].compare("j_pos") == 0){
+				app = this->ds_ang_pos.end();
+				app--;
+			}else if(type[i].compare("j_vel") == 0){
+				app = this->ds_ang_vel.end();
+				app--;
+			}else if(type[i].compare("j_tau") == 0){
+				app = this->ds_ang_tau.end();
+				app--;
+			}else if(type[i].compare("cart_pos") == 0){
+				app = this->ds_cart.end();
+				app--;
+			}
+			this->bookmarks[i].push_back(app);
+		}
+		this->active_bookmarks.push_back(1); //---
+	}
+}
 
+void driverbot::DeleteCheckPoint(){
+	if(already_saving){
+		for(unsigned int i = (active_bookmarks.size()-1);i>0;i--){
+			if(active_bookmarks[i] == 1 && i>= 0){
+				active_bookmarks[i]=0;
+				break;
+			}
+		}
+	}
+}
 std::vector<Log> driverbot::StopSaving(std::vector<std::string>  & type){
 	std::vector<Log> result;
+	std::vector<std::pair<int,int> > seq; //---
     // stop the reading thread
     this->running.store(false,boost::memory_order_release);
     this->reader_stats->join();
+    // save the last positions
+    this->SaveCheckPoint(type);
+    // analisys active_bookmarks
+    seq = ContSeq(this->active_bookmarks);
+    //DEBUG
+	std::cout << "active bookmarks" << std::endl;
+	for(unsigned int ij =0;ij<this->active_bookmarks.size();ij++){
+		std::cout<<active_bookmarks[ij]<<" ";
+	}
+	std::cout<<std::endl;
+	std::cout<<"seq vec"<<std::endl;
+	for(unsigned int j = 0; j<seq.size();j++){
+		std::cout<<seq[j].first<<" "<<seq[j].second<<std::endl;
+	}
+	//---
 	for(unsigned int i =0;i<type.size();i++){
 		if(type[i].compare("comp_t")==0){
-            /*Log app(this->bookmarks[i],this->ds_comp_t.end());
-			for(unsigned int i =0;i<app.size();i++){
-				app[i]=app[i]-app[0];
+			Log app_tot;
+			State time_displacement(1);
+			time_displacement[0]=0;
+			for(unsigned int j = 0;j<seq.size();j++){
+				Log app(this->bookmarks[i][seq[j].first],this->bookmarks[i][seq[j].second]);
+				for(unsigned int i =0;i<app.size();i++){
+					app[i]=(app[i]-app[0]) + time_displacement;
+				}
+				app_tot.insert(app_tot.end(), app.begin(), app.end());
+				time_displacement = app.back(); // here i acquire the last time of first sequence after correction;
 			}
-		    result.push_back(app);*/
+			result.push_back(app_tot);
 		}else if(type[i].compare("j_pos") == 0){
-            //std::cout << " -- 2 -- " << std::endl;
-            //std::cout<<"ds_ang_pos.size() = " << this->ds_ang_pos.size() << std::endl;
-            Log app(this->bookmarks[i],this->ds_ang_pos.end());
-            //std::cout<< "app size = " << app.size() << std::endl;
-            //std::cout << " -- 2.1 -- " << std::endl;
-			result.push_back(app);
+			Log app_tot;
+			for(unsigned int j = 0;j<seq.size();j++){
+				Log app(this->bookmarks[i][seq[j].first],this->bookmarks[i][seq[j].second]);
+				app_tot.insert(app_tot.end(), app.begin(), app.end());
+			}
+			result.push_back(app_tot);
         }else if(type[i].compare("j_vel") == 0){
-            //std::cout << " -- 4 -- " << std::endl;
-            //std::cout<<"ds_ang_vel.size() = " << this->ds_ang_vel.size() << std::endl;
-            Log app(this->bookmarks[i],this->ds_ang_vel.end());
-            //std::cout<< "app size = " << app.size() << std::endl;
-            //std::cout << " -- 4.1 -- " << std::endl;
-			result.push_back(app);
+        	Log app_tot;
+			for(unsigned int j = 0;j<seq.size();j++){
+				Log app(this->bookmarks[i][seq[j].first],this->bookmarks[i][seq[j].second]);
+				app_tot.insert(app_tot.end(), app.begin(), app.end());
+			}
+			result.push_back(app_tot);
         }else if(type[i].compare("j_tau") == 0){
-            Log app(this->bookmarks[i],this->ds_ang_tau.end());
-			result.push_back(app);
+        	Log app_tot;
+			for(unsigned int j = 0;j<seq.size();j++){
+				Log app(this->bookmarks[i][seq[j].first],this->bookmarks[i][seq[j].second]);
+				app_tot.insert(app_tot.end(), app.begin(), app.end());
+			}
+			result.push_back(app_tot);
 		}else if(type[i].compare("cart_pos") == 0){
-            //std::cout << " -- 8 -- " << std::endl;
-            //std::cout<<"ds_cart_pos.size() = " << this->ds_cart_pos.size() << std::endl;
-            Log app(this->bookmarks[i],this->ds_cart.end());
-            //std::cout<< "app size = " << app.size() << std::endl;
-            //std::cout << " -- 8.1 -- " << std::endl;
-			result.push_back(app);
+			Log app_tot;
+			for(unsigned int j = 0;j<seq.size();j++){
+				Log app(this->bookmarks[i][seq[j].first],this->bookmarks[i][seq[j].second]);
+				app_tot.insert(app_tot.end(), app.begin(), app.end());
+			}
+			result.push_back(app_tot);
 		}
 	}
     // reactivate the reading thread
@@ -252,8 +310,10 @@ std::vector<Log> driverbot::StopSaving(std::vector<std::string>  & type){
 	// reactivate the cleaner tasks
 	this->running_cleaner.store(true,boost::memory_order_release);
     this->garbage_collection = new boost::thread(boost::bind(&driverbot::Cleaning,this));
-	// clean bookmarks
+	// clean bookmarks and active_bookmarks
 	this->bookmarks.clear();
+	this->active_bookmarks.clear();
+	this->already_saving = false;
     std::cout << "before return stop" << std::endl;
 	return result;
 }
@@ -290,7 +350,7 @@ void driverbot::ReadTimeStamp(int operationMode){
 	//std::cout<<_time[0] <<std::endl;
 	//---
 	if(result == 0){
-		t_cur[0] = _time[0];
+		t_cur[0] = _time[0] - this->tStart[0];
 		this->ds_t.push_back(t_cur);
 		this->dl_t.store( &(ds_t.back()),boost::memory_order_release);
 	}

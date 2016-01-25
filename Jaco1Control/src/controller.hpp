@@ -45,50 +45,40 @@ class controller
 		State CartesianKinematicController(std::vector<State> current_state);
 		// provisionary functions
 		State DirectDifferentialKinematicControl(std::vector<State> current_state,State des,std::string type);
-		inline int ReadFile(std::string namefile,std::vector< State > & value)
-		{
+		inline int ReadFile(std::string namefile,std::vector< State > & value){
 			std::ifstream infile;
 			int task_space_dim;
-			try
-			{
+			try{
 			  infile.open(namefile.c_str(),std::ifstream::in);
 			  std::string line;
 			  // in the first line is defined the taskspacedimension
 			  std::getline(infile, line);
 			  std::stringstream ss1(line);
-			  if ( !(ss1 >> task_space_dim) )
-			  {
+			  if ( !(ss1 >> task_space_dim) ){
 				  std::cout<<"problem reading number of joint"<< std::endl;
 			  }
-			  while (std::getline(infile, line))
-			  {
+			  while (std::getline(infile, line)){
 					std::stringstream ss(line);
 					State app(task_space_dim);
 					int index = 0;
-					while( !ss.eof() )
-					{
+					while( !ss.eof() ){
 						double ff;
-						if ( ss >> ff)
-						{
+						if ( ss >> ff){
 						   app[index] = ff;
 						   index++;
 						}
 					}
-					if(!app.empty())
-					{
+					if(!app.empty()){
 						value.push_back(app);
 					}
 			  }
 			  infile.close();
 			}
-			catch (std::ifstream::failure e)
-			{
+			catch (std::ifstream::failure e){
 			  std::cerr << "Exception opening/reading/closing file\n";
 			}
 			return task_space_dim;
 		}
-
-
         void ComputeTimeMap(std::vector<State> timestamps ){
             int ind = 0;
             int diff;int diff_prev;

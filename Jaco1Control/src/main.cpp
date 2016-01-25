@@ -53,12 +53,12 @@ int main()
     opt.control_action = 2;
    	const double Pid_coef[] = {5,0,0};
    	std::vector<double> Pid(Pid_coef,End(Pid_coef));
-	const char * _name2read[] = {"j_pos","cart_pos"};
+	const char * _name2read[] = {"j_pos","cart_pos","j_vel","comp_t"};
     std::vector<std::string> name2read (_name2read,End(_name2read));
     opt.meas_val = name2read;
    	// FF files
-    const char * _namefiles[] = {"cart_pos.txt","joint_vel.txt"};
-    std::vector<std::string> namefile (_namefiles,End(_namefiles));
+    const char * _namefiles[] = {"joint_pos.mat","cart_pos.mat","comp_t.mat"};
+    std::vector<std::string> namefile(_namefiles,End(_namefiles));
     // model
 	Lwr* md = new Lwr();
 	//Jaco* md = new Jaco();
@@ -102,17 +102,23 @@ int main()
 		unsigned int buttonCount = sf::Joystick::getButtonCount(0);
 		std::cout << "Button count: " << buttonCount << std::endl;
 	}
-	double speed = 0.06;
 	State cmd;
+	Log checkpoints; // sequence of joints positions
+	std::vector<Log> logs;
+	double speed = 0.06;
 	bool continuos_mov = false;
-	while(true)
-	{
+	bool start_save = true;
+	const char * _name2save[] = {"j_pos","cart_pos","comp_t"};
+	std::vector<std::string> name2save(_name2save,End(_name2save));
+	// check point mechanism
+	const char * _name2check[] = {"j_pos"};
+		std::vector<std::string> name2check(_name2check,End(_name2check));
+	while(true){
 
 		while (window.pollEvent(e)){
 			if (e.type == sf::Event::KeyPressed){
 				switch (e.key.code){
-					case sf::Keyboard::Escape:
-					{
+					case sf::Keyboard::Escape:{
 						 window.close();
 						 return 0;
 					}
@@ -121,36 +127,77 @@ int main()
 						break;
 				}
 			}
-
 			if (e.type == sf::Event::JoystickMoved){
 				double x = sf::Joystick::getAxisPosition(0,sf::Joystick::X);
 				double y = sf::Joystick::getAxisPosition(0,sf::Joystick::Y);
 				double u = sf::Joystick::getAxisPosition(0,sf::Joystick::U);
-				//std::cout << "X axis: " << x << std::endl;
-				//std::cout << "Y axis: " << y << std::endl;
-				//std::cout << "U axis: " << u << std::endl;
+				std::cout << "X axis: " << x << std::endl;
+				std::cout << "Y axis: " << y << std::endl;
+				std::cout << "U axis: " << u << std::endl;
 				if(y == -100){
 					std::cout<<"Up"<<std::endl;
 					cmd = convertDirectionToState("Up",speed);
+					// check point mechanism
+					std::vector<State> check;
+					bot.st->GetLastValue(check,name2check);
+					bot.st->SaveCheckPoint(name2save); // ---
+					if(!start_save)
+						checkpoints.push_back(check[0]);
+					// end
 					continuos_mov = true;
 				}else if(y == 100){
 					std::cout<<"Down"<<std::endl;
+					// check point mechanism
+					std::vector<State> check;
+					bot.st->GetLastValue(check,name2check);
+					bot.st->SaveCheckPoint(name2save); // ---
+					if(!start_save)
+						checkpoints.push_back(check[0]);
+					// compute command
 					cmd = convertDirectionToState("Down",speed);
 					continuos_mov = true;
 				}if(x == 100){
 					std::cout<<"Right"<<std::endl;
+					// check point mechanism
+					std::vector<State> check;
+					bot.st->GetLastValue(check,name2check);
+					bot.st->SaveCheckPoint(name2save); // ---
+					if(!start_save)
+						checkpoints.push_back(check[0]);
+					// compute command
 					cmd = convertDirectionToState("Right",speed);
 					continuos_mov = true;
 				}else if(x == -100){
 					std::cout<<"Left"<<std::endl;
+					// check point mechanism
+					std::vector<State> check;
+					bot.st->GetLastValue(check,name2check);
+					bot.st->SaveCheckPoint(name2save); // ---
+					if(!start_save)
+						checkpoints.push_back(check[0]);
+					// compute command
 					cmd = convertDirectionToState("Left",speed);
 					continuos_mov = true;
-				}else if(u == -100){
+				}else if(u == 100){
 					std::cout<<"Pull"<<std::endl;
+					// check point mechanism
+					std::vector<State> check;
+					bot.st->GetLastValue(check,name2check);
+					bot.st->SaveCheckPoint(name2save); // ---
+					if(!start_save)
+						checkpoints.push_back(check[0]);
+					// compute command
 					cmd = convertDirectionToState("Pull",speed);
 					continuos_mov = true;
-				}else if(u == 100){
+				}else if(u == -100){
 					std::cout<<"Push"<<std::endl;
+					// check point mechanism
+					std::vector<State> check;
+					bot.st->GetLastValue(check,name2check);
+					bot.st->SaveCheckPoint(name2save); // ---
+					if(!start_save)
+						checkpoints.push_back(check[0]);
+					// compute command
 					cmd = convertDirectionToState("Push",speed);
 					continuos_mov = true;
 				}else if(x == 0 && y == 0 && u==0){
@@ -158,14 +205,32 @@ int main()
 					continuos_mov = false;
 				}
 			}
-			if (sf::Joystick::isButtonPressed(0, 0)){//triangle
+			if (sf::Joystick::isButtonPressed(0, 0)){//triangle = start/stop logging
 				std::cout << "sf::Joystick::isButtonPressed(0, 0)" << std::endl;
+				if(start_save){
+					bot.st->StartSaving(name2save);
+					start_save = false;
+				}
+				else if(!start_save){
+					logs = bot.st->StopSaving(name2save);
+					WriteLogFiles(logs,namefile); // i just copy the sequence of joint positions
+					start_save = true;
+					checkpoints.clear();
+				}
 			}
-			if(sf::Joystick::isButtonPressed(0,1)){//circle
+			if(sf::Joystick::isButtonPressed(0,1)){//circle = execute last trajectory
 				std::cout << "sf::Joystick::isButtonPressed(0,1)" << std::endl;
+				bot.ReproduceTrajectory(namefile[0]);
 			}
-			if (sf::Joystick::isButtonPressed(0, 2)){//X
+			if (sf::Joystick::isButtonPressed(0, 2)){//X = undo command
 				std::cout << "sf::Joystick::isButtonPressed(0, 2)" << std::endl;
+				if(checkpoints.size()>0){
+					State actualPosition = checkpoints.back();
+					checkpoints.pop_back();
+					bot.st->DeleteCheckPoint(); // ---
+					bot.SendCommand(actualPosition,bot.contr->opt.control_action);
+
+				}
 			}
 			if (sf::Joystick::isButtonPressed(0, 3)){//square
 				std::cout << "sf::Joystick::isButtonPressed(0, 3)" << std::endl;
