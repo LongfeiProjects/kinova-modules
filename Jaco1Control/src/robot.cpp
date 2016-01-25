@@ -59,7 +59,7 @@ void robot::ExecuteTrajectory(std::vector<State> timestamps, State starting_cart
                 }
                 else if(contr->index >= 0)
                 {
-                    contr->ExecController(cur_val,this->contr->opt.control_action);
+                	 contr->ExecController(cur_val,this->contr->opt.control_action);
                     control_time = boost::chrono::duration_cast<boost::chrono::milliseconds>(boost::chrono::high_resolution_clock::now() - begin);
                     std::cout << "time spent in main cycle: " << control_time.count()  << " ms\n";
                     int test_time = boost::chrono::round<boost::chrono::milliseconds>(control_time).count();
@@ -122,22 +122,64 @@ void robot::SendAndWait(State starting_joint_position)
     std::vector<std::string> read;
     read.push_back(app);
     std::cout << "before send command" << std::endl;
-    this->SendCommand(starting_joint_position,1);
+    this->SendCommand(starting_joint_position,11);
     std::cout << "after send command" << std::endl;
     usleep(1000*300);
     st->GetLastValue(cur_val_1,read);
     sos =arma::dot(cur_val_1[0],cur_val_1[0]);
     //std::cout<< "curval" << cur_val_1[0] << std::endl;
-    //std::cout<< sos << std::endl;
+    std::cout<< sos << std::endl;
    while(sos > 0.000001)
-    {
+   {
         usleep(10*1000);
         std::vector<State> cur_val_1;
         st->GetLastValue(cur_val_1,read);
         sos =arma::dot(cur_val_1[0],cur_val_1[0]);
         //std::cout<< "curval" << cur_val_1[0] << std::endl;
-        //std::cout<< sos << std::endl;
-    }
+        std::cout<< sos << std::endl;
+   }
+   // DEBUG
+   std::string app2 = "cart_pos";
+   std::vector<std::string> read2;
+   read2.push_back(app2);
+   std::vector<State> cur_val_2;
+   st->GetLastValue(cur_val_2,read2);
+   for(unsigned int i=0;i<cur_val_2.size();i++)
+       std::cout<< cur_val_2[i] << std::endl;
+   //----
+
+}
+// this functions are provisionary and has to be intregrated inside send command for the vrep driver.
+void robot::SendCartesianPositionCommand(State & cmd)
+{
+	std::vector<State> cur_val;
+	State diff,control_action;
+	double sos = 1;
+	while(sos > 0.000001)
+	{
+		st->GetLastValue(cur_val,this->contr->opt.meas_val);
+		control_action = this->contr->DirectDifferentialKinematicControl(cur_val,cmd,"CartPos");
+		this->SendCommand(control_action,contr->opt.control_action);
+		diff = cmd - cur_val[1];
+		sos =arma::dot(diff,diff);
+	}
+}
+
+void robot::SendDeltaCartesianCommand(State & cmd)
+{
+	std::cout << "inizio controller"<< std::endl;
+	bool read_data = false;
+	std::vector<State> cur_val;
+	State control_action;
+	st->GetLastValue(cur_val,this->contr->opt.meas_val);
+	// DEBUG
+	std::cout<<"joint "<<cur_val[0]<<std::endl;
+	std::cout<<"cartesian position"<<cur_val[1]<<std::endl;
+	std::cout<<"cmd 2 "<<cmd<<std::endl;
+	//----
+	control_action = this->contr->DirectDifferentialKinematicControl(cur_val,cmd,"CartPosDelta");
+	this->SendCommand(control_action,contr->opt.control_action);
+	  std::cout << "fine controller"<< std::endl;
 }
 
 void robot::MoveHome()
@@ -150,8 +192,8 @@ void robot::MoveHome()
 void robot::StartAllThread()
 {
 	// start the thread in the object robot_status object
-    st->Start();
-   this->emergency_stop = new boost::thread(boost::bind(&robot::EmergencyStop,this));
+	st->Start();
+    this->emergency_stop = new boost::thread(boost::bind(&robot::EmergencyStop,this));
 	// start the thread in the robot object
     if(check.launch_tread)
         this->safety_check = new boost::thread(boost::bind(&robot::Cheking,this));
@@ -205,11 +247,12 @@ void robot::EmergencyStop()
 {
 	while( !this->stop_auxiliary_thread.load(boost::memory_order_acquire) )
 	{
+		//if (sf::Keyboard::isKeyPressed(sf::Keyboard::LControl) && sf::Keyboard::isKeyPressed(sf::Keyboard::C))
       /*  if (sf::Keyboard::isKeyPressed(sf::Keyboard::C))
 		{
-			std::cout<< "---------------------------------------------------------"<<std::endl;
-			this->st->ClearCommands();
-			this->stop.store(true,boost::memory_order_release);
+			//std::cout<< "---------------------------------------------------------"<<std::endl;
+			//this->st->ClearCommands();
+			//this->stop.store(true,boost::memory_order_release);
         }*/
 	}
 }

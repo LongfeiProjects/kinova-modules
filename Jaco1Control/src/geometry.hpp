@@ -9,7 +9,7 @@
 
 #ifndef GEOMETRY_HPP_
 #define GEOMETRY_HPP_
-void angle_box_2d ( double dist, double p1[2], double p2[2], double p3[2],
+/*void angle_box_2d ( double dist, double p1[2], double p2[2], double p3[2],
   double p4[2], double p5[2] );
 bool angle_contains_ray_2d ( double p1[2], double p2[2], double p3[2],
   double p[2] );
@@ -32,9 +32,9 @@ double *ball_unit_sample_nd ( int n, int &seed );
 double *basis_map_3d ( double u[3*3], double v[3*3] );
 bool box_01_contains_point_2d ( double p[2] );
 bool box_01_contains_point_nd ( int ndim, double p[] );
-bool box_contains_point_2d ( double p1[2], double p2[2], double p[2] );
+bool box_contains_point_2d ( double p1[2], double p2[2], double p[2] );*/
 bool box_contains_point_nd ( int ndim, double p1[], double p2[], double p[] );
-void box_ray_int_2d ( double p1[2], double p2[2], double pa[2],
+/*void box_ray_int_2d ( double p1[2], double p2[2], double pa[2],
   double pb[2], double pint[2] );
 int box_segment_clip_2d ( double p1[2], double p2[2], double pa[2],
   double pb[2] );
@@ -801,7 +801,7 @@ void voxels_step_3d ( int v1[3], int v2[3], int inc, int jnc, int knc,
 void xy_to_polar ( double xy[2], double *r, double *t );
 void xyz_to_radec ( double p[3], double *ra, double *dec );
 void xyz_to_rtp ( double xyz[3], double *r, double *theta, double *phi );
-void xyz_to_tp ( double xyz[3], double *theta, double *phi );
+void xyz_to_tp ( double xyz[3], double *theta, double *phi );*/
 
 
 

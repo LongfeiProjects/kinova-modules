@@ -20,14 +20,17 @@ class driverbot : public stats
 		bool sync;
 		std::vector<std::string> list_value_to_read;
 		boost::atomic<bool> running;
+		boost::atomic<bool> running_cleaner;
 		boost::atomic<bool> first_write;
 		boost::thread* reader_stats;
 		boost::thread* garbage_collection;
+		boost::chrono::high_resolution_clock::time_point tStart;
 		DataStore ds_ang_pos;	DataLast dl_ang_pos;
 		DataStore ds_ang_vel;	DataLast dl_ang_vel;
 		DataStore ds_ang_tau;	DataLast dl_ang_tau;
 		DataStore ds_cart;	    DataLast dl_cart;
 		DataStore ds_t;    		DataLast dl_t;
+		std::vector<DataStoreIt> bookmarks;
 		// constructor
 		driverbot(bool sync,std::string joint_base_name,model * bot);
 		~driverbot();
@@ -36,8 +39,8 @@ class driverbot : public stats
 		void Start();
 		void Stop();
 		void Reading();
-		void StartSaving(std::vector<std::string>  & type){};
-		std::vector<Log> StopSaving(std::vector<std::string>  & type){};
+		void StartSaving(std::vector<std::string>  & type);
+		std::vector<Log> StopSaving(std::vector<std::string>  & type);
 		void ClearCommands(){};
 		void Cleaning();
 
