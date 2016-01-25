@@ -151,13 +151,13 @@ void MainWindow::securityCheckSlot(){
 
 void MainWindow::enableJoystickMode(bool enabled)
 {
-    if(enabled){
-        this->ui->frame->setVisible(false);
-        this->ui->frame_2->setVisible(false);
-        this->ui->homeButton->setVisible(false);
-        this->ui->label_record_stop_2->setVisible(false);
-        this->ui->frameJoystick->setVisible(true);
-    }
+
+    this->ui->frame->setVisible(!enabled);
+    this->ui->frame_2->setVisible(!enabled);
+    this->ui->homeButton->setVisible(!enabled);
+    this->ui->label_record_stop_2->setVisible(!enabled);
+    this->ui->frameJoystick->setVisible(enabled);
+
 }
 
 void MainWindow::on_button_rightClick_IncreaseSpeed(){

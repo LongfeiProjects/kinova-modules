@@ -544,22 +544,6 @@ color: rgb(247, 247, 246);
               <set>Qt::AlignCenter</set>
              </property>
             </widget>
-            <widget class="QFrame" name="frame_17">
-             <property name="geometry">
-              <rect>
-               <x>-390</x>
-               <y>-260</y>
-               <width>501</width>
-               <height>401</height>
-              </rect>
-             </property>
-             <property name="frameShape">
-              <enum>QFrame::StyledPanel</enum>
-             </property>
-             <property name="frameShadow">
-              <enum>QFrame::Raised</enum>
-             </property>
-            </widget>
            </widget>
           </item>
           <item row="0" column="0">
