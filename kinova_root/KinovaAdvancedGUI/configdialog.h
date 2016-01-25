@@ -30,6 +30,9 @@ private slots:
 
     void on_pushButton_clicked();
 
+
+    void on_joystickModeButton_toggled(bool checked);
+
 private:
     Ui::ConfigDialog *ui;
     int participantId;

@@ -113,7 +113,7 @@ void MainWindow::initGUI(){
 
     this->installEventFilter(this);
 
-
+    this->ui->frameJoystick->setVisible(false);
 }
 
 
@@ -147,6 +147,17 @@ void MainWindow::securityCheckSlot(){
         this->ui->forcestatusicon->setStyleSheet(QStringLiteral("image: url(:/imagenes/img/stop_hand_icon.png);"));
         this->ui->forcestatuslabel->setText(tr("Stop"));
     }
+}
+
+void MainWindow::enableJoystickMode(bool enabled)
+{
+
+    this->ui->frame->setVisible(!enabled);
+    this->ui->frame_2->setVisible(!enabled);
+    this->ui->homeButton->setVisible(!enabled);
+    this->ui->label_record_stop_2->setVisible(!enabled);
+    this->ui->frameJoystick->setVisible(enabled);
+
 }
 
 void MainWindow::on_button_rightClick_IncreaseSpeed(){

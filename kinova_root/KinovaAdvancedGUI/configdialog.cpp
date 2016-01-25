@@ -106,3 +106,10 @@ void ConfigDialog::on_pushButton_clicked()
         msgBox->exec();
     }
 }
+
+
+void ConfigDialog::on_joystickModeButton_toggled(bool checked)
+{
+    MainWindow* mw = ((MainWindow*)this->parent());
+    mw->enableJoystickMode(checked);
+}

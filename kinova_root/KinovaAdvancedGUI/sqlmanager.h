@@ -44,6 +44,7 @@ private:
         QFile dbFile("/home/smaricha/qt_workspace/kinova-modules/kinova_root/KinovaAdvancedGUI/database/trajectoryProg.db");
         if(!dbFile.exists()){
             //TODO create database ??
+            cerr << "Database doesn't exist!" <<endl;
         }else{
             databaseExist=true;
             this->database.setDatabaseName(dbFile.fileName());
