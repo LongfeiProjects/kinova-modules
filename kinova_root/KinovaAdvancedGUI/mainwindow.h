@@ -46,6 +46,7 @@ public:
     void saveCheckPoint();
 
     void clearTrajectoryPanel();
+    void enableJoystickMode(bool enabled);
 private:
 
 
@@ -176,6 +177,8 @@ private slots:
     void playTrajectoryButtonClicked(int trajectoryId);
     void on_configButton_clicked();
     void securityCheckSlot();
+
+
 
 protected:
 
