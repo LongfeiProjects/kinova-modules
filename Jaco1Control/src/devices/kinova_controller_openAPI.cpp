@@ -203,7 +203,7 @@ void kinova_controller_openapi::SendSingleCommand(State cmd,int type)
     //this->arm->erase_trajectories();
 	this->arm->set_target(p);
 	//DEBUG
-	std::cout << "after set_target(p);" << std::cout;
+	std::cout << "after set_target(p);" << std::endl;
     //std::cout << "time spent MySendAdvanceTrajectory: " << boost::chrono::duration_cast<boost::chrono::milliseconds>(boost::chrono::high_resolution_clock::now() - begin).count() << " ms\n";
 	//----
 }
