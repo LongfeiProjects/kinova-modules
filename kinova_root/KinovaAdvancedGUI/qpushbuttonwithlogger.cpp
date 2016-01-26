@@ -25,13 +25,13 @@ void QPushButtonWithLogger::mouseReleaseEvent(QMouseEvent *event)
      GUILogger::getInstance().addMouseEvent(this,event,this->objectName().toStdString());
 
     QPointF qpointf = event->localPos();
-    cout << "qpointf.x(),qpointf.y() =  " << qpointf.x() << "," << qpointf.y() <<endl;
-    cout << "qpointf.rx(),qpointf.ry() =  " << qpointf.rx() << "," << qpointf.ry() <<endl;
+   // cout << "qpointf.x(),qpointf.y() =  " << qpointf.x() << "," << qpointf.y() <<endl;
+   // cout << "qpointf.rx(),qpointf.ry() =  " << qpointf.rx() << "," << qpointf.ry() <<endl;
     int w = this->width();
     int h = this->height();
 
     if( qpointf.x()<0 || qpointf.y()<0 ||  qpointf.x() > w || qpointf.y() > h ){
-        cout << "NO FUE CLICK!" <<endl;
+        cout << "THAT WAS NOT A CLICK!" <<endl;
     }
 
 
