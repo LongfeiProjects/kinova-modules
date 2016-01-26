@@ -76,8 +76,8 @@ void ConfigDialog::on_generateLog_button_clicked()
         msgBox->setWindowTitle(tr("Log Saved"));
 
         ostringstream msg;
-        msg << tr("Log info was saved in").toStdString();
-        msg << strfile << tr(" and ").toStdString()  <<  filenameTrajectories.str();
+        msg << tr("Log info was saved in \n").toStdString();
+        msg << strfile << tr(" and \n").toStdString()  <<  filenameTrajectories.str();
 
         msgBox->setText(QString::fromStdString(msg.str()));
         msgBox->exec();
