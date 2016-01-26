@@ -446,6 +446,7 @@ void kinova_status_openapi::ReadJoints(KinDrv::jaco_position_t &position,KinDrv:
 	app[3]=force.joints[3];
 	app[4]=force.joints[4];
 	app[5]=force.joints[5];
+	std::cout<<app<<std::endl;
 	this->ds_ang_tau.push_back(app);
 	this->dl_ang_tau.store( &(ds_ang_tau.back()),boost::memory_order_release);
 	// i can write for the vis less often then the other op
