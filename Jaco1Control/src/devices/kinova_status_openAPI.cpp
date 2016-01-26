@@ -8,8 +8,7 @@ kinova_status_openapi::kinova_status_openapi(model * mdl)
 , ang_tau(0)
 , cart_f(0)
 , mot_amp(0)
-, comp_t(0)
-{
+, comp_t(0){
 	// move this guys outside the constructor
 	int NBLOCKS = 3;
 	int NJOINTS = 6;
@@ -29,6 +28,7 @@ kinova_status_openapi::kinova_status_openapi(model * mdl)
 	vis = visualization(NBLOCKS,NJOINTS,chunk_dim,x_min,x_max,low_thresh,high_thresh,y_min,y_max,label,title);
 	//thread related
 	bot = mdl;
+	already_saving = false;
 	Max_DS_allowed = 10000;
 	reader_stats = NULL;
 	log_stats = NULL;
@@ -46,15 +46,13 @@ kinova_status_openapi::kinova_status_openapi(model * mdl)
     this->tStart = boost::chrono::high_resolution_clock::now();
 }
 
-kinova_status_openapi::~kinova_status_openapi()
-{
+kinova_status_openapi::~kinova_status_openapi(){
     // close open api kinova
     this->arm->stop_api_ctrl();
     KinDrv::close_usb();
 }
 
-void kinova_status_openapi::Start()
-{
+void kinova_status_openapi::Start(){
     this->running.store(true,boost::memory_order_release);
     this->running_cleaner.store(true,boost::memory_order_release);
     this->reader_stats = new boost::thread(boost::bind(&kinova_status_openapi::Reading,this));
@@ -63,9 +61,7 @@ void kinova_status_openapi::Start()
     std::cout<<"start all threads"<<std::endl;
 }
 
-void kinova_status_openapi::Stop()
-{
-
+void kinova_status_openapi::Stop(){
 	// maybe add the command to empty the stack of command
 	// and to put the velocity at zero
 	this->arm->erase_trajectories();
@@ -78,12 +74,10 @@ void kinova_status_openapi::Stop()
 }
 
 // KINOVA API DEPENDANT // // in reading i update the value for control
-void kinova_status_openapi::Reading()
-{
+void kinova_status_openapi::Reading(){
     std::cout<<"starting reading thread"<< std::endl;
 	boost::chrono::milliseconds reading_time;
-	while(this->running.load(boost::memory_order_acquire))
-	{
+	while(this->running.load(boost::memory_order_acquire)){
 		boost::chrono::high_resolution_clock::time_point global_begin = boost::chrono::high_resolution_clock::now();
         KinDrv::jaco_position_t position,velocity,force;
         velocity = this->arm->get_ang_vel();
@@ -92,8 +86,7 @@ void kinova_status_openapi::Reading()
         this->ReadTimeStamp();
         this->ReadJoints(position,velocity,force);
         this->ReadCartesian(position);
-		if(!first_write.load(boost::memory_order_acquire))
-		{
+		if(!first_write.load(boost::memory_order_acquire)){
 			std::cout<<"first write"<<std::endl;
 			first_write.store(true,boost::memory_order_release);
 		}
@@ -129,8 +122,7 @@ void kinova_status_openapi::Reading()
 		reading_time = boost::chrono::duration_cast<boost::chrono::milliseconds>(boost::chrono::high_resolution_clock::now() - global_begin);
     	//std::cout << "time spent Reading: " << reading_time.count() << " ms\n";
         int test_time = boost::chrono::round<boost::chrono::milliseconds>(reading_time).count();
-        if(test_time < 10)
-        {
+        if(test_time < 10){
             boost::this_thread::sleep(boost::posix_time::milliseconds(10-test_time));
         }
 	}
@@ -254,7 +246,7 @@ void kinova_status_openapi::SaveCheckPoint(std::vector<std::string>  & type){
 			}
 			this->bookmarks[i].push_back(app);
 		}
-		this->active_bookmarks.push_back(1); //---
+		this->active_bookmarks.push_back(1);
 	}
 }
 
