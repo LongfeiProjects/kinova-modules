@@ -288,6 +288,8 @@ std::vector<Log> kinova_status_openapi::StopSaving(std::vector<std::string>  & t
 				State correction = app[0];
 				std::cout<< correction << std::endl;
 				std::cout<<time_displacement << std::endl;
+				for(unsigned int i=0;i<app.size();i++)
+					std::cout << app[i] << std::endl;
 				for(unsigned int i =0;i<app.size();i++){
 					app[i]=(app[i]-correction) + time_displacement;
 				}
