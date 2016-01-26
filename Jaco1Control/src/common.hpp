@@ -40,6 +40,7 @@ typedef DataStore::iterator                            DataStoreIt;
 typedef boost::shared_ptr<DataStoreIt>                 PtrDataStoreIt;
 typedef boost::atomic<State_ptr>                       DataLast;
 
+
 #define SSTR( x ) dynamic_cast< std::ostringstream & >( \
         ( std::ostringstream() << std::dec << x ) ).str();
 
@@ -57,8 +58,7 @@ template<typename T, size_t N>
 }
 
 template <typename T>
-std::vector<T> operator+(const std::vector<T>& a, const std::vector<T>& b)
-{
+std::vector<T> operator+(const std::vector<T>& a, const std::vector<T>& b){
 	//FIX THIS!!!
     //std::assert( a.size() == b.size() );
 
@@ -70,8 +70,7 @@ std::vector<T> operator+(const std::vector<T>& a, const std::vector<T>& b)
     return result;
 }
 template <typename T>
-std::vector<T> operator-(const std::vector<T>& a, const std::vector<T>& b)
-{
+std::vector<T> operator-(const std::vector<T>& a, const std::vector<T>& b){
 	//FIX THIS!!!
     //std::assert( a.size() == b.size() );
 
@@ -83,19 +82,16 @@ std::vector<T> operator-(const std::vector<T>& a, const std::vector<T>& b)
     return result;
 }
 template <typename T>
-T* GetData(std::vector<T>* vec)
-{
+T* GetData(std::vector<T>* vec){
 	T * p=&(*vec);
 	return p;
 }
 template <typename T>
-T* GetData(arma::Col<T>* vec)
-{
+T* GetData(arma::Col<T>* vec){
 	T * p = vec->memptr();
 }
 template <typename T>
-T* GetData(arma::Row<T>* vec)
-{
+T* GetData(arma::Row<T>* vec){
 	T * p = vec->memptr();
 }
 
@@ -107,6 +103,7 @@ extern boost::atomic<bool>  _second;
 // Constant
 
 extern double DEG;
+extern double PI;
 
 // Mathematical routine
 void Mat2RPY(arma::mat m,arma::vec & rpy);

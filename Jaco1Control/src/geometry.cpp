@@ -1665,6 +1665,7 @@ double box_point_dist_nd(int ndim, double p1[], double p2[], double p[]){
 		values[2] = p[i] - p2[i]; //  p.x - rect.max.x
 		result = result + pow((*std::max_element(values,values+3)),2); //
 	}
+	return result;
 }
 
 

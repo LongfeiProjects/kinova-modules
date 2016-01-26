@@ -47,11 +47,9 @@ class driverbot : public stats
 		std::vector<Log> StopSaving(std::vector<std::string>  & type);
 		void ClearCommands(){};
 		void Cleaning();
-
 		void ReadTimeStamp(int operationMode);
 		State ReadJoints(int operationMode);
 		void ReadCartesian(State q,int operationMode);
-
 };
 
 

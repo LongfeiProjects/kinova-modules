@@ -33,8 +33,6 @@ struct box{
 		return res;
 	}
 };
-
-
 struct range{
 	std::vector<double> min;
 	std::vector<double> max;
@@ -47,16 +45,14 @@ struct range{
 		for(unsigned int i =0;i<max.size();i++){
 			distance_from_mid_point.push_back( ( ( max[i]-min[i] )/2) );
 		}
-
 	}
-
 	std::vector<double> IsValid(State test){
 		std::vector<double> result;
 		// the same value range for every value
 		if(min.size() == 1 && max.size() == 1){
 			for(unsigned int i=0;i<test.size();i++){
 			   if( test[i] > min[0] && test[i] <= max[0]){
-				   result.push_back( std::max( (test[i] - min[0]),(max[0]-test[i]) ) );
+				   result.push_back( std::min( (test[i] - min[0]),(max[0]-test[i]) ) );
 			   }else{
 				   result.push_back(0);
 			   }
@@ -66,7 +62,7 @@ struct range{
 		else{
 			for(unsigned int i=0;i<test.size();i++){
 				if(test[i] > min[i] && test[i] <= max[i]){
-					result.push_back( std::max( (test[i] - min[i]),(max[i]-test[i]) ) );
+					result.push_back( std::min( (test[i] - min[i]),(max[i]-test[i]) ) );
 				}else{
 					result.push_back(0);
 				}
@@ -88,13 +84,11 @@ class safetycheck{
 	void Scoring();
 
 public:
-	bool launch_tread;
+	bool launch_thread;
 	std::vector<std::string> checklist;
 
-
-
 	safetycheck(){
-		launch_tread = false;
+		launch_thread = false;
 		// i need this to avoid problem when i execute safety check when the object is empty
 		std::string empty = " ";
 		for(int i=0;i<3;i++)
@@ -103,7 +97,7 @@ public:
 	};
 	safetycheck(std::vector<std::vector<double> > l_down_left_corner,std::vector<std::vector<double> > l_dims,
 				std::vector<std::vector<double> > l_min,std::vector<std::vector<double> > l_max, std::vector<std::string> names){
-		launch_tread = false;
+		launch_thread = false;
 		// istanziate the map with the ranges
 		for(unsigned int i =0;i<names.size();i++){
 			range r(l_min[i],l_max[i]);
@@ -130,21 +124,26 @@ public:
 		// initialize score
 		for(unsigned int i=0;i<checklist.size();i++)
 		{
-			this->score[i] = 0;
+			this->score.push_back(0);
 		}
 	}
 	safetycheck (const safetycheck &c){
 		bb = c.bb;
 		rs = c.rs;
-		launch_tread = c.launch_tread;
+		launch_thread = c.launch_thread;
 		checklist = c.checklist;
+		private_checklist = c.private_checklist;
 		distances_from_violation = c.distances_from_violation;
 		score = c.score;
 	};
-	safetycheck operator=(const safetycheck & rhs)
-	{
-		safetycheck obj=safetycheck(rhs);
-		return obj;
+	void operator=(const safetycheck & rhs){
+		bb = rhs.bb;
+		rs = rhs.rs;
+		launch_thread = rhs.launch_thread;
+		checklist = rhs.checklist;
+		private_checklist = rhs.private_checklist;
+		distances_from_violation = rhs.distances_from_violation;
+		score = rhs.score;
 	};
 	 void VerifyViolation( std::vector<State> valuelist);
      std::vector<int> GetScore();

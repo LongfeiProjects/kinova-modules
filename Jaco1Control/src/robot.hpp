@@ -23,10 +23,10 @@ class robot
 		safetycheck check;                         // structure used for defining the non safe conditions
 		boost::thread* safety_check;               // thread that monitors if the robot is getting into a non safe conditions
 		boost::thread* emergency_stop;             // thread that control the emergency stop (when the button c is pressed)
-		boost::thread* action_thread;              // i can use action thread to lunch some command that are not instantaneous
+		boost::thread* action_thread;              // i can use action thread to lunch some command that are not instantaneous (NOT USED)
 
 		boost::atomic<bool> stop_auxiliary_thread; // this flag control the execution of the auxiliary thread (safety check and emergency stop)
-		boost::atomic<bool> stop;                  // this flag is activated when a non safe condition takes place and stop all the action threads
+		boost::atomic<bool> stop;                  // this flag is activated when a non safe condition takes place and stop the control thread
 
 		robot(){};
 

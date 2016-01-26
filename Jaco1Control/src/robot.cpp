@@ -1,16 +1,13 @@
 #include "robot.hpp"
 
-void robot::ReadCurrentState(std::vector<State>& stat, std::vector<std::string> & type )
-{
+void robot::ReadCurrentState(std::vector<State>& stat, std::vector<std::string> & type ){
 	this->st->GetLastValue(stat,type);
 }
 
-void robot::StartLog(std::vector<std::string>  & type)
-{
+void robot::StartLog(std::vector<std::string>  & type){
   this->st->StartSaving(type);
 }
-std::vector<Log> robot::StopLog(std::vector<std::string>  & type)
-{
+std::vector<Log> robot::StopLog(std::vector<std::string>  & type){
 	std::vector<Log> result = this->st->StopSaving(type);
 	return result;
 }
@@ -28,21 +25,16 @@ void robot::ExecuteTrajectory(std::vector<State> timestamps, State starting_cart
     this->stop.store(false,boost::memory_order_release);
     // i create the time map for each trajectory that i want to reproduce
     this->contr->ComputeTimeMap(timestamps);
-    try
-    {
+    try{
         contr->index = -1; // in this way i define the initialization of the controller contr->index = -1
         bool read_data = false;
-        while( !this->stop.load(boost::memory_order_acquire) && internal_clock < this->contr->time_map.size())
-        {
+        while( !this->stop.load(boost::memory_order_acquire) && internal_clock < this->contr->time_map.size()){
             std::vector<State> cur_val;
             begin = boost::chrono::high_resolution_clock::now();
             read_data =st->GetLastValue(cur_val,this->contr->opt.meas_val);
             // control block
-            if(read_data)
-            {
-                if(contr->index == -1)
-                {
-
+            if(read_data){
+                if(contr->index == -1){
                     //DEBUG
                     std::cout<<"before move2startingposition"<<std::endl;
                     //---
@@ -57,14 +49,12 @@ void robot::ExecuteTrajectory(std::vector<State> timestamps, State starting_cart
                     contr->index = 0;
                     time_reference = boost::chrono::high_resolution_clock::now();
                 }
-                else if(contr->index >= 0)
-                {
+                else if(contr->index >= 0){
                 	 contr->ExecController(cur_val,this->contr->opt.control_action);
                     control_time = boost::chrono::duration_cast<boost::chrono::milliseconds>(boost::chrono::high_resolution_clock::now() - begin);
                     std::cout << "time spent in main cycle: " << control_time.count()  << " ms\n";
                     int test_time = boost::chrono::round<boost::chrono::milliseconds>(control_time).count();
-                    if(test_time < 10)
-                    {
+                    if(test_time < 10){
                         boost::this_thread::sleep(boost::posix_time::milliseconds(10-test_time));
                     }
                     cur_time = boost::chrono::duration_cast<boost::chrono::milliseconds>(boost::chrono::high_resolution_clock::now() - time_reference);
@@ -79,8 +69,7 @@ void robot::ExecuteTrajectory(std::vector<State> timestamps, State starting_cart
         }
         std::cout<< "im out the main cycle"<<std::endl;
     }
-    catch(const std::exception &e)
-    {
+    catch(const std::exception &e){
         std::cout<< "something gone wrong"<<std::endl;
         return;
     }
@@ -91,8 +80,7 @@ void robot::ExecuteUpdatedTrajectory(std::vector<State> timestamps, State starti
     this->ExecuteTrajectory(timestamps,starting_cartesian_position);
 }
 
-void robot::ExecuteTrajectoryFile(State starting_cartesian_position)
-{
+void robot::ExecuteTrajectoryFile(State starting_cartesian_position){
     std::vector<State> timestamps;
     if(!this->contr->timestamp_file.empty()){
         this->contr->ReadFile(this->contr->timestamp_file,timestamps);
@@ -110,8 +98,8 @@ void robot::SendCommand(State & cmd,int type){
 	this->contr->SendSingleCommand(cmd,type);
 }
 
-void robot::SendAndWait(State starting_joint_position)
-{   std::cout << "entering sendAndWait" << std::endl;
+void robot::SendAndWait(State starting_joint_position){
+	std::cout << "entering sendAndWait" << std::endl;
     // GO TO initial position
     double sos;
     std::vector<State> cur_val_1;
@@ -126,8 +114,7 @@ void robot::SendAndWait(State starting_joint_position)
     sos =arma::dot(cur_val_1[0],cur_val_1[0]);
     //std::cout<< "curval" << cur_val_1[0] << std::endl;
     std::cout<< sos << std::endl;
-   while(sos > 0.000001)
-   {
+   while(sos > 0.000001){
         usleep(10*1000);
         std::vector<State> cur_val_1;
         st->GetLastValue(cur_val_1,read);
@@ -171,7 +158,7 @@ void robot::ReproduceTrajectory(std::string namefile){
 }*/
 void robot::SendDeltaCartesianCommand(State & cmd){
 	//std::cout << "inizio controller"<< std::endl;
-	bool read_data = false;
+	//bool read_data = false;
 	std::vector<State> cur_val;
 	State control_action;
 	st->GetLastValue(cur_val,this->contr->opt.meas_val);
@@ -195,19 +182,18 @@ void robot::StartAllThread(){
 	st->Start();
     this->emergency_stop = new boost::thread(boost::bind(&robot::EmergencyStop,this));
 	// start the thread in the robot object
-    if(check.launch_tread)
+    if(check.launch_thread){
+    	std::cout<<"start checking thread"<<std::endl;
         this->safety_check = new boost::thread(boost::bind(&robot::Cheking,this));
+    }
 }
-
-void robot::StopAllThread()
-{
+void robot::StopAllThread(){
 	st->Stop();
 	this->stop_auxiliary_thread.store(true,boost::memory_order_release);
     emergency_stop->join();
-    if(check.launch_tread)
+    if(check.launch_thread)
         safety_check->join();
 }
-
 void robot::Cheking(){
     std::cout<< "starting cheking thread"<<std::endl;
 	try{
@@ -217,7 +203,6 @@ void robot::Cheking(){
 			read_data = st->GetLastValue(cur_val,check.checklist);
 			// if the thread that publish data start to write data i will start to check them
 			if(read_data){
-				bool check=false;
 				this->check.VerifyViolation(cur_val);
 			}
              boost::this_thread::sleep(boost::posix_time::milliseconds(5));
@@ -228,9 +213,7 @@ void robot::Cheking(){
 		std::cout<< "error in the checking thread"<<std::endl;
 	}
 }
-
-void robot::EmergencyStop()
-{
+void robot::EmergencyStop(){
 	//while( !this->stop_auxiliary_thread.load(boost::memory_order_acquire) )
 	{
 		/*if (sf::Keyboard::isKeyPressed(sf::Keyboard::LControl) && sf::Keyboard::isKeyPressed(sf::Keyboard::C))
