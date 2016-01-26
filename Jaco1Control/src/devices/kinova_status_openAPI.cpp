@@ -517,7 +517,7 @@ bool kinova_status_openapi::GetLastValue(std::vector<State>& res, std::vector<st
 		for(unsigned int i =0;i<type.size();i++)
 		{
             //DEBUG
-            std::cout<<"reading succed"<<std::endl;
+            //std::cout<<"reading succed"<<std::endl;
             //--
 			State app;
 			if(type[i].compare("j_pos") == 0)
