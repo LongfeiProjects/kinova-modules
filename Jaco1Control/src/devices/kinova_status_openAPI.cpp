@@ -286,8 +286,8 @@ std::vector<Log> kinova_status_openapi::StopSaving(std::vector<std::string>  & t
 			for(unsigned int j = 0;j<seq.size();j++){
 				Log app(this->bookmarks[i][seq[j].first],this->bookmarks[i][seq[j].second]);
 				State correction = app[0];
-				std::cout<< correction << std::cout;
-				std::cout<<time_displacement << std::cout;
+				std::cout<< correction << std::endl;
+				std::cout<<time_displacement << std::endl;
 				for(unsigned int i =0;i<app.size();i++){
 					app[i]=(app[i]-correction) + time_displacement;
 				}
