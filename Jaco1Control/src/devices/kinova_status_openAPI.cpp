@@ -271,6 +271,13 @@ std::vector<Log> kinova_status_openapi::StopSaving(std::vector<std::string>  & t
     this->SaveCheckPoint(type);
     // analisys active_bookmarks
     seq = ContSeq(this->active_bookmarks);
+    std::cout<<" this->active_bookmarks "<<std::endl;
+    for(unsigned int i =0;i<this->active_bookmarks.size();i++)
+    	std::cout<< this->active_bookmarks[i] << std::endl;
+    std::cout<<"seq"<<std::endl;
+    for(unsigned int i =0;i<seq.size();i++)
+    	std::cout<< seq[i].first << " " << seq[i].second<< std::endl;
+
 	for(unsigned int i =0;i<type.size();i++){
 		if(type[i].compare("comp_t")==0){
 			Log app_tot;
@@ -278,8 +285,9 @@ std::vector<Log> kinova_status_openapi::StopSaving(std::vector<std::string>  & t
 			time_displacement[0]=0;
 			for(unsigned int j = 0;j<seq.size();j++){
 				Log app(this->bookmarks[i][seq[j].first],this->bookmarks[i][seq[j].second]);
+				State correction = app[0];
 				for(unsigned int i =0;i<app.size();i++){
-					app[i]=(app[i]-app[0]) + time_displacement;
+					app[i]=(app[i]-correction) + time_displacement;
 				}
 				app_tot.insert(app_tot.end(), app.begin(), app.end());
 				time_displacement = app.back(); // here i acquire the last time of first sequence after correction;
