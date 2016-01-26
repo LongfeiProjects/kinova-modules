@@ -107,7 +107,7 @@ void robot::SendAndWait(State starting_joint_position){
     std::vector<std::string> read;
     read.push_back(app);
     std::cout << "before send command" << std::endl;
-    this->SendCommand(starting_joint_position,11);
+    this->SendCommand(starting_joint_position,21);
     std::cout << "after send command" << std::endl;
     usleep(1000*300);
     st->GetLastValue(cur_val_1,read);
