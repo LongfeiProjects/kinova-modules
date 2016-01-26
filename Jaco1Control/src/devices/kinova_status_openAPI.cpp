@@ -175,7 +175,7 @@ void kinova_status_openapi::StartSaving(std::vector<std::string>  & type){
 	this->running_cleaner.store(false,boost::memory_order_release);
     this->garbage_collection->join();
     // start the global time for logging
-    this->tStart = boost::chrono::high_resolution_clock::now();
+    //this->tStart = boost::chrono::high_resolution_clock::now();
     for(unsigned int ii =0;ii<type.size();ii++){
 		std::vector<DataStoreIt> init;
 		this->bookmarks.push_back(init);
