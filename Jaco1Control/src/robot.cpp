@@ -119,7 +119,7 @@ void robot::SendAndWait(State starting_joint_position){
         std::vector<State> cur_val_1;
         st->GetLastValue(cur_val_1,read);
         sos =arma::dot(cur_val_1[0],cur_val_1[0]);
-        //std::cout<< "curval" << cur_val_1[0] << std::endl;
+        std::cout<< "curval" << cur_val_1[0] << std::endl;
         std::cout<< sos << std::endl;
    }
    // DEBUG
