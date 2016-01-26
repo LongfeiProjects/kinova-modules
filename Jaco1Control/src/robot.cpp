@@ -115,7 +115,7 @@ void robot::SendAndWait(State starting_joint_position){
     //std::cout<< "curval" << cur_val_1[0] << std::endl;
     std::cout<< sos << std::endl;
    while(sos > 0.000001){
-        //usleep(10*1000);
+        usleep(10*1000);
         std::vector<State> cur_val_1;
         st->GetLastValue(cur_val_1,read);
         sos =arma::dot(cur_val_1[0],cur_val_1[0]);
