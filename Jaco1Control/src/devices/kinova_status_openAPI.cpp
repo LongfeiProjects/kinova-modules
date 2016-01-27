@@ -260,7 +260,6 @@ void kinova_status_openapi::DeleteCheckPoint(){
 		}
 	}
 }
-
 std::vector<Log> kinova_status_openapi::StopSaving(std::vector<std::string>  & type){
 	std::vector<Log> result;
 	std::vector<std::pair<int,int> > seq;

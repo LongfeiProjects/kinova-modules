@@ -274,12 +274,8 @@ std::vector<Log> driverbot::StopSaving(std::vector<std::string>  & type){
 			std::cout<<seq[j].first<<" "<<seq[j].second<<std::endl;
 		}
 	//---
-	// seq correction
-	for(unsigned int iii =0;iii<seq.size();iii++){
-		seq[iii].first=seq[iii].first + 1;
-		seq[iii].second=seq[iii].second + 1;
-	}
 	for(unsigned int i =0;i<type.size();i++){
+		std::cout << type[i] << std::endl;
 		if(type[i].compare("comp_t")==0){
 			Log app_tot;
 			State time_displacement(1);
@@ -324,6 +320,7 @@ std::vector<Log> driverbot::StopSaving(std::vector<std::string>  & type){
 			result.push_back(app_tot);
 		}
 	}
+	std::cout<<"after creating result"<<std::endl;
     // reactivate the reading thread
     this->running.store(true,boost::memory_order_release);
     this->reader_stats = new boost::thread(boost::bind(&driverbot::Reading,this));

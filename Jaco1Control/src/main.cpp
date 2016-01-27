@@ -230,7 +230,6 @@ int main()
 					checkpoints.pop_back();
 					bot.st->DeleteCheckPoint(); // ---
 					bot.SendCommand(actualPosition,bot.contr->opt.control_action);
-
 				}
 			}
 			if (sf::Joystick::isButtonPressed(0, 3)){//square // show scoring
