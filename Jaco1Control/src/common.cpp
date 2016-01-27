@@ -141,10 +141,12 @@ std::vector<std::pair<int,int> > ContSeq(std::vector<int> foovec){
 		}
 	}
 	// last block
+	if(start != index[i-1]){
 	app.first = start;
 	app.second = index[i-1];
 	seq.push_back(app);
     return seq;
+	}
 }
 // Robot interaction
 State convertDirectionToState( std::string direction, float speed){
