@@ -271,12 +271,29 @@ std::vector<Log> kinova_status_openapi::StopSaving(std::vector<std::string>  & t
     this->SaveCheckPoint(type);
     // analisys active_bookmarks
     seq = ContSeq(this->active_bookmarks);
-    std::cout<<" this->active_bookmarks "<<std::endl;
-    for(unsigned int i =0;i<this->active_bookmarks.size();i++)
-    	std::cout<< this->active_bookmarks[i] << std::endl;
-    std::cout<<"seq"<<std::endl;
-    for(unsigned int i =0;i<seq.size();i++)
-    	std::cout<< seq[i].first << " " << seq[i].second<< std::endl;
+    // DEBUG
+		for(unsigned int i =0;i<this->bookmarks.size();i++){
+			std::cout << type[i] << "  = ";
+			DataStoreIt first_index_of_seq = bookmarks[i][0];
+			int index = 0;
+			for(unsigned int j = 1;j<this->bookmarks[i].size();j++){
+				DataStoreIt it = bookmarks[i][j];
+				while(first_index_of_seq != it){
+					index++;
+					first_index_of_seq++;
+				}
+				std::cout<< index << " ";
+			}
+			std::cout<<std::endl;
+		}
+		std::cout<<" this->active_bookmarks "<<std::endl;
+		for(unsigned int i =0;i<this->active_bookmarks.size();i++)
+			std::cout<< this->active_bookmarks[i];
+		std::cout<<std::endl;
+		std::cout<<"seq"<<std::endl;
+		for(unsigned int i =0;i<seq.size();i++)
+			std::cout<< seq[i].first << " " << seq[i].second<< std::endl;
+    //---
 
 	for(unsigned int i =0;i<type.size();i++){
 		if(type[i].compare("comp_t")==0){

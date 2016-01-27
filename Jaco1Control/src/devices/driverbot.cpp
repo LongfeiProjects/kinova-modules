@@ -171,7 +171,7 @@ void driverbot::StartSaving(std::vector<std::string>  & type){
 	this->running_cleaner.store(false,boost::memory_order_release);
     this->garbage_collection->join();
     // start the global time for logging
-    simxCustomGetTime(this->idclient,tStart,simx_opmode_oneshot_wait);
+    //simxCustomGetTime(this->idclient,tStart,simx_opmode_oneshot_wait);
     // initiliaze bookmark
     for(unsigned int ii =0;ii<type.size();ii++){
     	std::vector<DataStoreIt> init;
@@ -250,15 +250,29 @@ std::vector<Log> driverbot::StopSaving(std::vector<std::string>  & type){
     // analisys active_bookmarks
     seq = ContSeq(this->active_bookmarks);
     //DEBUG
-	std::cout << "active bookmarks" << std::endl;
-	for(unsigned int ij =0;ij<this->active_bookmarks.size();ij++){
-		std::cout<<active_bookmarks[ij]<<" ";
-	}
-	std::cout<<std::endl;
-	std::cout<<"seq vec"<<std::endl;
-	for(unsigned int j = 0; j<seq.size();j++){
-		std::cout<<seq[j].first<<" "<<seq[j].second<<std::endl;
-	}
+    	for(unsigned int i =0;i<this->bookmarks.size();i++){
+			std::cout << type[i] << "  = ";
+			DataStoreIt first_index_of_seq = bookmarks[i][0];
+			int index = 0;
+			for(unsigned int j = 1;j<this->bookmarks[i].size();j++){
+				DataStoreIt it = bookmarks[i][j];
+				while(first_index_of_seq != it){
+					index++;
+					first_index_of_seq++;
+				}
+				std::cout<< index << " ";
+			}
+			std::cout<<std::endl;
+    	}
+		std::cout << "active bookmarks" << std::endl;
+		for(unsigned int ij =0;ij<this->active_bookmarks.size();ij++){
+			std::cout<<active_bookmarks[ij]<<" ";
+		}
+		std::cout<<std::endl;
+		std::cout<<"seq vec"<<std::endl;
+		for(unsigned int j = 0; j<seq.size();j++){
+			std::cout<<seq[j].first<<" "<<seq[j].second<<std::endl;
+		}
 	//---
 	for(unsigned int i =0;i<type.size();i++){
 		if(type[i].compare("comp_t")==0){
@@ -267,8 +281,9 @@ std::vector<Log> driverbot::StopSaving(std::vector<std::string>  & type){
 			time_displacement[0]=0;
 			for(unsigned int j = 0;j<seq.size();j++){
 				Log app(this->bookmarks[i][seq[j].first],this->bookmarks[i][seq[j].second]);
+				State correction = app[0];
 				for(unsigned int i =0;i<app.size();i++){
-					app[i]=(app[i]-app[0]) + time_displacement;
+					app[i]=(app[i]-correction) + time_displacement;
 				}
 				app_tot.insert(app_tot.end(), app.begin(), app.end());
 				time_displacement = app.back(); // here i acquire the last time of first sequence after correction;
