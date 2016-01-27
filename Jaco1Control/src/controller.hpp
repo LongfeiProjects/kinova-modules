@@ -82,15 +82,14 @@ class controller
         void ComputeTimeMap(std::vector<State> timestamps ){
             int ind = 0;
             int diff;int diff_prev;
+            // clean previous time map
             this->time_map.clear();
-            for(int i=0; i< timestamps.back()[0];i++){
+            /*for(int i=0; i< timestamps.back()[0];i++){
                 diff = timestamps[ind][0]-i;
-                if( diff == 0 || ind == 0)
-                {
+                if( diff == 0 || ind == 0){
                     this->time_map.push_back(ind);
                     ind++;
-                }else
-                {
+                }else{
                      diff_prev = abs(timestamps[ind-1][0]-i);
                     if(diff_prev<= diff)
                         this->time_map.push_back(ind-1);
@@ -98,7 +97,19 @@ class controller
                         this->time_map.push_back(ind);
                 }
 
+            }*/
+            // the first term point to zero elelement
+            this->time_map.push_back(ind);
+            for(int i = timestamps.front()[0]; i< timestamps.back()[0];i++){
+            	diff = timestamps[ind][0]-i;
+            	if(diff <= 0){
+            		ind++;
+            		this->time_map.push_back(ind);
+            	}else{
+            		this->time_map.push_back(ind);
+            	}
             }
+
         }
 };
 
