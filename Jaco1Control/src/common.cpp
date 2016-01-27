@@ -103,7 +103,7 @@ std::vector<std::pair<int,int> > ContSeq(std::vector<int> foovec){
 	// look for contiguous sequence
 	int start =  index[0];
 	unsigned int i = 1;
-    while (i<index.size()){
+    /*while (i<index.size()){
     	if((index[i] - start ) == 1){
     		// im the contiguous case
     		if((i + 1)< index.size()){
@@ -114,15 +114,36 @@ std::vector<std::pair<int,int> > ContSeq(std::vector<int> foovec){
     	app.first = start;
     	app.second = index[i];
     	seq.push_back(app);
-    	if(i+1 <index.size())
+    	if(i+1 <index.size()){
     		start = index[i+1];
+    	}
     		i = i+2;
     	}else{
     		//update start
     		start = index[i];
     		i++;
     	}
-    }
+    }*/
+	int track_contiguos = start;
+	while (i<index.size()){
+		if((index[i] - track_contiguos ) == 1){
+			// contiguos case
+			track_contiguos = index[i];
+			i++;
+		}else{
+			app.first = start;
+			app.second = index[i-1] + 1;
+			seq.push_back(app);
+			// update for  the next block
+			start = index[i];
+			track_contiguos = start;
+			i++;
+		}
+	}
+	// last block
+	app.first = start;
+	app.second = index[i-1];
+	seq.push_back(app);
     return seq;
 }
 // Robot interaction

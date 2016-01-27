@@ -274,6 +274,11 @@ std::vector<Log> driverbot::StopSaving(std::vector<std::string>  & type){
 			std::cout<<seq[j].first<<" "<<seq[j].second<<std::endl;
 		}
 	//---
+	// seq correction
+	for(unsigned int iii =0;iii<seq.size();iii++){
+		seq[iii].first=seq[iii].first + 1;
+		seq[iii].second=seq[iii].second + 1;
+	}
 	for(unsigned int i =0;i<type.size();i++){
 		if(type[i].compare("comp_t")==0){
 			Log app_tot;
