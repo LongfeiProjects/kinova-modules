@@ -35,6 +35,13 @@ MainWindow::MainWindow(QWidget *parent) :
     connect (this->securityCheckTimer, SIGNAL(timeout()), this, SLOT(securityCheckSlot()));
     this->klib = new Kinovalib();
     this->point.InitStruct();
+
+    this->score=0;
+    this->scoreindex=0;
+    for(int i=0;i<FORCE_MEASURES;i++){
+        this->scorecolection.push_back(0);
+    }
+
     initGUI();
 
     GUILogger::getInstance().enableLogging(true);
@@ -122,31 +129,48 @@ void MainWindow::initGUI(){
 void MainWindow::securityCheckSlot(){
     //TODO check force
     //this->force = 0.0;
-    if(force<0.1){ //no force
-        this->ui->forcescale->setStyleSheet(QStringLiteral("image: url(:/imagenes/img/noForce.png);"));
-        this->ui->forcestatusicon->setVisible(false);
-        this->ui->forcestatuslabel->setVisible(false);
-    }else if(force < 0.35){//low force
-        this->ui->forcescale->setStyleSheet(QStringLiteral("image: url(:/imagenes/img/lowStrength.png);"));
-        this->ui->forcestatusicon->setVisible(false);
-        this->ui->forcestatuslabel->setVisible(false);
-    }else if(force < 0.5){//middle force
-        this->ui->forcescale->setStyleSheet(QStringLiteral("image: url(:/imagenes/img/low-middleStrength.png);"));
-        this->ui->forcestatusicon->setVisible(false);
-        this->ui->forcestatuslabel->setVisible(false);
-    }else if(force < 0.7){//middle high
-        this->ui->forcestatusicon->setVisible(true);
-        this->ui->forcestatuslabel->setVisible(true);
-        this->ui->forcescale->setStyleSheet(QStringLiteral("image: url(:/imagenes/img/middle-highStrength.png);"));
-        this->ui->forcestatusicon->setStyleSheet(QStringLiteral("image: url(:/imagenes/img/warning.png);"));
-        this->ui->forcestatuslabel->setText(tr("Warning"));
-    }else if(force <= 1.0){//high stength
-        this->ui->forcestatusicon->setVisible(true);
-        this->ui->forcestatuslabel->setVisible(true);
-        this->ui->forcescale->setStyleSheet(QStringLiteral("image: url(:/imagenes/img/highStrength.png);"));
-        this->ui->forcestatusicon->setStyleSheet(QStringLiteral("image: url(:/imagenes/img/stop_hand_icon.png);"));
-        this->ui->forcestatuslabel->setText(tr("Stop"));
+
+    //new call
+    if(kinova_initialized){
+        std::vector<int> scorevector = bot->check.GetScore();
+
+        this->scorecolection[scoreindex] =  scorevector[1];
+        scoreindex= (scoreindex+1)%FORCE_MEASURES;
+        this->score = 0;
+        for(int i=0;i< FORCE_MEASURES;i++){
+            this->score+=this->scorecolection[i];
+        }
+        this->score= this->score/FORCE_MEASURES;
+
+        if(score<1){ //no force
+            this->ui->forcescale->setStyleSheet(QStringLiteral("image: url(:/imagenes/img/noForce.png);"));
+            this->ui->forcestatusicon->setVisible(false);
+            this->ui->forcestatuslabel->setVisible(false);
+        }else if(score < 50){//low force
+            this->ui->forcescale->setStyleSheet(QStringLiteral("image: url(:/imagenes/img/lowStrength.png);"));
+            this->ui->forcestatusicon->setVisible(false);
+            this->ui->forcestatuslabel->setVisible(false);
+        }else if(score < 75){//middle force
+            this->ui->forcescale->setStyleSheet(QStringLiteral("image: url(:/imagenes/img/low-middleStrength.png);"));
+            this->ui->forcestatusicon->setVisible(false);
+            this->ui->forcestatuslabel->setVisible(false);
+        }else if(score < 90){//middle high
+            this->ui->forcestatusicon->setVisible(true);
+            this->ui->forcestatuslabel->setVisible(true);
+            this->ui->forcescale->setStyleSheet(QStringLiteral("image: url(:/imagenes/img/middle-highStrength.png);"));
+            this->ui->forcestatusicon->setStyleSheet(QStringLiteral("image: url(:/imagenes/img/warning.png);"));
+            this->ui->forcestatuslabel->setText(tr("Warning"));
+        }else if(score <= 100){//high stength
+            this->ui->forcestatusicon->setVisible(true);
+            this->ui->forcestatuslabel->setVisible(true);
+            this->ui->forcescale->setStyleSheet(QStringLiteral("image: url(:/imagenes/img/highStrength.png);"));
+            this->ui->forcestatusicon->setStyleSheet(QStringLiteral("image: url(:/imagenes/img/stop_hand_icon.png);"));
+            this->ui->forcestatuslabel->setText(tr("Stop"));
+        }
     }
+
+
+
 }
 
 void MainWindow::enableJoystickMode(bool enabled)
@@ -776,8 +800,8 @@ void MainWindow::on_initKinovaButton_clicked()
                 std::vector<std::string> chekclist(cl,End(cl));
                 const double joint_min[] = {-10000,47,19,-10000,-10000,-10000}; // deg
                 const double joint_max[] = {10000,313,341,10000,10000,10000}; // deg
-                const double tau_min[] = {-15}; // Nm
-                const double tau_max[] = {15};  // nm
+                const double tau_min[] = {-25}; // Nm
+                const double tau_max[] = {25};  // nm
                 std::vector<double> j_min(joint_min,End(joint_min)),j_max(joint_max,End(joint_max));
                 std::vector<double> t_min(tau_min,End(tau_min)),t_max(tau_max,End(tau_max));
 
@@ -787,6 +811,8 @@ void MainWindow::on_initKinovaButton_clicked()
                 l_max.push_back(j_max);l_max.push_back(t_max);
 
                 safetycheck checker(l_down_left_corner,l_dims,l_min,l_max,chekclist);
+                checker.launch_thread=true;
+
                 this->bot= new robot(st,ct,checker);
 
                 this->bot->MoveHome();
@@ -1143,11 +1169,13 @@ void MainWindow::on_record_Button_toggled(bool checked)
 
 /*Save the actual position as a checkpoint. This allows the user to undo actions*/
 void MainWindow::saveCheckPoint(){
+    cout << "Before saving checkpoint" << endl;
     if(KINOVA_LIB==1){
 
-         vector<State> result;
+        vector<State> result;
         this->bot->ReadCurrentState(result,this->readType);
         int indice = this->readTypeMap["cart_pos"];
+        int handVelIndex = this->readTypeMap["hand_vel"];
 
         this->actualPosition.Coordinates.X = result[indice][0];
         this->actualPosition.Coordinates.Y = result[indice][1];
@@ -1155,11 +1183,16 @@ void MainWindow::saveCheckPoint(){
         this->actualPosition.Coordinates.ThetaX = result[indice][3];
         this->actualPosition.Coordinates.ThetaY = result[indice][4];
         this->actualPosition.Coordinates.ThetaZ = result[indice][5];
-        this->actualPosition.Fingers.Finger1 = result[indice][6];
-        this->actualPosition.Fingers.Finger2 = result[indice][7];
-        this->actualPosition.Fingers.Finger3 = result[indice][8];
+        this->actualPosition.Fingers.Finger1 = result[handVelIndex][0];
+        this->actualPosition.Fingers.Finger2 = result[handVelIndex][1];
+        this->actualPosition.Fingers.Finger3 = result[handVelIndex][2];
 
         this->checkpoints.push_back(this->actualPosition);
+
+    //new call
+        cout << "-- Before SaveCheckPoint(this->readType)" << endl;
+        this->bot->st->SaveCheckPoint(this->readType);
+        cout << "-- After SaveCheckPoint(this->readType)" << endl;
         this->ui->undoButton->setEnabled(true);
     }else{
         int res = this->klib->getActualCartesianPosition(this->actualPosition);
@@ -1310,8 +1343,13 @@ void MainWindow::on_undoButton_clicked()
         this->ui->undoButton->setDisabled(true);
         State s = convertOficialAPItoStatePoint(this->point);
         QApplication::processEvents( QEventLoop::ExcludeUserInputEvents);
+        cout << "State UNDO:\n" << s << endl;
         this->bot->SendAndWait(s);
+        this->bot->st->DeleteCheckPoint();
         this->ui->undoButton->setDisabled(false);
+
+
+
         //this->bot->SendCommand(s,11); //move arm and hand using cartesian position
     }else{
         this->point.Position.CartesianPosition.X = this->actualPosition.Coordinates.X;

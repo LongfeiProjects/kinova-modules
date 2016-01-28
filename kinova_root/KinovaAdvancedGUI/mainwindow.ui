@@ -1175,6 +1175,24 @@ color: rgb(247, 247, 246);
          </property>
         </widget>
        </widget>
+       <widget class="QLabel" name="forceCheck">
+        <property name="geometry">
+         <rect>
+          <x>510</x>
+          <y>30</y>
+          <width>111</width>
+          <height>61</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>26</pointsize>
+         </font>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+       </widget>
       </widget>
       <widget class="QLabel" name="recordingLabel">
        <property name="geometry">
