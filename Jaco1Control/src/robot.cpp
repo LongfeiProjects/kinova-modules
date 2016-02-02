@@ -177,6 +177,12 @@ void robot::MoveHome(){
 	this->contr->Move2Home();
     this->st->Start();
 }
+
+void robot::Stop(){
+	this->st->ClearCommands();
+    this->stop.store(true,boost::memory_order_release);
+}
+
 void robot::StartAllThread(){
 	// start the thread in the object robot_status object
 	st->Start();
@@ -214,13 +220,29 @@ void robot::Cheking(){
 	}
 }
 void robot::EmergencyStop(){
-	//while( !this->stop_auxiliary_thread.load(boost::memory_order_acquire) )
-	{
-		/*if (sf::Keyboard::isKeyPressed(sf::Keyboard::LControl) && sf::Keyboard::isKeyPressed(sf::Keyboard::C))
-		{
-			//std::cout<< "---------------------------------------------------------"<<std::endl;
-			//this->st->ClearCommands();
-			//this->stop.store(true,boost::memory_order_release);
-        }*/
+	// cycle of control to keep the robot in action
+	sf::RenderWindow window(sf::VideoMode(800, 600, 32), "Joystick Use", sf::Style::Default);
+	sf::Event e;
+	// window to control robot
+	sf::RectangleShape square;
+	square.setFillColor(sf::Color(255, 0, 0, 255));
+	square.setPosition(window.getSize().x / 2, window.getSize().y / 2);
+	square.setOutlineColor(sf::Color(0, 0, 0, 255));
+	square.setSize(sf::Vector2f(50.f, 50.f));
+	// joystick
+	//query joystick for settings if it's plugged in...
+	if (sf::Joystick::isConnected(0)){
+		// check how many buttons joystick number 0 has
+		unsigned int buttonCount = sf::Joystick::getButtonCount(0);
+		std::cout << "Button count: " << buttonCount << std::endl;
 	}
+	while( !this->stop_auxiliary_thread.load(boost::memory_order_acquire) ){
+		while (window.pollEvent(e)){
+			if (sf::Joystick::isButtonPressed(0, 2)){//X = undo command
+				std::cout<< "---------------------------------------------------------"<<std::endl;
+				this->Stop();
+			}
+		}
+	}
+	window.close();
 }

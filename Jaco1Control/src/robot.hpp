@@ -62,6 +62,7 @@ class robot
         // provisionary function (only VREP)
         void SendDeltaCartesianCommand(State & cmd);
 		void MoveHome();
+		void Stop();
 	private:
 		void StartAllThread();
 		void StopAllThread();
