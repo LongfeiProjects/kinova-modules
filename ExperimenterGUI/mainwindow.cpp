@@ -13,12 +13,22 @@ void MainWindow::initGUI(){
     this->ui->participantIdtextEdit->setDisabled(true);
     this->ui->taskManagementGroupBox->setDisabled(true);
 
-    this->ui->taskscomboBox->addItem(tr("1:Turn on light"));
-    this->ui->taskscomboBox->addItem(tr("2:Push little switch"));
-    this->ui->taskscomboBox->addItem(tr("3:Push big switch"));
-    this->ui->taskscomboBox->addItem(tr("4:Open drawer"));
-    this->ui->taskscomboBox->addItem(tr("5:Pick and place object"));
-    this->ui->taskscomboBox->addItem(tr("6:Open door"));
+    this->ui->taskscomboBox->addItem(tr("1:Turn on light (Joystick)"));
+    this->ui->taskscomboBox->addItem(tr("2:Push little switch (Joystick)"));
+    this->ui->taskscomboBox->addItem(tr("3:Push big switch (Joystick)"));
+    this->ui->taskscomboBox->addItem(tr("4:Open drawer (Joystick)"));
+    this->ui->taskscomboBox->addItem(tr("5:Pick and place object (Joystick)"));
+    this->ui->taskscomboBox->addItem(tr("6:Open door (Joystick)"));
+
+    this->ui->taskscomboBox->addItem(tr("1:Turn on light (GUI)"));
+    this->ui->taskscomboBox->addItem(tr("2:Push little switch (GUI)"));
+    this->ui->taskscomboBox->addItem(tr("3:Push big switch (GUI)"));
+    this->ui->taskscomboBox->addItem(tr("4:Open drawer (GUI)"));
+    this->ui->taskscomboBox->addItem(tr("5:Pick and place object (GUI)"));
+    this->ui->taskscomboBox->addItem(tr("6:Open door (GUI)"));
+    this->ui->taskscomboBox->addItem(tr("--- EXPERIMENTER COMMENT ---"));
+
+
 
     this->gsrwidget = new GSRWidget();
 }

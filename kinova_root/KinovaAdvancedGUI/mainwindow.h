@@ -24,6 +24,7 @@
 
 #define  MAX_COLUMNS_PLAY_PANEL  5
 #define KINOVA_LIB 1    // 0: Oficial API , 1: Open API through vmodugno package
+
 namespace Ui {
 class MainWindow;
 }
@@ -101,6 +102,16 @@ private:
     float    MEDIUM_SPEED = 1.1;
     float    HIGH_SPEED = 1.5;
 
+    //FORCE CHECK VARIABLES
+    int score;
+    int scoreindex;
+    vector<int> scorecolection;
+
+    /*Security Check Thread*/
+    QTimer* securityCheckTimer;
+    int CHECK_FORCE_TIMER = 100; // time in miliseconds.
+    int FORCE_MEASURES = 5;   //the force signal will represent the average of FORCE_MEASURES measures
+
 
     bool isRecordingTrajecory;
     bool isMoving;
@@ -131,10 +142,7 @@ private:
     vector<RecordedCartesianInfo> convertLog2Trajectory(vector<Log> logs);
 
 
-    /*Security Check Thread*/
-    QTimer* securityCheckTimer;
-    int CHECK_FORCE_TIMER = 100; // time in miliseconds.
-    float force = 0.0;
+
 
     /*Data for the experiment. Participant id , etc*/
     int participantId;
@@ -183,7 +191,8 @@ private slots:
 protected:
 
     /*Delete this, we don't need it*/
-    bool eventFilter(QObject *obj, QEvent *event){
+
+    /*bool eventFilter(QObject *obj, QEvent *event){
         if (event->type() == QEvent::KeyPress) {
             QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event);
             switch(keyEvent->key()){
@@ -211,7 +220,7 @@ protected:
                 return false;
         }
         return false;
-    }
+    }*/
 };
 
 #endif // MAINWINDOW_H
