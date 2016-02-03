@@ -65,8 +65,8 @@ int main()
     driverbot_contr * ct = new driverbot_contr(namefile,opt,Pid,md,vrep->idclient,vrep->joint_handle);
     // CHECKING MODULE
 	// define bounding box
-	const double bb_point[] = {-0.6,-0.8,-0.4};
-	const double bb_dims[]  = {1.2,1.6,0.8};
+	const double bb_point[] = {-1,-1,-1};
+	const double bb_dims[]  = {5,5,5};
 	std::vector<double> bb_p(bb_point,End(bb_point)),bb_d(bb_dims,End(bb_dims));
 	// define all the limit
 	const char *cl[] = {"j_pos","j_tau"};
