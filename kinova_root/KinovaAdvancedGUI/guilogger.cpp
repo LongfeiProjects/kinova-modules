@@ -10,8 +10,6 @@ void GUILogger::addMouseEvent(QWidget *source, QMouseEvent* event, string elemen
         string button;
 
         QPointF qpointf = event->localPos();
-        cout << "qpointf.x(),qpointf.y() =  " << qpointf.x() << "," << qpointf.y() <<endl;
-        cout << "qpointf.rx(),qpointf.ry() =  " << qpointf.rx() << "," << qpointf.ry() <<endl;
         int w = source->width();
         int h = source->height();
 

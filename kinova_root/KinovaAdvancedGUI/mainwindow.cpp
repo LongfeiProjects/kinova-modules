@@ -127,11 +127,8 @@ void MainWindow::initGUI(){
 
 
 void MainWindow::securityCheckSlot(){
-    //TODO check force
-    //this->force = 0.0;
-
     //new call
-    if(kinova_initialized){
+    if(kinova_initialized && KINOVA_LIB==1){
         std::vector<int> scorevector = bot->check.GetScore();
 
         this->scorecolection[scoreindex] =  scorevector[1];
@@ -140,8 +137,8 @@ void MainWindow::securityCheckSlot(){
         for(int i=0;i< FORCE_MEASURES;i++){
             this->score+=this->scorecolection[i];
         }
-        this->score= this->score/FORCE_MEASURES;
 
+        this->score= this->score/FORCE_MEASURES;
         if(score<1){ //no force
             this->ui->forcescale->setStyleSheet(QStringLiteral("image: url(:/imagenes/img/noForce.png);"));
             this->ui->forcestatusicon->setVisible(false);
@@ -167,10 +164,24 @@ void MainWindow::securityCheckSlot(){
             this->ui->forcestatusicon->setStyleSheet(QStringLiteral("image: url(:/imagenes/img/stop_hand_icon.png);"));
             this->ui->forcestatuslabel->setText(tr("Stop"));
         }
+
+        int boundingbox_violation = scorevector[2];
+        this->ui->boundingBoxLabel->setText(QString::number(boundingbox_violation));
+        if(boundingbox_violation<100){
+            //TODO Do something, call emergency stop? We are out of the box
+        }
+
+
+        vector<State> result;
+        this->bot->ReadCurrentState(result,this->readType);
+        int indice = this->readTypeMap["cart_pos"];
+
+        cout << "(x,y,z) = (" << result[indice][0] << "," <<result[indice][1] << "," << result[indice][2] << ")" << endl;
+
+        /*this->actualPosition.Coordinates.ThetaX = result[indice][3];
+        this->actualPosition.Coordinates.ThetaY = result[indice][4];
+        this->actualPosition.Coordinates.ThetaZ = result[indice][5];*/
     }
-
-
-
 }
 
 void MainWindow::enableJoystickMode(bool enabled)
@@ -791,8 +802,12 @@ void MainWindow::on_initKinovaButton_clicked()
                 kinova_controller_openapi * ct = new kinova_controller_openapi(namefile,namefileindex,opt,Pid,md,st->arm); // very rough patch because i can have only one API handle
                 // checking module
                 // define bounding box
-                const double bb_point[] = {-0.6,-0.8,-0.4};
-                const double bb_dims[]  = {1.2,1.6,0.8};
+
+                //const double bb_point[] = {-0.6,-0.8,-0.4};
+                //const double bb_dims[]  = {1.2,1.6,0.8};
+                const double bb_point[] = {-1,-1,0};
+                const double bb_dims[]  = {5.0,5.0,5.0};
+
                 std::vector<double> bb_p(bb_point,End(bb_point)),bb_d(bb_dims,End(bb_dims));
 
                 // define all the limit
@@ -851,17 +866,7 @@ void MainWindow::on_initKinovaButton_clicked()
 }
 
 
-/*
- * This was used to prove that the freezing bug was because of the sf::Keyboard::isKeyPressed(sf::Keyboard::C)
- * void MainWindow::Loop(){
-    while (1){
-        boost::this_thread::sleep(boost::posix_time::milliseconds(1));
-         if (sf::Keyboard::isKeyPressed(sf::Keyboard::C))
-          {
-              std::cout<< "----------------------------SAFETY STOP!!!-----------------------------"<<std::endl;
-          }
-    }
- }*/
+
 
 
 void MainWindow::error_kinova_not_initialized(){
@@ -1388,3 +1393,49 @@ void MainWindow::on_configButton_clicked()
         this->ui->participantIdLabel->setVisible(true);
     }
 }
+
+void MainWindow::on_pushButton_clicked()
+{
+   this->loopthread = new boost::thread(boost::bind(&MainWindow::Loop,this));
+    this->loopthread->start_thread();
+}
+
+void MainWindow::Loop(){
+   /*while (1){
+        boost::this_thread::sleep(boost::posix_time::milliseconds(1));
+         if (sf::Keyboard::isKeyPressed(sf::Keyboard::C))
+          {
+              std::cout<< "----------------------------SAFETY STOP!!!-----------------------------"<<std::endl;
+          }
+    }*/
+
+    // cycle of control to keep the robot in action
+    sf::RenderWindow window(sf::VideoMode(800, 600, 32), "Joystick Use", sf::Style::Default);
+    sf::Event e;
+    // window to control robot
+    sf::RectangleShape square;
+    square.setFillColor(sf::Color(255, 0, 0, 255));
+    square.setPosition(window.getSize().x / 2, window.getSize().y / 2);
+    square.setOutlineColor(sf::Color(0, 0, 0, 255));
+    square.setSize(sf::Vector2f(50.f, 50.f));
+    // joystick
+    //query joystick for settings if it's plugged in...
+    if (sf::Joystick::isConnected(0)){
+        // check how many buttons joystick number 0 has
+        unsigned int buttonCount = sf::Joystick::getButtonCount(0);
+        std::cout << "Button count: " << buttonCount << std::endl;
+    }
+    while( true ){
+        while (window.pollEvent(e)){
+            cout << "event for window!"  << endl;
+            if (sf::Joystick::isButtonPressed(0, 2)){//X = undo command
+                std::cout<< "---------------------------------------------------------"<<std::endl;
+                //this->Stop();
+            }
+        }
+        cout << "inside loop" <<endl;
+    }
+    window.close();
+
+
+ }
