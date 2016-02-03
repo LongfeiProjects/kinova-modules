@@ -221,7 +221,7 @@ void robot::Cheking(){
 }
 void robot::EmergencyStop(){
 	// cycle of control to keep the robot in action
-	sf::RenderWindow window(sf::VideoMode(800, 600, 32), "Joystick Use", sf::Style::Default);
+	/*sf::RenderWindow window(sf::VideoMode(800, 600, 32), "Joystick Use", sf::Style::Default);
 	sf::Event e;
 	// window to control robot
 	sf::RectangleShape square;
@@ -244,5 +244,5 @@ void robot::EmergencyStop(){
 			}
 		}
 	}
-	window.close();
+	window.close();*/
 }
