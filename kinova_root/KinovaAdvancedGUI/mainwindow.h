@@ -20,6 +20,7 @@
 #include "robot.hpp"
 #include "devices/kinova_controller_openAPI.hpp"
 #include "devices/kinova_status_openAPI.hpp"
+#include "xinputGamepad.h"
 
 
 #define  MAX_COLUMNS_PLAY_PANEL  5
@@ -151,6 +152,12 @@ private:
     void Loop();
     boost::thread* loopthread;
     void error_kinova_already_initialized();
+    void initJoystick();
+
+    bool f_haveJoystick;
+    XInput input;
+    QTimer tmr;
+    void emergencyStop();
 private slots:
 
     void on_homeButton_clicked();
@@ -191,6 +198,7 @@ private slots:
 
     void on_pushButton_clicked();
 
+    void readJoystickState();
 protected:
 
     /*Delete this, we don't need it*/

@@ -24,7 +24,8 @@ SOURCES += main.cpp\
     qpushbuttonwithlogger.cpp \
     guilogger.cpp \
     qcombowithlogger.cpp \
-    savedialog.cpp
+    savedialog.cpp \
+    xinputGamepad.cpp
 
 HEADERS  += mainwindow.h \
     sqlmanager.h \
@@ -37,7 +38,8 @@ HEADERS  += mainwindow.h \
     qpushbuttonwithlogger.h \
     guilogger.h \
     qcombowithlogger.h \
-    savedialog.h
+    savedialog.h \
+    xinputGamepad.h
 
 FORMS    += mainwindow.ui \
     dialog.ui \

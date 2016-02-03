@@ -43,13 +43,40 @@ MainWindow::MainWindow(QWidget *parent) :
     }
 
     initGUI();
-
+    initJoystick();
     GUILogger::getInstance().enableLogging(true);
 
 }
 
 
 
+void MainWindow::initJoystick(){
+    f_haveJoystick = input.initInput(0);
+    // refresh timer interval (reads new values from joystick)
+    if (f_haveJoystick)
+    {
+        tmr.setInterval(15);
+        connect(&tmr,SIGNAL(timeout()),this,SLOT(readJoystickState()));
+        tmr.start();
+    }
+}
+
+void MainWindow::readJoystickState()
+{
+    if (!input.updateState()) return;
+
+    if(input.isKeyPressed(0)){
+        cout << "Emergency Stop!!" << endl;
+        this->emergencyStop();
+    }
+}
+
+
+void MainWindow::emergencyStop(){
+    if(kinova_initialized && KINOVA_LIB==1){
+        this->bot->Stop();
+    }
+}
 
 void MainWindow::initGUI(){
     this->armCommand=true;
@@ -1409,7 +1436,7 @@ void MainWindow::Loop(){
           }
     }*/
 
-    // cycle of control to keep the robot in action
+ /*   // cycle of control to keep the robot in action
     sf::RenderWindow window(sf::VideoMode(800, 600, 32), "Joystick Use", sf::Style::Default);
     sf::Event e;
     // window to control robot
@@ -1436,6 +1463,16 @@ void MainWindow::Loop(){
         cout << "inside loop" <<endl;
     }
     window.close();
+    */
+
+    while( true ){
+            if (sf::Joystick::isButtonPressed(0, 2)){//X = undo command
+                std::cout<< "---------------------------------------------------------"<<std::endl;
+                //this->Stop();
+            }
+
+    }
+
 
 
  }
