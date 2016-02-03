@@ -148,7 +148,8 @@ private:
     int participantId;
     string speedToString(float speed);
     GUILogger* logger;
-   // void Loop();
+    void Loop();
+    boost::thread* loopthread;
     void error_kinova_already_initialized();
 private slots:
 
@@ -187,6 +188,8 @@ private slots:
     void securityCheckSlot();
 
 
+
+    void on_pushButton_clicked();
 
 protected:
 
