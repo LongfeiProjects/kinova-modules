@@ -37,6 +37,8 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
 public:
+
+    bool f_haveJoystick;
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
 
@@ -49,10 +51,13 @@ public:
 
     void clearTrajectoryPanel();
     void enableJoystickMode(bool enabled);
+    bool canMove();
+    void Loop();
+    void initJoystick();
 private:
 
 
-   // boost::thread* reader_stats;
+   boost::thread* reader_stats;
 
 
     Ui::MainWindow *ui;
@@ -108,6 +113,8 @@ private:
     int scoreindex;
     vector<int> scorecolection;
 
+    int boundingBoxScore[2];
+
     /*Security Check Thread*/
     QTimer* securityCheckTimer;
     int CHECK_FORCE_TIMER = 100; // time in miliseconds.
@@ -149,15 +156,19 @@ private:
     int participantId;
     string speedToString(float speed);
     GUILogger* logger;
-    void Loop();
+
     boost::thread* loopthread;
     void error_kinova_already_initialized();
-    void initJoystick();
 
-    bool f_haveJoystick;
+
+
     XInput input;
-    QTimer tmr;
+ //   QTimer* tmr;
+ //   QThread* joystickThread;
     void emergencyStop();
+    bool violatingBoundingBox;
+    bool warningBoundingBox;
+    void penalizeMovement();
 private slots:
 
     void on_homeButton_clicked();

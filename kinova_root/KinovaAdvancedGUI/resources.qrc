@@ -31,6 +31,7 @@
         <file>img/stop_hand_icon.png</file>
         <file>img/wait.png</file>
         <file>img/joystick.jpg</file>
+        <file>img/joystick.png</file>
     </qresource>
     <qresource prefix="/database">
         <file>database/trajectoryProg.db</file>

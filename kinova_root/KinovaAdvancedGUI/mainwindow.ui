@@ -1175,24 +1175,6 @@ color: rgb(247, 247, 246);
          </property>
         </widget>
        </widget>
-       <widget class="QLabel" name="forceCheck">
-        <property name="geometry">
-         <rect>
-          <x>510</x>
-          <y>30</y>
-          <width>111</width>
-          <height>61</height>
-         </rect>
-        </property>
-        <property name="font">
-         <font>
-          <pointsize>26</pointsize>
-         </font>
-        </property>
-        <property name="text">
-         <string/>
-        </property>
-       </widget>
        <widget class="QLabel" name="boundingBoxLabel">
         <property name="geometry">
          <rect>
@@ -1204,6 +1186,24 @@ color: rgb(247, 247, 246);
         </property>
         <property name="text">
          <string/>
+        </property>
+       </widget>
+       <widget class="QLabel" name="warningBB_label">
+        <property name="geometry">
+         <rect>
+          <x>520</x>
+          <y>20</y>
+          <width>301</width>
+          <height>91</height>
+         </rect>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">color: rgb(237, 31, 36);
+font: 25pt &quot;Ubuntu&quot;;</string>
+        </property>
+        <property name="text">
+         <string>     Out of the secure  
+        zone, go back</string>
         </property>
        </widget>
       </widget>
@@ -1352,6 +1352,24 @@ color: rgb(247, 247, 246);
          </widget>
         </item>
        </layout>
+      </widget>
+      <widget class="QLabel" name="forceCheck">
+       <property name="geometry">
+        <rect>
+         <x>270</x>
+         <y>10</y>
+         <width>111</width>
+         <height>61</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>26</pointsize>
+        </font>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
       </widget>
      </widget>
     </widget>

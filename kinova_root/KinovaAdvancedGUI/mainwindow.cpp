@@ -42,6 +42,9 @@ MainWindow::MainWindow(QWidget *parent) :
         this->scorecolection.push_back(0);
     }
 
+    this->violatingBoundingBox = false;
+    this->warningBoundingBox = false;
+
     initGUI();
     initJoystick();
     GUILogger::getInstance().enableLogging(true);
@@ -51,14 +54,23 @@ MainWindow::MainWindow(QWidget *parent) :
 
 
 void MainWindow::initJoystick(){
-    f_haveJoystick = input.initInput(0);
-    // refresh timer interval (reads new values from joystick)
-    if (f_haveJoystick)
-    {
-        tmr.setInterval(15);
-        connect(&tmr,SIGNAL(timeout()),this,SLOT(readJoystickState()));
-        tmr.start();
+    f_haveJoystick = input.initInput(0); //it seems that always returns true.... Not very useful
+    if(f_haveJoystick){
+        this->loopthread = new boost::thread(boost::bind(&MainWindow::Loop,this));
     }
+    // refresh timer interval (reads new values from joystick)
+ /*   if (f_haveJoystick)
+    {   tmr = new QTimer(0);
+        joystickThread = new QThread(this);
+        tmr->setInterval(15);
+        tmr->moveToThread(joystickThread);
+
+        connect(tmr,SIGNAL(timeout()),this,SLOT(readJoystickState()));
+        connect(joystickThread, SIGNAL(started()), tmr, SLOT(start()));
+
+        joystickThread->start();
+        //tmr.start();
+    }*/
 }
 
 void MainWindow::readJoystickState()
@@ -148,6 +160,7 @@ void MainWindow::initGUI(){
     this->installEventFilter(this);
 
     this->ui->frameJoystick->setVisible(false);
+    this->ui->warningBB_label->setVisible(false);
 }
 
 
@@ -192,23 +205,42 @@ void MainWindow::securityCheckSlot(){
             this->ui->forcestatuslabel->setText(tr("Stop"));
         }
 
-        int boundingbox_violation = scorevector[2];
-        this->ui->boundingBoxLabel->setText(QString::number(boundingbox_violation));
-        if(boundingbox_violation<100){
-            //TODO Do something, call emergency stop? We are out of the box
+        this->boundingBoxScore[0] = this->boundingBoxScore[1];
+        this->boundingBoxScore[1] = scorevector[2];
+        //uncomment if you want to check the score of the bounding box violation
+        //this->ui->boundingBoxLabel->setText(QString::number(this->boundingBoxScore[1]));
+        if(this->boundingBoxScore[1]<100){
+            this->warningBoundingBox=true;
+            this->ui->warningBB_label->setVisible(true);
+            this->violatingBoundingBox=!(this->boundingBoxScore[1]>=90);
+        }else{
+            this->warningBoundingBox=false;
+            this->ui->warningBB_label->setVisible(false);
+            this->violatingBoundingBox=false;
         }
-
-
-        vector<State> result;
+        /*vector<State> result;
         this->bot->ReadCurrentState(result,this->readType);
         int indice = this->readTypeMap["cart_pos"];
 
         cout << "(x,y,z) = (" << result[indice][0] << "," <<result[indice][1] << "," << result[indice][2] << ")" << endl;
-
-        /*this->actualPosition.Coordinates.ThetaX = result[indice][3];
-        this->actualPosition.Coordinates.ThetaY = result[indice][4];
-        this->actualPosition.Coordinates.ThetaZ = result[indice][5];*/
+        */
     }
+}
+
+bool MainWindow::canMove(){
+    if(this->violatingBoundingBox){
+        if(this->boundingBoxScore[1] >= this->boundingBoxScore[0]){ //moving out of the box
+            cout << "boundingBoxScore[1]" << boundingBoxScore[1] << endl;
+            cout << "boundingBoxScore[0]" << boundingBoxScore[0] << endl;
+            return true;
+        }
+        return false;
+    }
+    return true;
+}
+
+void MainWindow::penalizeMovement(){
+    usleep(0.5*1000*1000); //0.5 seconds penalization
 }
 
 void MainWindow::enableJoystickMode(bool enabled)
@@ -286,8 +318,6 @@ QFont getLabelFont(){
 }
 
 void MainWindow::playTrajectoryButtonClicked(int trajectoryId){
-    cout<< "entro en play" << endl;
-    cout << trajectoryId << endl;
     this->ui->Play->setDisabled(true);
 
     QString buttonname = QString("playButton_")+QString::number(trajectoryId);
@@ -455,9 +485,13 @@ void MainWindow::on_homeButton_clicked()
 {
     cout << "Moving home"<< endl;
     if(KINOVA_LIB==1){
-        cout<<"before moving home" <<endl;
-        this->bot->MoveHome();
-        cout<<"ater moving home" <<endl;
+        if(this->canMove()){
+            cout<<"before moving home" <<endl;
+            this->bot->MoveHome();
+            cout<<"ater moving home" <<endl;
+        }else{
+            this->penalizeMovement();
+        }
     }else{
         int res = klib->moveHome();
         if(res!=SUCCESS){
@@ -514,15 +548,23 @@ void MainWindow::loopSendVelocityCommad(int direction){
     if(!this->stopedTimers[direction-1]){ //we have to use a bool to know If we stopped the timer  because the timer->stop() is not immediate
        if(direction==Close || direction==Open){
            if(KINOVA_LIB == 1){
-               State cmd = convertDirectionToState(direction,30);
+               if(this->canMove()){
+                 State cmd = convertDirectionToState(direction,30);
                  this->bot->SendCommand(cmd,27);
+               }else{
+                   this->penalizeMovement();
+               }
            }else{
                 this->klib->moveSingleStep(direction,30); //Fixed speed, the unit velocity of the fingers is not clear at all!
            }
        }else{
            if(KINOVA_LIB == 1){
-               State cmd = convertDirectionToState(direction,this->speed);
+               if(this->canMove()){
+                State cmd = convertDirectionToState(direction,this->speed);
                 this->bot->SendCommand(cmd,7);
+               }else{
+                   this->penalizeMovement();
+               }
             }else{
                this->klib->moveSingleStep(direction,this->speed);
            }
@@ -832,8 +874,8 @@ void MainWindow::on_initKinovaButton_clicked()
 
                 //const double bb_point[] = {-0.6,-0.8,-0.4};
                 //const double bb_dims[]  = {1.2,1.6,0.8};
-                const double bb_point[] = {-1,-1,0};
-                const double bb_dims[]  = {5.0,5.0,5.0};
+                const double bb_point[] = {-0.5,-0.75,-0.03};
+                const double bb_dims[]  = {1,0.75,0.65};
 
                 std::vector<double> bb_p(bb_point,End(bb_point)),bb_d(bb_dims,End(bb_dims));
 
@@ -1203,29 +1245,32 @@ void MainWindow::on_record_Button_toggled(bool checked)
 void MainWindow::saveCheckPoint(){
     cout << "Before saving checkpoint" << endl;
     if(KINOVA_LIB==1){
+        if(this->canMove()){
+            vector<State> result;
+            this->bot->ReadCurrentState(result,this->readType);
+            int indice = this->readTypeMap["cart_pos"];
+            int handVelIndex = this->readTypeMap["hand_vel"];
 
-        vector<State> result;
-        this->bot->ReadCurrentState(result,this->readType);
-        int indice = this->readTypeMap["cart_pos"];
-        int handVelIndex = this->readTypeMap["hand_vel"];
+            this->actualPosition.Coordinates.X = result[indice][0];
+            this->actualPosition.Coordinates.Y = result[indice][1];
+            this->actualPosition.Coordinates.Z = result[indice][2];
+            this->actualPosition.Coordinates.ThetaX = result[indice][3];
+            this->actualPosition.Coordinates.ThetaY = result[indice][4];
+            this->actualPosition.Coordinates.ThetaZ = result[indice][5];
+            this->actualPosition.Fingers.Finger1 = result[handVelIndex][0];
+            this->actualPosition.Fingers.Finger2 = result[handVelIndex][1];
+            this->actualPosition.Fingers.Finger3 = result[handVelIndex][2];
 
-        this->actualPosition.Coordinates.X = result[indice][0];
-        this->actualPosition.Coordinates.Y = result[indice][1];
-        this->actualPosition.Coordinates.Z = result[indice][2];
-        this->actualPosition.Coordinates.ThetaX = result[indice][3];
-        this->actualPosition.Coordinates.ThetaY = result[indice][4];
-        this->actualPosition.Coordinates.ThetaZ = result[indice][5];
-        this->actualPosition.Fingers.Finger1 = result[handVelIndex][0];
-        this->actualPosition.Fingers.Finger2 = result[handVelIndex][1];
-        this->actualPosition.Fingers.Finger3 = result[handVelIndex][2];
+            this->checkpoints.push_back(this->actualPosition);
 
-        this->checkpoints.push_back(this->actualPosition);
-
-    //new call
-        cout << "-- Before SaveCheckPoint(this->readType)" << endl;
-        this->bot->st->SaveCheckPoint(this->readType);
-        cout << "-- After SaveCheckPoint(this->readType)" << endl;
-        this->ui->undoButton->setEnabled(true);
+        //new call
+            cout << "-- Before SaveCheckPoint(this->readType)" << endl;
+            this->bot->st->SaveCheckPoint(this->readType);
+            cout << "-- After SaveCheckPoint(this->readType)" << endl;
+            this->ui->undoButton->setEnabled(true);
+        }else{
+            penalizeMovement();
+        }
     }else{
         int res = this->klib->getActualCartesianPosition(this->actualPosition);
         if(res==SUCCESS){
@@ -1325,8 +1370,12 @@ void MainWindow::on_playPointPosition_clicked()
 {
     this->setHandPoint();
     if(KINOVA_LIB==1){
-        State s = convertOficialAPItoStatePoint(this->point);
-        this->bot->SendCommand(s,11); //move arm and hand using cartesian position
+        if(this->canMove()){
+            State s = convertOficialAPItoStatePoint(this->point);
+            this->bot->SendCommand(s,11); //move arm and hand using cartesian position
+        }else{
+            this->penalizeMovement();
+        }
     }else{
         klib->sendCommand(CARTESIAN_POSITION,false,true,this->point);
     }
@@ -1336,8 +1385,12 @@ void MainWindow::on_playPullPosition_clicked()
 {
     this->setHandPull();
     if(KINOVA_LIB==1){
-        State s = convertOficialAPItoStatePoint(this->point);
-        this->bot->SendCommand(s,11); //move arm and hand using cartesian position
+        if(this->canMove()){
+            State s = convertOficialAPItoStatePoint(this->point);
+            this->bot->SendCommand(s,11); //move arm and hand using cartesian position
+        }else{
+            this->penalizeMovement();
+        }
     }else{
         klib->sendCommand(CARTESIAN_POSITION,true,true,this->point);
     }
@@ -1347,8 +1400,12 @@ void MainWindow::on_playGraspPosition_clicked()
 {
     this->setHandGrasp();
     if(KINOVA_LIB==1){
-        State s = convertOficialAPItoStatePoint(this->point);
-        this->bot->SendCommand(s,11); //move arm and hand using cartesian position
+        if(this->canMove()){
+            State s = convertOficialAPItoStatePoint(this->point);
+            this->bot->SendCommand(s,11); //move arm and hand using cartesian position
+        }else{
+            this->penalizeMovement();
+        }
     }else{
         klib->sendCommand(CARTESIAN_POSITION,true,true,this->point);
     }
@@ -1362,7 +1419,7 @@ void MainWindow::on_undoButton_clicked()
     this->actualPosition = this->checkpoints.back();
     this->checkpoints.pop_back();
 
-    if(KINOVA_LIB==1){
+    if(KINOVA_LIB==1 ){
         this->point.Position.CartesianPosition.X = this->actualPosition.Coordinates.X;
         this->point.Position.CartesianPosition.Y = this->actualPosition.Coordinates.Y;
         this->point.Position.CartesianPosition.Z = this->actualPosition.Coordinates.Z;
@@ -1421,58 +1478,42 @@ void MainWindow::on_configButton_clicked()
     }
 }
 
-void MainWindow::on_pushButton_clicked()
+/*void MainWindow::on_pushButton_clicked()
 {
    this->loopthread = new boost::thread(boost::bind(&MainWindow::Loop,this));
-    this->loopthread->start_thread();
+    //this->loopthread->start_thread();
 }
 
 void MainWindow::Loop(){
-   /*while (1){
-        boost::this_thread::sleep(boost::posix_time::milliseconds(1));
-         if (sf::Keyboard::isKeyPressed(sf::Keyboard::C))
-          {
-              std::cout<< "----------------------------SAFETY STOP!!!-----------------------------"<<std::endl;
-          }
-    }*/
-
- /*   // cycle of control to keep the robot in action
-    sf::RenderWindow window(sf::VideoMode(800, 600, 32), "Joystick Use", sf::Style::Default);
-    sf::Event e;
-    // window to control robot
-    sf::RectangleShape square;
-    square.setFillColor(sf::Color(255, 0, 0, 255));
-    square.setPosition(window.getSize().x / 2, window.getSize().y / 2);
-    square.setOutlineColor(sf::Color(0, 0, 0, 255));
-    square.setSize(sf::Vector2f(50.f, 50.f));
-    // joystick
-    //query joystick for settings if it's plugged in...
-    if (sf::Joystick::isConnected(0)){
-        // check how many buttons joystick number 0 has
-        unsigned int buttonCount = sf::Joystick::getButtonCount(0);
-        std::cout << "Button count: " << buttonCount << std::endl;
-    }
-    while( true ){
-        while (window.pollEvent(e)){
-            cout << "event for window!"  << endl;
-            if (sf::Joystick::isButtonPressed(0, 2)){//X = undo command
-                std::cout<< "---------------------------------------------------------"<<std::endl;
-                //this->Stop();
+    cout << "boost joystick thread..." << endl;
+    XInput* input = new XInput();
+    this->f_haveJoystick = input->initInput(0);
+    while(true){
+        if (input->updateState()){
+            if(input->isKeyPressed(0)){
+                cout << "Emergency Stop!!" << endl;
+                this->emergencyStop();
             }
-        }
-        cout << "inside loop" <<endl;
+        }else
+            cout << "no update" << endl;
     }
-    window.close();
-    */
+}*/
+
+
+
+void MainWindow::on_pushButton_clicked()
+{
+   this->loopthread = new boost::thread(boost::bind(&MainWindow::Loop,this));
+}
+
+void MainWindow::Loop(){
 
     while( true ){
-            if (sf::Joystick::isButtonPressed(0, 2)){//X = undo command
-                std::cout<< "---------------------------------------------------------"<<std::endl;
-                //this->Stop();
-            }
-
+        this->readJoystickState();
+        //cout << "inside loop" <<endl;
+        boost::this_thread::sleep(boost::posix_time::milliseconds(15));
     }
 
 
 
- }
+}

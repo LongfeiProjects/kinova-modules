@@ -13,6 +13,11 @@ ConfigDialog::ConfigDialog(QWidget *parent, int participantId) :
     ui->setupUi(this);
     this->ui->partIdSpinBox->setValue(participantId);
     this->participantId = participantId;
+
+    MainWindow* mw = ((MainWindow*)this->parent());
+    if(mw->f_haveJoystick){
+         this->ui->statusEmergencyJoystick->setText(tr("DETECTED"));
+    }
 }
 
 ConfigDialog::~ConfigDialog()
@@ -112,4 +117,21 @@ void ConfigDialog::on_joystickModeButton_toggled(bool checked)
 {
     MainWindow* mw = ((MainWindow*)this->parent());
     mw->enableJoystickMode(checked);
+}
+
+void ConfigDialog::on_pushButton_3_clicked()
+{
+    MainWindow* mw = ((MainWindow*)this->parent());
+    if(!mw->f_haveJoystick){
+        mw->initJoystick();
+        if(mw->f_haveJoystick){
+            this->ui->statusEmergencyJoystick->setText(tr("DETECTED"));
+        }else{
+            this->ui->statusEmergencyJoystick->setText(tr("NOT DETECTED"));
+        }
+    }else{
+        this->ui->statusEmergencyJoystick->setText(tr("DETECTED"));
+    }
+
+
 }
