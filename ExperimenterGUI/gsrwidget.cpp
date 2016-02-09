@@ -12,25 +12,9 @@ GSRWidget::GSRWidget(QWidget *parent) :
     ui(new Ui::GSRWidget)
 {
     ui->setupUi(this);
-    this->communicationOpened = false;
+    this->communicationOpened = false; 
 
-    // generate some data:
-    QVector<double> x(101), y(101); // initialize with entries 0..100
-    for (int i=0; i<101; ++i)
-    {
-      x[i] = i/50.0 - 1; // x goes from -1 to 1
-      y[i] = x[i]*x[i]; // let's plot a quadratic function
-    }
-    // create graph and assign data to it:
-    this->ui->customPlot->addGraph();
-    this->ui->customPlot->graph(0)->setData(x, y);
-    // give the axes some labels:
-    this->ui->customPlot->xAxis->setLabel("x");
-    this->ui->customPlot->yAxis->setLabel("y");
-    // set axes ranges, so we see all data:
-    this->ui->customPlot->xAxis->setRange(-1, 1);
-    this->ui->customPlot->yAxis->setRange(0, 1);
-    this->ui->customPlot->replot();
+    this->isRunning=false;
 }
 
 
@@ -70,21 +54,6 @@ void GSRWidget::init_port(){
 void GSRWidget::handleReadyRead()
 {    QByteArray lastData = this->serial.readAll();
     m_readData.append(lastData);
-
-
-     //TODO buscar el ultmio "sss;aaa"
-    // lastData.toStdString().find_last_of()
-     //add a la graphica
-     //correr los ejes
-     int i = index*0.01;
-     this->ui->customPlot->graph(0)->addData(i,(index+1)*0.01);
-      if(i>8){
-        this->ui->customPlot->graph(0)->removeDataBefore(i-8);
-      }
-     this->ui->customPlot->replot();
-     index ++;
-
-
   //qDebug() << "data: m_readData" << m_readData << endl;
 }
 
@@ -107,12 +76,14 @@ void GSRWidget::stopGSR()
     qDebug() << "written bytes = " << writtenBytes << endl;
    // this->serial.close();
     string strData = m_readData.toStdString();
+    this->isRunning=false;
     qDebug() << "The accumulated data is: " << m_readData ;
    cout << "Accumulated STR data :" << strData << endl;
 }
 
 bool GSRWidget::startGSR()
-{index=0;
+{
+
     bool success = false;
     if(!this->communicationOpened){
         init_port();
@@ -123,7 +94,29 @@ bool GSRWidget::startGSR()
       // connect(&m_timer, SIGNAL(timeout()), SLOT(handleTimeout()));
       // m_timer.start(5000);
 
-        m_readData.clear();
+        if(m_readData.size()>0){
+           // QMessageBox::StandardButton reply;
+            int reply;
+            QMessageBox msg(QMessageBox::Question,tr("Warning"),tr("There is previous data, do yo want to overrite or append the new data?"),
+                            QMessageBox::Yes|QMessageBox::No|QMessageBox::Cancel,this);
+            msg.setButtonText(QMessageBox::Yes,tr("Append"));
+            msg.setButtonText(QMessageBox::No,tr("Overrite"));
+            msg.setButtonText(QMessageBox::Cancel,tr("Cancel"));
+
+            reply = msg.exec();
+
+            if(reply == QMessageBox::No){
+                cout << "overrite gsr data" << endl;
+                 m_readData.clear();
+            }else if(reply == QMessageBox::Cancel){
+                cout << "cancel" << endl;
+                return false;
+            }else{
+                cout << "Append gsr data" << endl;
+            }
+        }
+
+
 
         sleep(3);
         QByteArray data;
@@ -134,6 +127,7 @@ bool GSRWidget::startGSR()
         connect(&this->serial, SIGNAL(readyRead()), SLOT(handleReadyRead()));
         connect(&this->serial, SIGNAL(error(QSerialPort::SerialPortError)), SLOT(handleError(QSerialPort::SerialPortError)));
         success=true;
+        this->isRunning=true;
     }
     return success;
 }
@@ -158,5 +152,8 @@ time_t GSRWidget::getInitialTimestamp(){
     return this->intialTimestampGSR;
 }
 
+bool GSRWidget::isGSRRunning(){
+    return this->isRunning;
+}
 
 

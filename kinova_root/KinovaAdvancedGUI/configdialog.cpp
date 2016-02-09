@@ -135,3 +135,9 @@ void ConfigDialog::on_pushButton_3_clicked()
 
 
 }
+
+void ConfigDialog::on_recordingOption_checkbox_clicked(bool checked)
+{
+    MainWindow* mw = ((MainWindow*)this->parent());
+    mw->enableRecordingOption(checked);
+}

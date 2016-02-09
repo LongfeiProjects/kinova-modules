@@ -24,6 +24,7 @@ public:
   QByteArray getData();
 
   time_t getInitialTimestamp();
+  bool isGSRRunning();
 public slots:
   void handleReadyRead();
   void handleError(QSerialPort::SerialPortError serialPortError);
@@ -39,6 +40,7 @@ private:
     time_t intialTimestampGSR;
     bool communicationOpened;
     int index;
+    bool isRunning;
 };
 
 #endif // GSRWIDGET_H

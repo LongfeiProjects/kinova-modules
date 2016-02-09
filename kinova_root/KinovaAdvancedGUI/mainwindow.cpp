@@ -254,6 +254,16 @@ void MainWindow::enableJoystickMode(bool enabled)
 
 }
 
+void MainWindow::enableRecordingOption(bool enabled){
+    this->ui->record_Button->setVisible(enabled);
+    this->ui->label_record_stop->setVisible(enabled);
+    if(!enabled){
+        this->ui->Play->removeTab(1);
+    }else{
+        this->ui->Play->insertTab(1,this->ui->playTab,tr("Play"));
+    }
+}
+
 void MainWindow::on_button_rightClick_IncreaseSpeed(){
     if(this->isMoving){
        switch (this->ui->speedComboBox->currentIndex()) {
@@ -874,8 +884,8 @@ void MainWindow::on_initKinovaButton_clicked()
 
                 //const double bb_point[] = {-0.6,-0.8,-0.4};
                 //const double bb_dims[]  = {1.2,1.6,0.8};
-                const double bb_point[] = {-0.5,-0.75,-0.03};
-                const double bb_dims[]  = {1,0.75,0.65};
+                const double bb_point[] = {-0.5,-0.75,-0.1};
+                const double bb_dims[]  = {1,0.75,0.85};
 
                 std::vector<double> bb_p(bb_point,End(bb_point)),bb_d(bb_dims,End(bb_dims));
 

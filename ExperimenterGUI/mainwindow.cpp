@@ -13,20 +13,30 @@ void MainWindow::initGUI(){
     this->ui->participantIdtextEdit->setDisabled(true);
     this->ui->taskManagementGroupBox->setDisabled(true);
 
-    this->ui->taskscomboBox->addItem(tr("1:Turn on light (Joystick)"));
+   /*
+    *  Unify task 1,2 and 3 in a single "Pointing task"
+    * this->ui->taskscomboBox->addItem(tr("1:Turn on light (Joystick)"));
     this->ui->taskscomboBox->addItem(tr("2:Push little switch (Joystick)"));
     this->ui->taskscomboBox->addItem(tr("3:Push big switch (Joystick)"));
-    this->ui->taskscomboBox->addItem(tr("4:Open drawer (Joystick)"));
-    this->ui->taskscomboBox->addItem(tr("5:Pick and place object (Joystick)"));
-    this->ui->taskscomboBox->addItem(tr("6:Open door (Joystick)"));
 
     this->ui->taskscomboBox->addItem(tr("1:Turn on light (GUI)"));
     this->ui->taskscomboBox->addItem(tr("2:Push little switch (GUI)"));
     this->ui->taskscomboBox->addItem(tr("3:Push big switch (GUI)"));
-    this->ui->taskscomboBox->addItem(tr("4:Open drawer (GUI)"));
-    this->ui->taskscomboBox->addItem(tr("5:Pick and place object (GUI)"));
-    this->ui->taskscomboBox->addItem(tr("6:Open door (GUI)"));
+*/
+
+
+    this->ui->taskscomboBox->addItem(tr("1:Pointing Task (Joystick)"));
+    this->ui->taskscomboBox->addItem(tr("2:Open drawer (Joystick)"));
+    this->ui->taskscomboBox->addItem(tr("3:Pick and place object (Joystick)"));
+    this->ui->taskscomboBox->addItem(tr("4:Open door (Joystick)"));
+
+    this->ui->taskscomboBox->addItem(tr("1:Pointing task (GUI)"));
+    this->ui->taskscomboBox->addItem(tr("2:Open drawer (GUI)"));
+    this->ui->taskscomboBox->addItem(tr("3:Pick and place object (GUI)"));
+    this->ui->taskscomboBox->addItem(tr("4:Open door (GUI)"));
     this->ui->taskscomboBox->addItem(tr("--- EXPERIMENTER COMMENT ---"));
+
+
 
 
 
@@ -82,7 +92,12 @@ bool MainWindow::checkExperimentPreConditions(){
 }
 
 void MainWindow::saveExperimentalData(){
-    //Save this data in a file TODO
+    if(this->gsrwidget->isGSRRunning()){
+        this->gsrwidget->stopGSR();
+        this->ui->skinConductanceIconFrame->setStyleSheet(QStringLiteral("image: url(:/img/wrong.png);"));
+        this->ui->skinStatusText->setText(tr("Disabled"));
+        this->ui->gsrStartButton->setText("Start");
+    }
     QByteArray gsrData = this->gsrwidget->getData();
     time_t initialGSRTimestamp = this->gsrwidget->getInitialTimestamp();
     string gsrStringData = gsrData.toStdString();
@@ -166,7 +181,10 @@ void MainWindow::on_gsrStartButton_clicked(bool checked)
         QApplication::processEvents( QEventLoop::ExcludeUserInputEvents);
         if(!this->gsrwidget->startGSR()){
             this->ui->skinStatusText->setText(tr("Error"));
-            showErrorMessage(tr("Error starting skin conductance measurement"));
+            showErrorMessage(tr("Error starting skin conductance measurement (or canceled by user)"));
+            this->ui->skinConductanceIconFrame->setStyleSheet(QStringLiteral("image: url(:/img/wrong.png);"));
+            this->ui->skinStatusText->setText(tr("Disabled"));
+            this->ui->gsrStartButton->setText("Start");
         }else{
             this->ui->skinConductanceIconFrame->setStyleSheet(QStringLiteral("image: url(:/img/ok.png);"));
             this->ui->skinStatusText->setText(tr("Enabled"));

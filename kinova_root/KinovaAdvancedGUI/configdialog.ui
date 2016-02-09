@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>411</width>
-    <height>457</height>
+    <height>527</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -16,8 +16,8 @@
   <widget class="QDialogButtonBox" name="buttonBox">
    <property name="geometry">
     <rect>
-     <x>210</x>
-     <y>420</y>
+     <x>220</x>
+     <y>490</y>
      <width>180</width>
      <height>32</height>
     </rect>
@@ -35,7 +35,7 @@
      <x>4</x>
      <y>50</y>
      <width>401</width>
-     <height>81</height>
+     <height>161</height>
     </rect>
    </property>
    <property name="frameShape">
@@ -50,7 +50,7 @@
       <x>0</x>
       <y>10</y>
       <width>401</width>
-      <height>85</height>
+      <height>141</height>
      </rect>
     </property>
     <layout class="QFormLayout" name="formLayout">
@@ -86,7 +86,7 @@
        </property>
       </widget>
      </item>
-     <item row="2" column="0">
+     <item row="3" column="0">
       <widget class="QLabel" name="parcipantIDLabel_3">
        <property name="text">
         <string/>
@@ -102,6 +102,23 @@
         <string>Joystick Mode</string>
        </property>
        <property name="checkable">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="0">
+      <widget class="QLabel" name="label_3">
+       <property name="text">
+        <string>Trajectory Recording?</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="1">
+      <widget class="QCheckBox" name="recordingOption_checkbox">
+       <property name="text">
+        <string/>
+       </property>
+       <property name="checked">
         <bool>true</bool>
        </property>
       </widget>
@@ -161,7 +178,7 @@
    <property name="geometry">
     <rect>
      <x>5</x>
-     <y>258</y>
+     <y>340</y>
      <width>400</width>
      <height>141</height>
     </rect>
@@ -210,7 +227,7 @@
    <property name="geometry">
     <rect>
      <x>5</x>
-     <y>136</y>
+     <y>220</y>
      <width>400</width>
      <height>111</height>
     </rect>

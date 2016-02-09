@@ -54,6 +54,7 @@ public:
     bool canMove();
     void Loop();
     void initJoystick();
+    void enableRecordingOption(bool enabled);
 private:
 
 

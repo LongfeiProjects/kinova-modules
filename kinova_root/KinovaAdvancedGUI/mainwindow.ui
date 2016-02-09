@@ -1246,6 +1246,9 @@ font: 38pt &quot;Ubuntu&quot;;</string>
         </rect>
        </property>
        <layout class="QGridLayout" name="gridLayout_5">
+        <property name="sizeConstraint">
+         <enum>QLayout::SetMinimumSize</enum>
+        </property>
         <property name="spacing">
          <number>12</number>
         </property>
@@ -1331,6 +1334,12 @@ color: rgb(247, 247, 246);
         </item>
         <item row="1" column="0">
          <widget class="QLabel" name="label_record_stop_2">
+          <property name="maximumSize">
+           <size>
+            <width>129</width>
+            <height>16777215</height>
+           </size>
+          </property>
           <property name="font">
            <font>
             <pointsize>10</pointsize>
@@ -1373,7 +1382,7 @@ color: rgb(247, 247, 246);
       </widget>
      </widget>
     </widget>
-    <widget class="QWidget" name="tab">
+    <widget class="QWidget" name="playTab">
      <attribute name="title">
       <string>Play</string>
      </attribute>
