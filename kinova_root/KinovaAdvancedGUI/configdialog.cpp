@@ -55,7 +55,8 @@ void ConfigDialog::on_generateLog_button_clicked()
     ostringstream filenameTrajectories;
     filenameTrajectories << "TrajectoriesLog_Participant_" <<  this->participantId << ".log";
     bool save = true;
-    if (std::ifstream(filename.str()) || std::ifstream(filenameTrajectories.str()))
+
+    if (std::ifstream(filename.str()) || (std::ifstream(filenameTrajectories.str()) && this->ui->recordingOption_checkbox->isChecked()) )
     {
         QString question;
         if(APPEND_DATA_IN_LOGFILE){
@@ -73,16 +74,21 @@ void ConfigDialog::on_generateLog_button_clicked()
         string strfile = filename.str();
         GUILogger::getInstance().dumpEvents(strfile,APPEND_DATA_IN_LOGFILE);
 
-        //Save Trajectories for this participant
-        GUILogger::getInstance().dumpTrajectories(filenameTrajectories.str(),SqlManager::getInstance().getCompleteTrajectoriesByParticipant(this->participantId),APPEND_DATA_IN_LOGFILE);
-
+        if(this->ui->recordingOption_checkbox->isChecked()){
+            //Save Trajectories for this participant
+            GUILogger::getInstance().dumpTrajectories(filenameTrajectories.str(),SqlManager::getInstance().getCompleteTrajectoriesByParticipant(this->participantId),APPEND_DATA_IN_LOGFILE);
+        }
 
         QMessageBox* msgBox = new QMessageBox();
         msgBox->setWindowTitle(tr("Log Saved"));
 
         ostringstream msg;
         msg << tr("Log info was saved in \n").toStdString();
-        msg << strfile << tr(" and \n").toStdString()  <<  filenameTrajectories.str();
+        if(this->ui->recordingOption_checkbox->isChecked()){
+            msg << strfile << tr(" and \n").toStdString()  <<  filenameTrajectories.str();
+        }else{
+            msg << strfile;
+        }
 
         msgBox->setText(QString::fromStdString(msg.str()));
         msgBox->exec();
