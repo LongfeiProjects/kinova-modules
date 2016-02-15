@@ -32,3 +32,7 @@ FORMS    += mainwindow.ui \
 
 RESOURCES += \
     resources.qrc
+
+INCLUDEPATH += /usr/local/qwt-6.1.2/include
+
+LIBS += -L/usr/local/qwt-6.1.2/lib -lqwt

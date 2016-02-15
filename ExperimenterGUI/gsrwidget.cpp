@@ -15,6 +15,20 @@ GSRWidget::GSRWidget(QWidget *parent) :
     this->communicationOpened = false; 
 
     this->isRunning=false;
+
+
+    //creation of tables of your data
+    data_x = new QVector<double>;
+    data_y = new QVector<double>;
+
+    //initiation of the graphic
+    init_plot();
+
+    //creation of a layout to put the graphic inside
+    QHBoxLayout *layout = new QHBoxLayout( this );
+    layout->setContentsMargins( 5, 5, 5, 5 ); //we set the margin of the layout
+    layout->addWidget( plot ); //we add the plot
+
 }
 
 
@@ -53,8 +67,23 @@ void GSRWidget::init_port(){
 
 void GSRWidget::handleReadyRead()
 {    QByteArray lastData = this->serial.readAll();
-    m_readData.append(lastData);
-  //qDebug() << "data: m_readData" << m_readData << endl;
+     m_readData.append(lastData);
+     temportalData.append(lastData);
+
+      //this is just to update the plot
+     QList<QByteArray> splitted = temportalData.split('\r');
+     if(splitted.size()>1){
+        QByteArray numericalPart = splitted.at(0);
+        QList<QByteArray> time_and_vals = numericalPart.split(';');
+        if(time_and_vals.size()>1){
+            this->lastValue = time_and_vals.at(1).toFloat();
+        }else{
+            this->lastValue = -1; //this shouln't happend, only at the begging
+        }
+     //   qDebug() << "last parsed GSR measure" << this->lastValue << endl;
+        temportalData.clear();
+        addpoint(this->lastValue);
+     }
 }
 
 
@@ -157,3 +186,46 @@ bool GSRWidget::isGSRRunning(){
 }
 
 
+
+
+void GSRWidget::init_plot()
+{
+    plot = new QwtPlot(this); //creation of the plot
+    plot->setMinimumSize(500,250); //we set the minimum size of the plot
+
+    plot->setTitle("GSR = f(t)"); //title of the graphe
+
+    // axes names
+    plot->setAxisTitle(QwtPlot::xBottom, "ticks" );
+    plot->setAxisTitle(QwtPlot::yLeft, "GSR");
+
+
+
+    // canvas properties
+//    plot->canvas()->setLineWidth( 1 );
+//    plot->canvas()->setFrameStyle( QFrame::Box | QFrame::Plain );
+//    plot->canvas()->setBorderRadius( 3 );
+
+    plot->setLineWidth( 1 );
+    plot->setFrameStyle( QFrame::Box | QFrame::Plain );
+
+
+    //plot->setAxisAutoScale(0,true);
+    //plot->setAxisAutoScale(1,true);
+    //plot->setBorderRadius( 3 );
+
+    // creation of the curve (you can add more curve to a graphe)
+    curve = new QwtPlotCurve;
+    curve->setPen(QPen(Qt::red));
+    curve->attach(plot);
+}
+
+
+void GSRWidget::addpoint(float point)
+{ cout << point << endl;
+    data_x->push_back(data_x->size());// add the point to the data
+    data_y->push_back(point);
+    curve->setSamples(*data_x,*data_y);// we set the data to the curve
+
+    plot->replot(); // we redraw the graphe
+}

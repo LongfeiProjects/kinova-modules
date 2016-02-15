@@ -201,9 +201,10 @@ void MainWindow::on_gsrStartButton_clicked(bool checked)
 
 void MainWindow::on_setButton_2_clicked(bool checked)
 {
-    if(checked){
+    this->gsrwidget->show();
+    /*if(checked){
         this->gsrwidget->show();
     }else{
         this->gsrwidget->hide();
-    }
+    }*/
 }

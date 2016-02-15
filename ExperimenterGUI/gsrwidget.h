@@ -6,6 +6,10 @@
 #include <QSerialPortInfo>
 #include <QTimer>
 
+#include <qwt_plot.h>
+#include <qwt_plot_canvas.h>
+#include <qwt_plot_curve.h>
+
 namespace Ui {
 class GSRWidget;
 }
@@ -37,10 +41,21 @@ private:
     QSerialPort serial;
     QTimer      m_timer;
     QByteArray  m_readData;
+    QByteArray temportalData;
     time_t intialTimestampGSR;
     bool communicationOpened;
     int index;
     bool isRunning;
+
+    /*For GSR live plot*/
+    float lastValue = -1;
+    QVector<double>* data_y;
+    QVector<double>* data_x;
+    QwtPlot *plot;
+    QwtPlotCurve *curve;
+
+    void addpoint(float point);
+    void init_plot();
 };
 
 #endif // GSRWIDGET_H
