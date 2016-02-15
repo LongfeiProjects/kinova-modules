@@ -39,6 +39,8 @@ class MainWindow : public QMainWindow
 public:
 
     bool f_haveJoystick;
+    bool isRecordingEnabled = false;
+
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
 

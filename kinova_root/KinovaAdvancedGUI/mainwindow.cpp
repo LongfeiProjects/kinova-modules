@@ -161,6 +161,8 @@ void MainWindow::initGUI(){
 
     this->ui->frameJoystick->setVisible(false);
     this->ui->warningBB_label->setVisible(false);
+
+    this->enableRecordingOption(false);
 }
 
 
@@ -255,6 +257,7 @@ void MainWindow::enableJoystickMode(bool enabled)
 }
 
 void MainWindow::enableRecordingOption(bool enabled){
+    this->isRecordingEnabled=enabled;
     this->ui->record_Button->setVisible(enabled);
     this->ui->label_record_stop->setVisible(enabled);
     if(!enabled){
