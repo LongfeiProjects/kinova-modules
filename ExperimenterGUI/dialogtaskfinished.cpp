@@ -33,6 +33,8 @@ void DialogTaskFinished::on_buttonBox_accepted()
 }
 
 string DialogTaskFinished::getComments(){
+    replace(this->comments.begin(),this->comments.end(),'\n', ' ');
+    replace(this->comments.begin(),this->comments.end(),'\r', ' ');
     return this->comments;
 }
 

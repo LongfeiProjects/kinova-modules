@@ -18,6 +18,8 @@ ConfigDialog::ConfigDialog(QWidget *parent, int participantId) :
     if(mw->f_haveJoystick){
          this->ui->statusEmergencyJoystick->setText(tr("DETECTED"));
     }
+
+    this->ui->recordingOption_checkbox->setChecked(mw->isRecordingEnabled);
 }
 
 ConfigDialog::~ConfigDialog()

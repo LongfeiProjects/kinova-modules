@@ -4,9 +4,11 @@
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
-{
+{ cout << "1" << endl;
     ui->setupUi(this);
+    cout << "2" << endl;
     initGUI();
+    cout << "3" << endl;
 }
 
 void MainWindow::initGUI(){
