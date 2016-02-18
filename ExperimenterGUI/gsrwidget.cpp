@@ -106,8 +106,8 @@ void GSRWidget::stopGSR()
    // this->serial.close();
     string strData = m_readData.toStdString();
     this->isRunning=false;
-    qDebug() << "The accumulated data is: " << m_readData ;
-   cout << "Accumulated STR data :" << strData << endl;
+ //   qDebug() << "The accumulated data is: " << m_readData ;
+ //  cout << "Accumulated STR data :" << strData << endl;
 }
 
 bool GSRWidget::startGSR()
@@ -137,6 +137,7 @@ bool GSRWidget::startGSR()
             if(reply == QMessageBox::No){
                 cout << "overrite gsr data" << endl;
                  m_readData.clear();
+                 this->resetPlot();
             }else if(reply == QMessageBox::Cancel){
                 cout << "cancel" << endl;
                 return false;
@@ -228,4 +229,9 @@ void GSRWidget::addpoint(float point)
     curve->setSamples(*data_x,*data_y);// we set the data to the curve
 
     plot->replot(); // we redraw the graphe
+}
+
+void GSRWidget::resetPlot(){
+    data_x->clear();
+    data_y->clear();
 }

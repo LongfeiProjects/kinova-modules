@@ -29,6 +29,8 @@ public:
 
   time_t getInitialTimestamp();
   bool isGSRRunning();
+
+  void resetPlot();
 public slots:
   void handleReadyRead();
   void handleError(QSerialPort::SerialPortError serialPortError);
