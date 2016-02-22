@@ -952,13 +952,10 @@ void MainWindow::on_initKinovaButton_clicked()
 
 
 void MainWindow::error_kinova_not_initialized(){
-    int res = klib->moveHome();
-    if(res!=SUCCESS){
-        QMessageBox* msgBox = new QMessageBox();
-        msgBox->setWindowTitle(tr("Initialization Error"));
-        msgBox->setText(tr("Kinova is not initilized. Try Init Kinova before running any command"));
-        msgBox->exec();
-    }
+    QMessageBox* msgBox = new QMessageBox();
+    msgBox->setWindowTitle(tr("Initialization Error"));
+    msgBox->setText(tr("Kinova is not initilized. Try Init Kinova before running any command"));
+    msgBox->exec();
 }
 
 void MainWindow::error_kinova_already_initialized(){
@@ -1097,6 +1094,29 @@ void MainWindow::writeLogFiles(vector<Log> recordedLogs){
 
 }
 
+void MainWindow::writeLogFiles(vector<Log> recordedLogs, string blockname){
+    Log cartPosLog = recordedLogs[this->readTypeMap["cart_pos"]];
+    Log timeLog = recordedLogs[this->readTypeMap["comp_t"]];
+    Log velLog = recordedLogs[this->readTypeMap["j_vel"]];
+
+    cout << "before write file" <<endl;
+    Log jointLog = recordedLogs[this->readTypeMap["j_pos"]];//delete it
+    Log hand_vel = recordedLogs[this->readTypeMap["hand_vel"]];
+
+    WriteFile(cartPosLog,"cart_pos_"+blockname+".mat");
+    cout << "after write file 1" <<endl;
+    WriteFile(timeLog,"index_"+blockname+".mat");
+    cout << "after write file 2" <<endl;
+    WriteFile(velLog,"joint_vel_"+blockname+".mat");
+    cout << "after write file 3" <<endl;
+    WriteFile(jointLog,"joint_pos_"+blockname+".mat");
+    cout << "after write file 5" <<endl;
+    WriteFile(hand_vel,"hand_vel_"+blockname+".mat");
+
+    cout << "after write file 6" <<endl;
+
+}
+
 vector<RecordedCartesianInfo> MainWindow::convertLog2Trajectory(vector<Log> logs){
     Log cartPosLog = logs[this->readTypeMap["cart_pos"]];
     Log timeLog = logs[this->readTypeMap["comp_t"]];
@@ -1208,20 +1228,26 @@ cout << "res.size = " << res.size() <<endl;
     return res;
 }
 
-void MainWindow::startRecording(){
-    this->sampledTrajectoryInfo.clear();
-    this->isRecordingTrajecory=true;
-    this->ui->label_record_stop->setText(QString(tr("Stop")));
-    this->ui->record_Button->setIcon(QIcon(":/imagenes/img/stop.png"));
-    this->ui->recordingLabel->setVisible(true);
-    //this->setActualPosition();
+bool MainWindow::startRecording(){
+    if(this->kinova_initialized){
+        this->sampledTrajectoryInfo.clear();
+        this->isRecordingTrajecory=true;
+        this->ui->label_record_stop->setText(QString(tr("Stop")));
+        this->ui->record_Button->setIcon(QIcon(":/imagenes/img/stop.png"));
+        this->ui->recordingLabel->setVisible(true);
+        //this->setActualPosition();
 
-   if(KINOVA_LIB == 1){
-        this->recordedLogs.clear();
-        this->bot->StartLog(this->readType);
+       if(KINOVA_LIB == 1){
+            this->recordedLogs.clear();
+            this->bot->StartLog(this->readType);
+        }
+
+        time(&this->initTimestampTrajectory);
+        return true;
+    }else{
+        this->error_kinova_not_initialized();
+        return false;
     }
-
-    time(&this->initTimestampTrajectory);
 }
 
 void MainWindow::stopRecording(){
@@ -1233,7 +1259,18 @@ void MainWindow::stopRecording(){
         cout << "before stoping" << endl;
         this->recordedLogs = this->bot->StopLog(this->readType);
         cout << "after stoping" << endl;
+
         writeLogFiles(recordedLogs);
+    }
+}
+
+void MainWindow::stopRecordingBlock(string blockname){
+    if(KINOVA_LIB==1){
+        cout << "before stoping" << endl;
+        this->recordedLogs = this->bot->StopLog(this->readType);
+        cout << "after stoping" << endl;
+
+        writeLogFiles(recordedLogs, blockname);
     }
 }
 
@@ -1243,8 +1280,9 @@ void MainWindow::on_record_Button_toggled(bool checked)
         this->startRecording();
     }else{
         this->stopRecording();
-
-        showSaveTrajectoryPanel();
+        if(this->isRecordingEnabled){
+            showSaveTrajectoryPanel();
+        }
         /*QMessageBox::StandardButton reply;
         reply = QMessageBox::question(this,tr("Save"),tr("Do you want to save the recorded trajectory?"), QMessageBox::Yes|QMessageBox::No);
         if(reply == QMessageBox::Yes){

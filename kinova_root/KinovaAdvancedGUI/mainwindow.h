@@ -57,6 +57,9 @@ public:
     void Loop();
     void initJoystick();
     void enableRecordingOption(bool enabled);
+    bool startRecording();
+    void stopRecording();
+    void stopRecordingBlock(string blockname);
 private:
 
 
@@ -147,9 +150,9 @@ private:
 
 
     vector<Log> convertTrajectory2Log(Trajectory traj);
-    void startRecording();
-    void stopRecording();
+
     void writeLogFiles(vector<Log> recordedLogs);
+    void writeLogFiles(vector<Log> recordedLogs,string blockname);
     vector<RecordedCartesianInfo> convertLog2Trajectory(vector<Log> logs);
 
 
@@ -213,6 +216,7 @@ private slots:
     void on_pushButton_clicked();
 
     void readJoystickState();
+
 protected:
 
     /*Delete this, we don't need it*/

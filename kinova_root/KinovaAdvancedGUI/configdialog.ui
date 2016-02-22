@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>411</width>
+    <width>416</width>
     <height>527</height>
    </rect>
   </property>
@@ -109,7 +109,7 @@
      <item row="2" column="0">
       <widget class="QLabel" name="label_3">
        <property name="text">
-        <string>Trajectory Recording?</string>
+        <string>Trajectory Recording Icon?</string>
        </property>
       </widget>
      </item>
@@ -119,6 +119,19 @@
         <string/>
        </property>
        <property name="checked">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="1">
+      <widget class="QPushButton" name="startRecordingButton">
+       <property name="toolTip">
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Disable the arm control from the interface&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       </property>
+       <property name="text">
+        <string>Start Recording</string>
+       </property>
+       <property name="checkable">
         <bool>true</bool>
        </property>
       </widget>

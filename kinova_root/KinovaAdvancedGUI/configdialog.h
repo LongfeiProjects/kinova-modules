@@ -37,6 +37,8 @@ private slots:
 
     void on_recordingOption_checkbox_clicked(bool checked);
 
+    void on_startRecordingButton_clicked(bool checked);
+
 private:
     Ui::ConfigDialog *ui;
     int participantId;

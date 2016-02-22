@@ -148,4 +148,28 @@ void ConfigDialog::on_recordingOption_checkbox_clicked(bool checked)
 {
     MainWindow* mw = ((MainWindow*)this->parent());
     mw->enableRecordingOption(checked);
+    this->ui->startRecordingButton->setEnabled(!checked);
+}
+
+void ConfigDialog::on_startRecordingButton_clicked(bool checked)
+{
+    if(checked){
+
+        MainWindow* mw = ((MainWindow*)this->parent());
+        if( mw->startRecording()){
+             this->ui->startRecordingButton->setText(tr("Stop Recording"));
+        }else{
+            this->ui->startRecordingButton->setChecked(false);
+        }
+    }else{
+        string blockname = this->ui->joystickModeButton->isChecked()?"Joystick":"GUI";
+        QString question=QString("Trajectory recording will be stoped and all the .mat files for ") + QString::fromStdString(blockname) + QString(" will be overwritten. Do you want to continue?");
+        QMessageBox::StandardButton reply;
+        reply = QMessageBox::question(this,tr("Warning"),question, QMessageBox::Yes|QMessageBox::No);
+        if(reply == QMessageBox::Yes){
+            this->ui->startRecordingButton->setText(tr("Stop Recording"));
+            MainWindow* mw = ((MainWindow*)this->parent());
+            mw->stopRecordingBlock(blockname);
+        }
+    }
 }
