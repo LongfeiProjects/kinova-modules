@@ -274,6 +274,7 @@ std::vector<Log> kinova_status_openapi::StopSaving(std::vector<std::string>  & t
 		for(unsigned int i =0;i<this->bookmarks.size();i++){
 			std::cout << type[i] << "  = ";
 			DataStoreIt first_index_of_seq = bookmarks[i][0];
+			std::cout << bookmarks[i].size() << std::endl;
 			int index = 0;
 			for(unsigned int j = 1;j<this->bookmarks[i].size();j++){
 				DataStoreIt it = bookmarks[i][j];
