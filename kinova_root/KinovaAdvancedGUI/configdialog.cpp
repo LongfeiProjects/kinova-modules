@@ -19,7 +19,13 @@ ConfigDialog::ConfigDialog(QWidget *parent, int participantId) :
          this->ui->statusEmergencyJoystick->setText(tr("DETECTED"));
     }
 
+    if( mw->isRecordingTrajecory){
+         this->ui->startRecordingButton->setText(tr("Stop Recording"));
+        this->ui->startRecordingButton->setChecked(true);
+    }
+
     this->ui->recordingOption_checkbox->setChecked(mw->isRecordingEnabled);
+    this->ui->joystickModeButton->setChecked(mw->joystickMode);
 }
 
 ConfigDialog::~ConfigDialog()
@@ -163,13 +169,15 @@ void ConfigDialog::on_startRecordingButton_clicked(bool checked)
         }
     }else{
         string blockname = this->ui->joystickModeButton->isChecked()?"Joystick":"GUI";
-        QString question=QString("Trajectory recording will be stoped and all the .mat files for ") + QString::fromStdString(blockname) + QString(" will be overwritten. Do you want to continue?");
+        QString question=QString("Trajectory recording will be stoped and all .mat files for ") + QString::fromStdString(blockname) + QString(" block will be overwritten. Do you want to continue?");
         QMessageBox::StandardButton reply;
         reply = QMessageBox::question(this,tr("Warning"),question, QMessageBox::Yes|QMessageBox::No);
         if(reply == QMessageBox::Yes){
-            this->ui->startRecordingButton->setText(tr("Stop Recording"));
+            this->ui->startRecordingButton->setText(tr("Start Recording"));
             MainWindow* mw = ((MainWindow*)this->parent());
             mw->stopRecordingBlock(blockname);
+        }else{
+            this->ui->startRecordingButton->setChecked(true);
         }
     }
 }

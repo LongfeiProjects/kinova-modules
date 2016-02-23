@@ -40,6 +40,8 @@ public:
 
     bool f_haveJoystick;
     bool isRecordingEnabled = false;
+    bool isRecordingTrajecory;
+    bool joystickMode = false;
 
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
@@ -127,7 +129,7 @@ private:
     int FORCE_MEASURES = 5;   //the force signal will represent the average of FORCE_MEASURES measures
 
 
-    bool isRecordingTrajecory;
+
     bool isMoving;
     bool isSpeedIncremented;
 

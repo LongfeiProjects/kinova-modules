@@ -247,7 +247,7 @@ void MainWindow::penalizeMovement(){
 
 void MainWindow::enableJoystickMode(bool enabled)
 {
-
+    this->joystickMode = enabled;
     this->ui->frame->setVisible(!enabled);
     this->ui->frame_2->setVisible(!enabled);
     this->ui->homeButton->setVisible(!enabled);
@@ -1232,11 +1232,12 @@ bool MainWindow::startRecording(){
     if(this->kinova_initialized){
         this->sampledTrajectoryInfo.clear();
         this->isRecordingTrajecory=true;
-        this->ui->label_record_stop->setText(QString(tr("Stop")));
-        this->ui->record_Button->setIcon(QIcon(":/imagenes/img/stop.png"));
-        this->ui->recordingLabel->setVisible(true);
-        //this->setActualPosition();
-
+        if(this->isRecordingEnabled){
+            this->ui->label_record_stop->setText(QString(tr("Stop")));
+            this->ui->record_Button->setIcon(QIcon(":/imagenes/img/stop.png"));
+            this->ui->recordingLabel->setVisible(true);
+            //this->setActualPosition();
+        }
        if(KINOVA_LIB == 1){
             this->recordedLogs.clear();
             this->bot->StartLog(this->readType);
