@@ -307,6 +307,7 @@ std::vector<Log> kinova_status_openapi::StopSaving(std::vector<std::string>  & t
     //---
 
 	for(unsigned int i =0;i<type.size();i++){
+		std::cout << "i = "<<i<<std::endl;
 		if(type[i].compare("comp_t")==0){
 			/*Log app_tot;
 			State time_displacement(1);
@@ -379,12 +380,12 @@ std::vector<Log> kinova_status_openapi::StopSaving(std::vector<std::string>  & t
     // reactivate the reading thread
     //this->running.store(true,boost::memory_order_release);
     //this->reader_stats = new boost::thread(boost::bind(&kinova_status_openapi::Reading,this));
+	// clean bookmarks and active_bookmarks
+	this->bookmarks.clear();
+	this->active_bookmarks.clear();
 	// reactivate the cleaner tasks
 	this->running_cleaner.store(true,boost::memory_order_release);
     this->garbage_collection = new boost::thread(boost::bind(&kinova_status_openapi::Cleaning,this));
-    // clean bookmarks and active_bookmarks
-	this->bookmarks.clear();
-	this->active_bookmarks.clear();
     this->already_saving = false;
     std::cout << "before return stop" << std::endl;
 	return result;
