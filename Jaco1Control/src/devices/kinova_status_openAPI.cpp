@@ -4,6 +4,7 @@ kinova_status_openapi::kinova_status_openapi(model * mdl)
 : running(true)
 , running_cleaner(true)
 , first_write(false)
+, stop_update(false)
 , ang_pos(0)
 , ang_tau(0)
 , cart_f(0)
@@ -185,28 +186,28 @@ void kinova_status_openapi::StartSaving(std::vector<std::string>  & type){
 		for(unsigned int i =0;i<type.size();i++){
             DataStoreIt app;
 			if(type[i].compare("comp_t")==0){
-                app = this->ds_comp_t.end();
+                app = this->dl2_comp_t.load(boost::memory_order_acquire);
                 app--;
 			}else if(type[i].compare("j_pos") == 0){
-                app = this->ds_ang_pos.end();
+                app = this->dl2_ang_pos.load(boost::memory_order_acquire);
 				app--;
 			}else if(type[i].compare("hand_pos") == 0){
-                app = this->ds_hand_pos.end();
+                app = this->dl2_hand_pos.load(boost::memory_order_acquire);
                 app--;
             }else if(type[i].compare("j_vel") == 0){
-				app = this->ds_ang_vel.end();
+				app = this->dl2_ang_vel.load(boost::memory_order_acquire);
 				app--;
 			}else if(type[i].compare("hand_vel") == 0){
-                app = this->ds_hand_vel.end();
+                app = this->dl2_hand_vel.load(boost::memory_order_acquire);
                 app--;
             }else if(type[i].compare("j_tau") == 0){
-				app = this->ds_ang_tau.end();
+				app = this->dl2_ang_tau.load(boost::memory_order_acquire);
 				app--;
 			}else if(type[i].compare("cart_f") == 0){
-				app = this->ds_cart_f.end();
+				app = this->dl2_cart_f.load(boost::memory_order_acquire);
 				app--;
 			}else if(type[i].compare("cart_pos") == 0){
-				app = this->ds_cart_pos.end();
+				app = this->dl2_cart_pos.load(boost::memory_order_acquire);
 				app--;
 			}
 			this->bookmarks[i].push_back(app);
@@ -220,28 +221,28 @@ void kinova_status_openapi::SaveCheckPoint(std::vector<std::string>  & type){
 		for(unsigned int i =0;i<type.size();i++){
 			DataStoreIt app;
 			if(type[i].compare("comp_t")==0){
-				app = this->ds_comp_t.end();
+				app = this->dl2_comp_t.load(boost::memory_order_acquire);
 				app--;
 			}else if(type[i].compare("j_pos") == 0){
-				app = this->ds_ang_pos.end();
+				app = this->dl2_ang_pos.load(boost::memory_order_acquire);
 				app--;
 			}else if(type[i].compare("hand_pos") == 0){
-				app = this->ds_hand_pos.end();
+				app = this->dl2_hand_pos.load(boost::memory_order_acquire);
 				app--;
 			}else if(type[i].compare("j_vel") == 0){
-				app = this->ds_ang_vel.end();
+				app = this->dl2_ang_vel.load(boost::memory_order_acquire);
 				app--;
 			}else if(type[i].compare("hand_vel") == 0){
-				app = this->ds_hand_vel.end();
+				app = this->dl2_hand_vel.load(boost::memory_order_acquire);
 				app--;
 			}else if(type[i].compare("j_tau") == 0){
-				app = this->ds_ang_tau.end();
+				app = this->dl2_ang_tau.load(boost::memory_order_acquire);
 				app--;
 			}else if(type[i].compare("cart_f") == 0){
-				app = this->ds_cart_f.end();
+				app = this->dl2_cart_f.load(boost::memory_order_acquire);
 				app--;
 			}else if(type[i].compare("cart_pos") == 0){
-				app = this->ds_cart_pos.end();
+				app = this->dl2_cart_pos.load(boost::memory_order_acquire);
 				app--;
 			}
 			this->bookmarks[i].push_back(app);
@@ -401,6 +402,7 @@ void kinova_status_openapi::ReadTimeStamp()
     t_cur[0] =  boost::chrono::round<boost::chrono::milliseconds>(reading_time).count();
 
 	this->ds_comp_t.push_back(t_cur);
+	this->dl2_comp_t.store(ds_comp_t.end(),boost::memory_order_release);
 	// i can write for the vis less often then the other op
     this->comp_t.push( &(ds_comp_t.back()) );
 }
@@ -419,6 +421,7 @@ void kinova_status_openapi::ReadJoints(KinDrv::jaco_position_t &position,KinDrv:
 	app=app*DEG;
 	this->ds_ang_pos.push_back(app);
 	this->dl_ang_pos.store( &(ds_ang_pos.back()),boost::memory_order_release);
+	this->dl2_ang_pos.store(ds_ang_pos.end(),boost::memory_order_release);
 	// i can write for the vis less often then the other op
 	this->ang_pos.push( &(ds_ang_pos.back()) );
     // finger position
@@ -429,6 +432,7 @@ void kinova_status_openapi::ReadJoints(KinDrv::jaco_position_t &position,KinDrv:
     //std::cout<<app_fing<<std::endl;
     this->ds_hand_pos.push_back(app_fing);
     this->dl_hand_pos.store(&(ds_hand_pos.back()),boost::memory_order_release);
+    this->dl2_hand_pos.store(ds_hand_pos.end(),boost::memory_order_release);
     // joint velocity
     State app_short(6);
     app_short[0]=velocity.joints[0];
@@ -441,7 +445,8 @@ void kinova_status_openapi::ReadJoints(KinDrv::jaco_position_t &position,KinDrv:
     app_short=app_short*DEG;
     //std::cout<<app_short << std::endl;
     this->ds_ang_vel.push_back(app_short);
-	this->dl_ang_vel.store(&(ds_ang_vel.back()),boost::memory_order_release);
+    this->dl_ang_vel.store(&(ds_ang_vel.back()),boost::memory_order_release);
+    this->dl2_ang_vel.store(ds_ang_vel.end(),boost::memory_order_release);
     // finger velocity. For the finger velocity because there is a difference between the
     // measured and the commanded value we can only rely on the sign of the misure.
     State app_short_fing(3);
@@ -457,6 +462,7 @@ void kinova_status_openapi::ReadJoints(KinDrv::jaco_position_t &position,KinDrv:
     //std::cout<<app_short_fing<<std::endl;
     this->ds_hand_vel.push_back(app_short_fing);
     this->dl_hand_vel.store(&(ds_hand_vel.back()),boost::memory_order_release);
+    this->dl2_hand_vel.store(ds_hand_vel.end(),boost::memory_order_release);
 	// joint torques
     app[0]=force.joints[0];
 	app[1]=force.joints[1];
@@ -467,6 +473,7 @@ void kinova_status_openapi::ReadJoints(KinDrv::jaco_position_t &position,KinDrv:
 	//std::cout<<app<<std::endl;
 	this->ds_ang_tau.push_back(app);
 	this->dl_ang_tau.store( &(ds_ang_tau.back()),boost::memory_order_release);
+	this->dl2_ang_tau.store(ds_ang_tau.end(),boost::memory_order_release);
 	// i can write for the vis less often then the other op
     this->ang_tau.push( &(ds_ang_tau.back()) );
 }
@@ -499,6 +506,7 @@ void kinova_status_openapi::ReadCartesian(KinDrv::jaco_position_t & position)
 
     this->ds_cart_pos.push_back(cart_pos);
     this->dl_cart_pos.store( &(ds_cart_pos.back()),boost::memory_order_release);
+    this->dl2_cart_pos.store(ds_cart_pos.end(),boost::memory_order_release);
 }
 
 

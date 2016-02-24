@@ -33,12 +33,14 @@
 // typedef
 typedef arma::vec                                      State;
 typedef State*                                         State_ptr;
+typedef std::list<State>::iterator                     State_ptr2;
 typedef std::vector<State>                             Log;
 typedef boost::lockfree::queue<State_ptr>              DataFlow;
 typedef std::list<State>                               DataStore;
 typedef DataStore::iterator                            DataStoreIt;
 typedef boost::shared_ptr<DataStoreIt>                 PtrDataStoreIt;
 typedef boost::atomic<State_ptr>                       DataLast;
+typedef boost::atomic<DataStoreIt>                     DataLast2;
 
 
 #define SSTR( x ) dynamic_cast< std::ostringstream & >( \
