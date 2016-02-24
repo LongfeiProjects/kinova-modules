@@ -282,6 +282,7 @@ std::vector<Log> kinova_status_openapi::StopSaving(std::vector<std::string>  & t
 				DataStoreIt it = bookmarks[i][j];
 				while(first_index_of_seq != it){
 					index++;
+					std::cout<<index<<std::endl;
 					first_index_of_seq++;
 				}
 				std::cout<< index << " ";
