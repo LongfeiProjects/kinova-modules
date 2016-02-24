@@ -273,7 +273,7 @@ std::vector<Log> kinova_status_openapi::StopSaving(std::vector<std::string>  & t
     // analisys active_bookmarks
     seq = ContSeq(this->active_bookmarks);
     // DEBUG
-		for(unsigned int i =0;i<this->bookmarks.size();i++){
+		/*for(unsigned int i =0;i<this->bookmarks.size();i++){
 			std::cout << type[i] << "  = ";
 			DataStoreIt first_index_of_seq = bookmarks[i][0];
 			std::cout << bookmarks[i].size() << std::endl;
@@ -295,12 +295,12 @@ std::vector<Log> kinova_status_openapi::StopSaving(std::vector<std::string>  & t
 		std::cout<<std::endl;
 		std::cout<<"seq"<<std::endl;
 		for(unsigned int i =0;i<seq.size();i++)
-			std::cout<< seq[i].first << " " << seq[i].second<< std::endl;
+			std::cout<< seq[i].first << " " << seq[i].second<< std::endl;*/
     //---
 
 	for(unsigned int i =0;i<type.size();i++){
 		if(type[i].compare("comp_t")==0){
-			Log app_tot;
+			/*Log app_tot;
 			State time_displacement(1);
 			time_displacement[0]=0;
 			for(unsigned int j = 0;j<seq.size();j++){
@@ -316,7 +316,7 @@ std::vector<Log> kinova_status_openapi::StopSaving(std::vector<std::string>  & t
 				app_tot.insert(app_tot.end(), app.begin(), app.end());
 				time_displacement = app.back(); // here i acquire the last time of first sequence after correction;
 			}
-			result.push_back(app_tot);
+			result.push_back(app_tot);*/
 		}else if(type[i].compare("j_pos") == 0){
 			Log app_tot;
 			for(unsigned int j = 0;j<seq.size();j++){
