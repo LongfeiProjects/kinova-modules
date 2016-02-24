@@ -182,9 +182,6 @@ void kinova_status_openapi::StartSaving(std::vector<std::string>  & type){
 	}
     std::cout<<"starting saving"<<std::endl;
 	if(first_write.load(boost::memory_order_acquire)){
-		// stop the reading thread
-		this->running.store(false,boost::memory_order_release);
-		this->reader_stats->join();
 		for(unsigned int i =0;i<type.size();i++){
             DataStoreIt app;
 			if(type[i].compare("comp_t")==0){
@@ -214,9 +211,6 @@ void kinova_status_openapi::StartSaving(std::vector<std::string>  & type){
 			}
 			this->bookmarks[i].push_back(app);
 		}
-		// reactivate the reading thread
-		this->running.store(true,boost::memory_order_release);
-		this->reader_stats = new boost::thread(boost::bind(&kinova_status_openapi::Reading,this));
 		this->active_bookmarks.push_back(1);
 		this->already_saving = true;
 	 }
