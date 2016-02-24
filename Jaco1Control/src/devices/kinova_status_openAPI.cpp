@@ -266,8 +266,8 @@ std::vector<Log> kinova_status_openapi::StopSaving(std::vector<std::string>  & t
 	std::vector<Log> result;
 	std::vector<std::pair<int,int> > seq;
     // stop the reading thread
-    this->running.store(false,boost::memory_order_release);
-    this->reader_stats->join();
+    //this->running.store(false,boost::memory_order_release);
+    //this->reader_stats->join();
     // save the last positions
     this->SaveCheckPoint(type);
     // analisys active_bookmarks
@@ -368,8 +368,8 @@ std::vector<Log> kinova_status_openapi::StopSaving(std::vector<std::string>  & t
 		}
 	}
     // reactivate the reading thread
-    this->running.store(true,boost::memory_order_release);
-    this->reader_stats = new boost::thread(boost::bind(&kinova_status_openapi::Reading,this));
+    //this->running.store(true,boost::memory_order_release);
+    //this->reader_stats = new boost::thread(boost::bind(&kinova_status_openapi::Reading,this));
 	// reactivate the cleaner tasks
 	this->running_cleaner.store(true,boost::memory_order_release);
     this->garbage_collection = new boost::thread(boost::bind(&kinova_status_openapi::Cleaning,this));
