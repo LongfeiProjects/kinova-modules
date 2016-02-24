@@ -263,6 +263,7 @@ void kinova_status_openapi::DeleteCheckPoint(){
 	}
 }
 std::vector<Log> kinova_status_openapi::StopSaving(std::vector<std::string>  & type){
+
 	std::vector<Log> result;
 	std::vector<std::pair<int,int> > seq;
     // stop the reading thread
@@ -273,10 +274,17 @@ std::vector<Log> kinova_status_openapi::StopSaving(std::vector<std::string>  & t
     // analisys active_bookmarks
     seq = ContSeq(this->active_bookmarks);
     // DEBUG
+    	std::cout << "ds_comp_t =  "<<this->ds_comp_t.size()<<std::endl;
+    	std::cout << "ds_ang_pos = "<<this->ds_ang_pos.size()<<std::endl;
+    	std::cout <<"ds_hand_pos =" <<this->ds_hand_pos.size()<<std::endl;
+    	std::cout <<"ds_ang_vel =" <<this->ds_ang_vel.size()<<std::endl;
+    	std::cout <<"ds_hand_vel =" <<this->ds_hand_vel.size()<<std::endl;
+    	std::cout <<"ds_cart_pos =" <<this->ds_cart_pos.size()<<std::endl;
 		/*for(unsigned int i =0;i<this->bookmarks.size();i++){
 			std::cout << type[i] << "  = ";
 			DataStoreIt first_index_of_seq = bookmarks[i][0];
 			std::cout << bookmarks[i].size() << std::endl;
+
 			int index = 0;
 			for(unsigned int j = 1;j<this->bookmarks[i].size();j++){
 				DataStoreIt it = bookmarks[i][j];
@@ -288,14 +296,14 @@ std::vector<Log> kinova_status_openapi::StopSaving(std::vector<std::string>  & t
 				std::cout<< index << " ";
 			}
 			std::cout<<std::endl;
-		}
+		}*/
 		std::cout<<" this->active_bookmarks "<<std::endl;
 		for(unsigned int i =0;i<this->active_bookmarks.size();i++)
 			std::cout<< this->active_bookmarks[i];
 		std::cout<<std::endl;
 		std::cout<<"seq"<<std::endl;
 		for(unsigned int i =0;i<seq.size();i++)
-			std::cout<< seq[i].first << " " << seq[i].second<< std::endl;*/
+			std::cout<< seq[i].first << " " << seq[i].second<< std::endl;
     //---
 
 	for(unsigned int i =0;i<type.size();i++){

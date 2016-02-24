@@ -163,7 +163,7 @@ void driverbot::Reading(){
 			this->ReadCartesian(pos,simx_opmode_oneshot_wait);
 			first_write.store(true,boost::memory_order_release);
 		}
-		//boost::this_thread::sleep(boost::posix_time::milliseconds(5));
+		boost::this_thread::sleep(boost::posix_time::milliseconds(5));
 	}
 }
 void driverbot::StartSaving(std::vector<std::string>  & type){
