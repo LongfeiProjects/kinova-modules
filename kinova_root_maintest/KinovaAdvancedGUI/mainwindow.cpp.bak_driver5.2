@@ -1,0 +1,65 @@
+#include "mainwindow.h"
+#include "ui_mainwindow.h"
+#include <QPushButton>
+#include <QMessageBox>
+#include <QMainWindow>
+#include <QHBoxLayout>
+#include <iostream>
+
+
+using namespace std;
+MainWindow::MainWindow(QWidget *parent) :
+    QMainWindow(parent),
+    ui(new Ui::MainWindow)
+{
+    ui->setupUi(this);
+
+    QPushButton *buttonSend = ui->pushButton;
+    QObject::connect(buttonSend, SIGNAL(clicked()), this, SLOT(clickedSlot()));
+
+    this->klib = new Kinovalib();
+}
+
+
+MainWindow::~MainWindow()
+{
+    delete ui;
+}
+
+
+
+void MainWindow::clickedSlot(){
+    QMessageBox* msgBox = new QMessageBox();
+    msgBox->setWindowTitle("Hello");
+    msgBox->setText("Sending command to kinova arm"+ ((QPushButton*)sender())->text());
+    msgBox->exec();
+
+    klib->sampleSend();
+}
+
+void MainWindow::on_pushButton_2_clicked()
+{
+    ui->comoActiveDevice->clear();
+    cout << "Scan Devices..." << endl;
+    int opRes;
+    int devicesCount = klib->scanDevices(opRes);
+    if(devicesCount>0){
+        KinovaDevice* devices = klib->getScanedDevices();
+        for(int i =0;i<devicesCount;i++){
+            ui->comoActiveDevice->addItem(devices[i].SerialNumber);
+        }
+    }
+}
+
+
+void MainWindow::on_comoActiveDevice_currentTextChanged(const QString &arg1){
+     KinovaDevice* devices = klib->getScanedDevices();
+     for(int i =0;i<this->klib->getDevicesCount();i++){
+         QString qstr = QString(devices[i].SerialNumber);
+         if(QString::compare(arg1,qstr) == 0){
+             cout << "Seting "+ qstr.toStdString() + " as active device" << endl;
+            this->klib->setActiveDevice(devices[i]);
+            break;
+         }
+     }
+}
