@@ -296,18 +296,17 @@ std::vector<Log> kinova_status_openapi::StopSaving(std::vector<std::string>  & t
 				std::cout<< index << " ";
 			}
 			std::cout<<std::endl;
-		}*/
+		}
 		std::cout<<" this->active_bookmarks "<<std::endl;
 		for(unsigned int i =0;i<this->active_bookmarks.size();i++)
 			std::cout<< this->active_bookmarks[i];
 		std::cout<<std::endl;
 		std::cout<<"seq"<<std::endl;
 		for(unsigned int i =0;i<seq.size();i++)
-			std::cout<< seq[i].first << " " << seq[i].second<< std::endl;
+			std::cout<< seq[i].first << " " << seq[i].second<< std::endl;*/
     //---
 
 	for(unsigned int i =0;i<type.size();i++){
-		std::cout << "i = "<<i<<std::endl;
 		if(type[i].compare("comp_t")==0){
 			Log app_tot;
 			State time_displacement(1);
@@ -315,10 +314,12 @@ std::vector<Log> kinova_status_openapi::StopSaving(std::vector<std::string>  & t
 			for(unsigned int j = 0;j<seq.size();j++){
 				Log app(this->bookmarks[i][seq[j].first],this->bookmarks[i][seq[j].second]);
 				State correction = app[0];
-				std::cout<< correction << std::endl;
-				std::cout<<time_displacement << std::endl;
+				// DEBUG
+				//std::cout<< correction << std::endl;
+				//std::cout<<time_displacement << std::endl;
 				//for(unsigned int i=0;i<app.size();i++)
 				//	std::cout << app[i] << std::endl;
+				//----
 				for(unsigned int i =0;i<app.size();i++){
 					app[i]=(app[i]-correction) + time_displacement;
 				}
