@@ -1,0 +1,45 @@
+<RCC>
+    <qresource prefix="/imagenes">
+        <file>img/arrow_up.png</file>
+        <file>img/arrow_right.png</file>
+        <file>img/arrow_down.png</file>
+        <file>img/arrow_left.png</file>
+        <file>img/warning.png</file>
+        <file>img/ok_icon.png</file>
+        <file>img/pull_icon.png</file>
+        <file>img/push_icon.png</file>
+        <file>img/push_pull.png</file>
+        <file>img/arrow1.png</file>
+        <file>img/arrow2.png</file>
+        <file>img/closehand.png</file>
+        <file>img/openhand.png</file>
+        <file>img/homeIcon.png</file>
+        <file>img/record.png</file>
+        <file>img/stop.png</file>
+        <file>img/save.png</file>
+        <file>img/play.png</file>
+        <file>img/point.png</file>
+        <file>img/handleGrasp.png</file>
+        <file>img/graspObject.png</file>
+        <file>img/undo.png</file>
+        <file>img/config.png</file>
+        <file>img/lowStrength.png</file>
+        <file>img/low-middleStrength.png</file>
+        <file>img/middle-highStrength.png</file>
+        <file>img/highStrength.png</file>
+        <file>img/noForce.png</file>
+        <file>img/stop_hand_icon.png</file>
+        <file>img/wait.png</file>
+        <file>img/joystick.jpg</file>
+        <file>img/joystick.png</file>
+    </qresource>
+    <qresource prefix="/database">
+        <file>database/trajectoryProg.db</file>
+    </qresource>
+    <qresource prefix="/translations">
+        <file>kinovaGUI_fr.ts</file>
+        <file>kinovaGUI_en.ts</file>
+        <file>kinovaGUI_fr.qm</file>
+        <file>kinovaGUI_en.qm</file>
+    </qresource>
+</RCC>
