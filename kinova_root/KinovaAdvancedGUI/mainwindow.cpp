@@ -500,7 +500,9 @@ void MainWindow::on_homeButton_clicked()
     if(KINOVA_LIB==1){
         if(this->canMove()){
             cout<<"before moving home" <<endl;
-            this->bot->MoveHome();
+            State s = this->getStateHomePosition();
+            this->bot->SendCommand(s,11); //move arm and hand using cartesian position
+            //this->bot->MoveHome();
             cout<<"ater moving home" <<endl;
         }else{
             this->penalizeMovement();
@@ -920,10 +922,9 @@ void MainWindow::on_initKinovaButton_clicked()
                 moveFingers[3] = 0;
                 moveFingers[4] = 0;
                 moveFingers[5] = 0;
-                moveFingers[6] = 0;
+                moveFingers[6] = 1.0;
                 moveFingers[7] = 1.0;
                 moveFingers[8] = 1.0;
-                moveFingers[9] = 1.0;
                 for(int i=0;i<10;i++){
                     this->bot->SendCommand(moveFingers,17);
                 }
@@ -1369,6 +1370,21 @@ void MainWindow::setActualPosition(){
             msgBox->exec();
         }
     }
+}
+
+
+State MainWindow::getStateHomePosition(){
+    State home(9);
+    home[0] = 0.212908;
+    home[1] = -0.272592;
+    home[2] = 0.491582;
+    home[3] = 1.53055;
+    home[4] = 1.05641;
+    home[5] = 0.0560685;
+    home[6] = 0;
+    home[7] = 0;
+    home[8] = 0;
+    return home;
 }
 
 void MainWindow::setHandPull(){

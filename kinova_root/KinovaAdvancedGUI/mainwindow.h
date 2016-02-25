@@ -177,6 +177,7 @@ private:
     bool violatingBoundingBox;
     bool warningBoundingBox;
     void penalizeMovement();
+    State getStateHomePosition();
 private slots:
 
     void on_homeButton_clicked();
