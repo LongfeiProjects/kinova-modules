@@ -1273,6 +1273,7 @@ void MainWindow::stopRecordingBlock(string blockname){
         cout << "after stoping" << endl;
 
         writeLogFiles(recordedLogs, blockname);
+        this->isRecordingTrajecory = false;
     }
 }
 
